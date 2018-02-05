@@ -1,0 +1,357 @@
+{
+    "_type": "diagram", 
+    "elements": {
+        "2": {
+            "_type": "element", 
+            "class": "ImageLoader", 
+            "gui_options": {
+                "position": [
+                    3865, 
+                    4380
+                ], 
+                "preview_size": 389.6785230562091, 
+                "show_parameters": true, 
+                "show_preview": true, 
+                "show_sliders": null
+            }, 
+            "module": "cvlab.diagram.elements.image_io", 
+            "parameters": {
+                "path": "images/lena.jpg"
+            }, 
+            "unique_id": "960511"
+        }, 
+        "3": {
+            "_type": "element", 
+            "class": "ColorspaceExtractor", 
+            "gui_options": {
+                "position": [
+                    4320, 
+                    4380
+                ], 
+                "preview_size": 120, 
+                "show_parameters": true, 
+                "show_preview": true, 
+                "show_sliders": null
+            }, 
+            "module": "cvlab.diagram.elements.data_types", 
+            "parameters": {}, 
+            "unique_id": "961975"
+        }, 
+        "8": {
+            "_type": "element", 
+            "class": "OpenCVCanny", 
+            "gui_options": {
+                "position": [
+                    4620, 
+                    4380
+                ], 
+                "preview_size": 120, 
+                "show_parameters": true, 
+                "show_preview": true, 
+                "show_sliders": true
+            }, 
+            "module": "cvlab.diagram.elements.edges", 
+            "parameters": {
+                "thr1": 75, 
+                "thr2": 205
+            }, 
+            "unique_id": "315644"
+        }, 
+        "11": {
+            "_type": "element", 
+            "class": "OpenCVMorphologyEx", 
+            "gui_options": {
+                "position": [
+                    5060, 
+                    4380
+                ], 
+                "preview_size": 120, 
+                "show_parameters": true, 
+                "show_preview": true, 
+                "show_sliders": false
+            }, 
+            "module": "cvlab.diagram.elements.filters", 
+            "parameters": {
+                "element size": 5, 
+                "element type": 0, 
+                "iterations": 1, 
+                "operation": 2
+            }, 
+            "unique_id": "421948"
+        }, 
+        "12": {
+            "_type": "element", 
+            "class": "OpenCVMorphologyEx", 
+            "gui_options": {
+                "position": [
+                    5060, 
+                    4800
+                ], 
+                "preview_size": 120, 
+                "show_parameters": true, 
+                "show_preview": true, 
+                "show_sliders": false
+            }, 
+            "module": "cvlab.diagram.elements.filters", 
+            "parameters": {
+                "element size": 5, 
+                "element type": 0, 
+                "iterations": 1, 
+                "operation": 2
+            }, 
+            "unique_id": "047556"
+        }, 
+        "13": {
+            "_type": "element", 
+            "class": "OpenCVMorphologyEx", 
+            "gui_options": {
+                "position": [
+                    5060, 
+                    5220
+                ], 
+                "preview_size": 120, 
+                "show_parameters": true, 
+                "show_preview": true, 
+                "show_sliders": false
+            }, 
+            "module": "cvlab.diagram.elements.filters", 
+            "parameters": {
+                "element size": 5, 
+                "element type": 0, 
+                "iterations": 1, 
+                "operation": 2
+            }, 
+            "unique_id": "287958"
+        }, 
+        "14": {
+            "_type": "element", 
+            "class": "OpenCVCanny", 
+            "gui_options": {
+                "position": [
+                    4620, 
+                    5220
+                ], 
+                "preview_size": 120, 
+                "show_parameters": true, 
+                "show_preview": true, 
+                "show_sliders": true
+            }, 
+            "module": "cvlab.diagram.elements.edges", 
+            "parameters": {
+                "thr1": 75, 
+                "thr2": 205
+            }, 
+            "unique_id": "596016"
+        }, 
+        "15": {
+            "_type": "element", 
+            "class": "OpenCVCanny", 
+            "gui_options": {
+                "position": [
+                    4620, 
+                    4800
+                ], 
+                "preview_size": 135.0, 
+                "show_parameters": true, 
+                "show_preview": true, 
+                "show_sliders": true
+            }, 
+            "module": "cvlab.diagram.elements.edges", 
+            "parameters": {
+                "thr1": 75, 
+                "thr2": 205
+            }, 
+            "unique_id": "923166"
+        }, 
+        "23": {
+            "_type": "element", 
+            "class": "MinOperator", 
+            "gui_options": {
+                "position": [
+                    5640, 
+                    4800
+                ], 
+                "preview_size": 389.6785230562091, 
+                "show_parameters": true, 
+                "show_preview": true, 
+                "show_sliders": null
+            }, 
+            "module": "cvlab.diagram.elements.operators", 
+            "parameters": {}, 
+            "unique_id": "733541"
+        }
+    }, 
+    "params": [
+        {
+            "from": 1, 
+            "to": 17
+        }, 
+        {
+            "from": 17, 
+            "to": 1
+        }, 
+        {
+            "from": 17, 
+            "to": 15
+        }, 
+        {
+            "from": 16, 
+            "to": 18
+        }, 
+        {
+            "from": 11, 
+            "to": 7
+        }, 
+        {
+            "from": 15, 
+            "to": 17
+        }, 
+        {
+            "from": 7, 
+            "to": 11
+        }, 
+        {
+            "from": 7, 
+            "to": 3
+        }, 
+        {
+            "from": 4, 
+            "to": 8
+        }, 
+        {
+            "from": 8, 
+            "to": 12
+        }, 
+        {
+            "from": 8, 
+            "to": 4
+        }, 
+        {
+            "from": 14, 
+            "to": 10
+        }, 
+        {
+            "from": 2, 
+            "to": 18
+        }, 
+        {
+            "from": 12, 
+            "to": 8
+        }, 
+        {
+            "from": 18, 
+            "to": 2
+        }, 
+        {
+            "from": 18, 
+            "to": 16
+        }, 
+        {
+            "from": 5, 
+            "to": 9
+        }, 
+        {
+            "from": 3, 
+            "to": 7
+        }, 
+        {
+            "from": 13, 
+            "to": 9
+        }, 
+        {
+            "from": 10, 
+            "to": 6
+        }, 
+        {
+            "from": 10, 
+            "to": 14
+        }, 
+        {
+            "from": 6, 
+            "to": 10
+        }, 
+        {
+            "from": 9, 
+            "to": 5
+        }, 
+        {
+            "from": 9, 
+            "to": 13
+        }
+    ], 
+    "wires": {
+        "0": {
+            "from_element": 2, 
+            "from_output": "output", 
+            "to_element": 3, 
+            "to_input": "input"
+        }, 
+        "1": {
+            "from_element": 3, 
+            "from_output": "R", 
+            "to_element": 8, 
+            "to_input": "input"
+        }, 
+        "2": {
+            "from_element": 3, 
+            "from_output": "G", 
+            "to_element": 15, 
+            "to_input": "input"
+        }, 
+        "3": {
+            "from_element": 3, 
+            "from_output": "B", 
+            "to_element": 14, 
+            "to_input": "input"
+        }, 
+        "4": {
+            "from_element": 8, 
+            "from_output": "output", 
+            "to_element": 11, 
+            "to_input": "input"
+        }, 
+        "5": {
+            "from_element": 8, 
+            "from_output": "output", 
+            "to_element": 12, 
+            "to_input": "input"
+        }, 
+        "6": {
+            "from_element": 15, 
+            "from_output": "output", 
+            "to_element": 12, 
+            "to_input": "input"
+        }, 
+        "7": {
+            "from_element": 15, 
+            "from_output": "output", 
+            "to_element": 13, 
+            "to_input": "input"
+        }, 
+        "8": {
+            "from_element": 14, 
+            "from_output": "output", 
+            "to_element": 13, 
+            "to_input": "input"
+        }, 
+        "9": {
+            "from_element": 11, 
+            "from_output": "output", 
+            "to_element": 23, 
+            "to_input": "inputs"
+        }, 
+        "10": {
+            "from_element": 12, 
+            "from_output": "output", 
+            "to_element": 23, 
+            "to_input": "inputs"
+        }, 
+        "11": {
+            "from_element": 13, 
+            "from_output": "output", 
+            "to_element": 23, 
+            "to_input": "inputs"
+        }
+    }, 
+    "zoom_level": 1.0
+}

@@ -1,0 +1,342 @@
+/******************************************************************************
+* This software and source code is proprietary and confidential.
+* 
+* Unauthorized using, copying, distributing, sharing or modifying of this file,
+* via any medium and for any purpose is strictly prohibited.
+* 
+* Authors & rights owners:
+* 
+* Adam Brzeski <brzeski@eti.pg.gda.pl>
+* Jan Cychnerski <jan.cychnerski@eti.pg.gda.pl>
+* 
+* Copyright (C) 2013-2016 All Rights Reserved
+******************************************************************************/
+
+QWidget
+{
+    font-family: calibri, carlito;
+}
+
+/*** Elements ***/
+
+QWidget#Element
+{
+    border-style: solid;
+    border-width: 2px;
+    border-radius: 3px;
+}
+
+QLabel#PathParameterName
+{
+     margin-top: 5;
+}
+
+QLineEdit#PathParameterValue
+{
+    width: 78;
+    margin-top: 3;
+}
+
+QPushButton#PathParameterButton
+{
+    padding: 2;
+    padding-bottom: 1
+}
+
+QWidget#InOutButton
+{
+    margin: 0;
+    border-style: solid;
+    border-width: 1px;
+    border-radius: 2px;
+    min-width: 14;
+    max-width: 14;
+    min-height: 14;
+    max-height: 14;
+}
+
+QLabel#ElementLabel
+{
+    qproperty-alignment:    AlignLeft;
+    font-weight:    bold;
+    padding: 5px;
+    padding-bottom: 6px;
+    padding-left: 20px;
+    padding-right: 20px;
+    border-top-left-radius: 1px;
+    border-top-right-radius: 1px;
+    border-bottom: 1px dotted gray;
+}
+
+QLabel#ElementStatusLabel
+{
+    font-size: 10px;
+}
+
+QLabel#OutputPreview
+{
+    font-size: 10px;
+    padding-top: 6;
+    padding-bottom: 4;
+}
+
+QWidget#OutputsPreview
+{
+    border-top: 1px dotted gray;
+}
+
+/* PushButton */
+QPushButton {
+    border: 1px solid;
+    border-radius: 3px;
+    padding: 2px;
+    padding-left: 3px;
+    padding-right: 3px;
+    font-size: 12px;
+    height: 15;
+    width: 12;
+    margin-top: 1;  /* to align with combobox */
+}
+
+/* SpinBox params */
+QSpinBox, QDoubleSpinBox
+{
+    border: 1px solid;
+    border-radius: 3px;
+    qproperty-alignment: AlignRight;
+    padding-right: 2px;
+}
+QSpinBox::up-button, QSpinBox::down-button, QDoubleSpinBox::up-button, QDoubleSpinBox::down-button
+{
+    height: 4;
+    width: 10;
+    padding: 3px;
+    background: transparent;
+}
+QSpinBox::up-arrow, QDoubleSpinBox::up-arrow
+{
+    width: 4px;
+    height: 4px;
+}
+QSpinBox::down-arrow, QDoubleSpinBox::down-arrow
+{
+    width: 4px;
+    height: 4px;
+}
+
+/* Combobox */
+QComboBox, QWidget#Element QLineEdit
+{
+    border: 1px solid;
+    border-radius: 2;
+    padding: 2px;
+    padding-left: 5px;
+    padding-right: 5px;
+    font-size: 12px;
+    height: 14;
+    combobox-popup: 0;  /* Seems to be required on Linux to prevent strange combobox popup lists */
+}
+QComboBox::drop-down
+{
+    subcontrol-origin: padding;
+    subcontrol-position: center right;
+    width: 7;
+    padding: 3px;
+    background: transparent;
+}
+QComboBox::down-arrow
+{
+    width: 4px;
+    height: 4px;
+}
+
+
+/*** Dialogs ***/
+
+QDialog#CodeDialog QLabel, QDialog#CodeDialog QPlainTextEdit
+{
+    font-family: "Lucida Console", Monaco, monospace;
+}
+
+QDialog#CodeDialog QPlainTextEdit
+{
+    qproperty-lineWrapMode: NoWrap;
+}
+
+/*** Toolbox ***/
+
+QWidget#Toolbox
+{
+    border: 2px solid;
+}
+
+QLabel#ToolboxTitle
+{
+    padding: 8px;
+    border-bottom: 2 solid;
+    margin: 2px;
+    font: bold;
+    text-transform: uppercase;
+}
+
+/* Search box */
+QLineEdit
+{
+    padding: 1px;
+    padding-left: 6px;
+    border-style: solid;
+    border: 1px solid;
+    border-radius: 10;
+    margin: 3px;
+    margin-left: 5px;
+    margin-right: 5px;
+}
+
+QTreeView#ToolboxTree
+{
+    border: 0;
+    margin-right: 2px
+}
+
+/* Toolbox items */
+QTreeView#ToolboxTree:item
+{
+    padding: 6;
+    border-bottom: 1px dotted gray;
+}
+
+/* Toolbox items */
+QTreeView#ToolboxTree:item:hover, QTreeView#ToolboxTree:item:selected
+{
+    border: 3px solid;
+    border-top-left-radius:10;
+    border-top-right-radius:10;
+}
+
+/* Toolbox tree interior */
+QAbstractItemView
+{
+    background-color: transparent;
+    margin-left: 10;
+    margin-right: 10;
+}
+
+/*** Scrollbars ***/
+
+QScrollBar
+{
+    margin: 0;
+    background: transparent;
+}
+
+QScrollBar:horizontal
+{
+     height: 12px;
+}
+
+QScrollBar:vertical
+{
+      width: 12px;
+}
+
+QScrollBar::handle
+{
+    border-radius: 2px;
+    min-height: 20px;
+    min-width: 20px;
+}
+
+/* Hide slider buttons */
+QScrollBar::add-line:vertical, QScrollBar::sub-line:vertical, QScrollBar::add-line:horizontal, QScrollBar::sub-line:horizontal
+{
+    border: none;
+    background: none;
+}
+
+/* Make slider transparent */
+QScrollBar::add-page:vertical, QScrollBar::sub-page:vertical, QScrollBar::add-page:horizontal, QScrollBar::sub-page:horizontal
+{
+    background: none;
+}
+
+
+/*** Workarea ***/
+
+QScrollArea#ScrolledWorkArea
+{
+    border: 0;
+    background: transparent;
+}
+
+/* Actual workarea border */
+QTabWidget::pane {
+    border-top: 2px solid;
+    border-right: 2px solid;
+    border-bottom: 2px solid;
+}
+
+
+/*** Tabs ***/
+
+QTabBar::tab {
+    border-top: 2px solid;
+    border-right: 2px solid;
+    padding-left: 20px;
+    padding-right: 20px;
+    padding-top: 8px;
+    padding-bottom: 8px;
+    margin-right: 0px;
+}
+
+QTabBar::tab:selected
+{
+    background: transparent;
+}
+
+
+/*** Menu ***/
+
+QMenuBar
+{
+    background: transparent;
+}
+
+QMenuBar::item
+{
+    background: transparent;
+    padding: 5px;
+}
+
+QMenu::item
+{
+    padding: 6px 20px 9px 50px;
+}
+
+QMenu::indicator
+{
+    height: 10px;
+    width: 10px;
+    margin: 14px;
+    border: 3px solid;
+    border-radius: 3px;
+}
+
+
+/*** Wires (CVLab-specific pseudo-css syntax) ***/
+
+Wire
+{
+    /* Connector icons of the wire */
+    start-square-size: 6px;
+    end-arrow-width: 9px;
+    end-arrow-height: 10px;
+    end-arrow-move-to-left: 5px;
+
+    /* Lines of the wire */
+    pen-regular-color: darkgray;
+    pen-regular-size: 2px;
+    pen-selected-color: #3a7ded;
+    pen-selected-size: 2px;
+    pen-selected-bg-color: #bad4ed;
+    pen-selected-bg-size: 8px
+}
