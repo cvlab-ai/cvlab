@@ -93,13 +93,12 @@ class InOutConnector(StyledWidget):
         super(InOutConnector, self).paintEvent(e)
         painter = QtGui.QPainter(self)
         painter.setRenderHint(QtGui.QPainter.Antialiasing, True)
-        wire_tools = self.workarea.wire_tools
         if not self.is_input and len(self.io_handle.connected_to):
             pen, point = self.prepare_drawing_details()
-            wire_tools.draw_start_symbol(painter, point, pen)
+            self.workarea.wire_tools.draw_start_symbol(painter, point, pen)
         if self.is_input and len(self.io_handle.connected_from):
             pen, point = self.prepare_drawing_details()
-            wire_tools.draw_end_symbol(painter, point, pen)
+            self.workarea.wire_tools.draw_end_symbol(painter, point, pen)
 
     def prepare_drawing_details(self):
         wire_tools = self.workarea.wire_tools
