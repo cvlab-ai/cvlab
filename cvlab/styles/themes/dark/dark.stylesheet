@@ -83,11 +83,11 @@ QSpinBox, QDoubleSpinBox
 }
 QSpinBox::up-arrow, QDoubleSpinBox::up-arrow
 {
-    border-image: url(styles/themes/darkorange/up.png);
+    border-image: url(styles/themes/dark/up.png);
 }
 QSpinBox::down-arrow, QDoubleSpinBox::down-arrow
 {
-    border-image: url(styles/themes/darkorange/down.png);
+    border-image: url(styles/themes/dark/down.png);
 }
 
 /* Combobox */
@@ -98,7 +98,7 @@ QComboBox, QWidget#Element QLineEdit
 }
 QComboBox::down-arrow
 {
-    border-image: url(styles/themes/darkorange/down.png);
+    border-image: url(styles/themes/dark/down.png);
 }
 
 
