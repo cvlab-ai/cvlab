@@ -2,6 +2,8 @@
 
 from __future__ import unicode_literals, print_function
 
+import math
+
 from .base import *
 
 
@@ -28,9 +30,9 @@ class GetGaborKernel(InputElement):
                [
                     IntParameter("ksize", "ksize", 1, min_=1, max_=255, step=2),
                     FloatParameter("sigma", "sigma", 0.0, min_=0.0, max_=100.0),
-                    FloatParameter("theta", "theta", 0.0, min_=0.0, max_=cv.cv.CV_PI, step=0.01),
+                    FloatParameter("theta", "theta", 0.0, min_=0.0, max_=math.pi, step=0.01),
                     FloatParameter("lambda", "lambda", 0.0, min_=0.0, max_=100.0),
-                    FloatParameter("gamma", "gamma", cv.cv.CV_PI * 0.5, min_=0.0, max_=100.0, step=0.1),
+                    FloatParameter("gamma", "gamma", math.pi * 0.5, min_=0.0, max_=100.0, step=0.1),
                     FloatParameter("psi", "psi", 0.0, min_=0.0, max_=100.0),
                     ComboboxParameter("ktype", values={
                         "CV_64F": cv.CV_64F,
