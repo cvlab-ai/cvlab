@@ -98,4 +98,30 @@ class OpenCVErode(NormalElement):
         outputs["output"] = Data(image)
 
 
+class OpenCVGetStructuringElement(InputElement):
+    name = "Structuring Element"
+    comment = "Returns structuring element"
+
+    def get_attributes(self):
+        return [], \
+               [Output("output")], \
+               [
+                    ComboboxParameter("Element type", values=OrderedDict([
+                        ("MORPH_RECT", cv.MORPH_RECT),
+                        ("MORPH_ELLIPSE", cv.MORPH_ELLIPSE),
+                        ("MORPH_CROSS", cv.MORPH_CROSS)
+                    ])),
+                    IntParameter("x element size", "Width of structuring element", 5, min_=1, max_=255, step=1),
+                    IntParameter("y element size", "Height of structuring element", 5, min_=1, max_=255, step=1),
+               ]
+
+    def process_inputs(self, inputs, outputs, parameters):
+        element_type = parameters["Element type"]
+        x_element_size = parameters["x element size"]
+        y_element_size = parameters["y element size"]
+
+        element = cv.getStructuringElement(element_type, (x_element_size, y_element_size))
+        outputs["output"] = Data(element)
+
+
 register_elements_auto(__name__, locals(), "Basic filters", 5)
