@@ -1,4 +1,8 @@
-CV Lab - Computer Vision Laboratory - GUI for computer vision algorithm design, prototyping and implementation
+CV Lab - Computer Vision Laboratory - a rapid prototyping tool for computer vision algorithms
+
+<a href="https://drive.google.com/uc?export=download&id=15G4UPlZWxftl5pN53kN1co1yP02lZBGh">
+<img align="right" height="220" src="https://drive.google.com/uc?export=download&id=15G4UPlZWxftl5pN53kN1co1yP02lZBGh">
+</a>
 
 - [INSTALLATION](#installation)
 - [DESCRIPTION](#description)
@@ -17,22 +21,21 @@ Or for Python 3:
 
     pip3 install --upgrade cvlab
 
-This command will install CV Lab (or update if you have already installed it). See the [PyPI page](https://pypi.python.org/pypi/cv-lab) for more information.
+This command will install CV Lab (or update if you have already installed it). See the [PyPI page](https://pypi.python.org/pypi/cvlab) for more information.
 
 Alternatively you can clone entire git repository:
 
-    git clone https://github.com/cvlab-ai/cvlab.git
 
 CV Lab requires: `PyQt4`, `OpenCV`, `numpy`, `scipy`, `pygments`, `future`, `tinycss2`.
 
 # DESCRIPTION
 
-**CV Lab** - Computer Vision Laboratory - is a graphical tool....................
+CV Lab enables convenient development of computer vision algorithms by means of graphical designing of the processing flow. Writing code with OpenCV might be a time-consuming process. It is often required to compile and run the code multiple times in order to see the results of the modifications of the algorithm. Especially when some parameters are to be tuned for establishing the optimal values. Some code also has to be added to provide presentation of the intermediate or final results of the algorithm.
+
+Instead, CV Lab offers interactive construction of the algorithms. OpenCV functions are available in a form of a palette of image processing blocks. They can be drag'n'dropped into a diagram and connected to each other for defining the data flow. Outputs of the functions in the diagram can be previewed. Parameters are available as convenient widgets like sliders or spinners. Therefore, any change in the diagram or parameter values can be instantly observed in the selected previews.
 
 **Homepage** on GitHub: https://github.com/cvlab-ai/cvlab
-
 **PyPI** package: https://pypi.python.org/pypi/cvlab
-
     
 # USAGE
 

@@ -15,8 +15,7 @@ from ..version import package_name, __version__
 
 
 class Updater(object):
-    # pypi_url = 'https://pypi.python.org/pypi'
-    pypi_url = 'https://test.pypi.org/pypi'
+    pypi_url = 'https://pypi.python.org/pypi'
 
     def check(self):
         act_version = parse_version(__version__)
