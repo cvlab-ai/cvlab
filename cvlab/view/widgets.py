@@ -9,10 +9,10 @@ from distutils.util import strtobool
 import cv2
 from PyQt4 import QtGui, QtCore
 
-from . import image_preview
 from ..diagram.interface import *
-from . import config
 from .mimedata import *
+from . import image_preview
+from . import config
 
 ALLOW_UPSIZE = True
 
@@ -284,7 +284,7 @@ class ActionImage(QtGui.QLabel):
             pass
             # self.setPixmap(self.image_preview.default_image)  # todo: na pewno to chcemy? moze to nam opozniac interfejs!
         elif isinstance(arr, np.ndarray):
-            qpix = array_to_pixmap(arr)
+            qpix = image_preview.array_to_pixmap(arr)
             qpix_scaled = self.scale_pixmap(qpix)
             self.setPixmap(qpix_scaled)
             if self.image_dialog is not None:
@@ -399,10 +399,10 @@ class NumberOutputHelper:
         true_ = np.ones((11, 11, 4), dtype=np.uint8) * 255
         cv2.line(true_, (5, 3), (5, 7), color=(0, 0, 0, 255))
         cv2.line(true_, (4, 4), (4, 4), color=(0, 0, 0, 255))
-        self.true_ = array_to_pixmap(true_)
+        self.true_ = image_preview.array_to_pixmap(true_)
         false_ = np.zeros((11, 11, 4), dtype=np.uint8) + np.array([0, 0, 0, 255], dtype=np.uint8)
         cv2.rectangle(false_, (4, 3), (6, 7), color=(255, 255, 255, 255), thickness=1)
-        self.false_ = array_to_pixmap(false_)
+        self.false_ = image_preview.array_to_pixmap(false_)
 
     def get_output(self, value):
         if isinstance(value, bool):
@@ -478,15 +478,3 @@ class ElementStatusBar(QtGui.QWidget):
         if not hasattr(self, "element"): return  # fixme: tymczasowy hack, bo leci w tym miejscu wyjątek, nie wiem czemu!
         self.element.state_notified = False  # todo: this must be called by all slots connected to self.element.state_changed
         self.set_status(self.element.message)
-
-
-def array_to_pixmap(arr):
-    arr = arr.astype(np.uint8)
-    if len(arr.shape) == 2 or (len(arr.shape) == 3 and arr.shape[2] == 1):
-        bgra = cv.cvtColor(arr, cv.COLOR_GRAY2BGRA)
-    elif len(arr.shape) == 3 and arr.shape[2] == 3:
-        bgra = cv.cvtColor(arr, cv.COLOR_BGR2BGRA)
-    else:
-        bgra = arr
-    image = QtGui.QImage(bgra.data, bgra.shape[1], bgra.shape[0], QtGui.QImage.Format_ARGB32)
-    return QtGui.QPixmap.fromImage(image)
