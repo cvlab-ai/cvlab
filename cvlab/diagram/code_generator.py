@@ -290,7 +290,7 @@ class CodeGenerator(object):
         self.elem_cnt += 1
         element_name = element.__class__.__name__.lower() + str(self.elem_cnt)
         func_name, func_code, input_names = element.get_source()
-        self.inputs.update(["{element_name}_{input_name}".format(**locals()) for input_name in input_names])
+        self.inputs.update(["{element_name}_{input_name}".format(element_name=element_name, input_name=input_name) for input_name in input_names])
         if func_code:
             self.functions[func_code] = func_name
         if element is self.base_element:
@@ -317,7 +317,7 @@ class CodeGenerator(object):
 {func_name}({inputs}, {element_name}, {params})
 """.format(**locals())
         else:
-            inputs = "{" + ",".join(['"{output_name}":{element_name}_{output_name}'.format(**locals()) for output_name in input_names]) + "}"
+            inputs = "{" + ",".join(['"{output_name}":{element_name}_{output_name}'.format(output_name=output_name, element_name=element_name) for output_name in input_names]) + "}"
             self.code += "{element_name} = {inputs}\n".format(**locals())
 
         return element_name
