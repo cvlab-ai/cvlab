@@ -10,7 +10,7 @@ from setuptools import find_packages
 from glob import glob
 
 
-data_files = glob("cvlab/images/*")+glob("cvlab/styles/*/*.*")
+data_files = glob("cvlab/images/*.*")+glob("cvlab/styles/*/*.*")+glob("cvlab/styles/*/*/*.*")
 data_files = list(map(lambda x:x[6:], data_files))
 
 is_python2 = sys.version_info.major == 2
