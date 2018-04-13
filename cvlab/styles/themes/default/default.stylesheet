@@ -1,0 +1,190 @@
+/******************************************************************************
+* This software and source code is proprietary and confidential.
+*
+* Unauthorized using, copying, distributing, sharing or modifying of this file,
+* via any medium and for any purpose is strictly prohibited.
+*
+* Authors & rights owners:
+*
+* Adam Brzeski <brzeski@eti.pg.gda.pl>
+* Jan Cychnerski <jan.cychnerski@eti.pg.gda.pl>
+*
+* Copyright (C) 2013-2016 All Rights Reserved
+******************************************************************************/
+
+QMainWindow
+{
+    background-color:   #e4e4e4;
+}
+
+QScrollArea#ScrolledWorkArea
+{
+    background-image: url(styles/themes/default/background.png);
+}
+
+QWidget#WorkArea
+{
+    background: transparent;
+}
+
+/*** Elements ***/
+
+QWidget#Element
+{
+    background-color:   #e4e4e4;
+    border-color: darkgray;
+}
+
+QWidget#Element:hover
+{
+    border-color: #7a94ad;
+}
+
+QWidget#Element[selected=true]
+{
+    background-color:   #bad4ed;
+}
+
+QWidget#InOutButton
+{
+    background-color:   white;
+    border-color: #909090
+}
+
+QLabel#ElementStatusLabel
+{
+    color:  gray;
+}
+
+QLabel#OutputPreview
+{
+    color:  gray;
+}
+
+/* PushButton params */
+QPushButton {
+    background: #fafafa;
+    border-color: darkgray;
+}
+
+/* SpinBox params */
+QSpinBox, QDoubleSpinBox
+{
+    background: #fafafa;
+    border-color: darkgray;
+}
+QSpinBox::up-arrow, QDoubleSpinBox::up-arrow
+{
+    border-image: url(styles/themes/default/up.png);
+}
+QSpinBox::down-arrow, QDoubleSpinBox::down-arrow
+{
+    border-image: url(styles/themes/default/down.png);
+}
+
+/* Combobox */
+QComboBox, QWidget#Element QLineEdit
+{
+    background: #fafafa;
+    border-color: darkgray;
+}
+QComboBox::down-arrow
+{
+    border-image: url(styles/themes/default/down.png);
+}
+
+/*** Toolbox ***/
+
+QWidget#Toolbox
+{
+    border-color: darkgray;
+    background-color: #f5f5f5;
+}
+
+QLabel#ToolboxTitle
+{
+    border-color: darkgray;
+    background-color: lightgray;
+}
+
+/* Search box */
+QLineEdit
+{
+    background-color: white;
+    border-color: lightgray;
+}
+
+/* Toolbox items */
+QTreeView#ToolboxTree:item:hover, QTreeView#ToolboxTree:item:selected
+{
+    background-color: #ffa02f;
+    /*background-color: #90c8f6;*/
+    border-color: #646464;
+}
+
+/* Scrollbar */
+
+QWidget#Toolbox QScrollBar
+{
+     background: #e4e4e4;
+}
+
+QWidget#Toolbox QScrollBar::handle
+{
+     background: #d9d9d9;
+}
+
+
+/*** Workarea ***/
+
+/* Actual workarea border */
+QTabWidget::pane {
+    border-color: darkgray;
+}
+
+/* Scrollbars */
+QScrollBar::handle
+{
+     background: #b9b9b9;
+}
+
+/*** Tabs ***/
+
+QTabBar::tab {
+    color: black;
+    border-top-color: darkgray;
+    border-right-color: darkgray;
+    background-color: lightgray;
+}
+
+QTabBar::tab:hover
+{
+    /*background-color: QLinearGradient(x1:0, y1:0, x2:0, y2:1, stop:1 #212121, stop:0.4 #343434, stop:0.2 #343434, stop:0.1 #ffaa00);*/
+    background: #ffa02f;
+    color: black;
+}
+
+
+/*** Menu ***/
+
+QMenuBar::item:pressed
+{
+    background-color: #bad4ed;
+    color: #000000;
+}
+
+QMenu::indicator
+{
+    border-color: #b1b1b1;
+}
+
+QMenu::indicator::checked
+{
+    background-color: #4073b2;
+}
+
+QMenu::item:selected
+{
+    background-color: #bad4ed;
+    color: #000000;
+}
