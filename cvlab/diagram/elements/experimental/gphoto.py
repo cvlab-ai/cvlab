@@ -8,6 +8,7 @@ class DSLR(ProcessElement):
     name = "DSLR Camera"
     comment = "DSLR Camera photo capture"
 
+    lock = Lock()
     command = "cd /tmp; killall gvfsd-gphoto2; killall gvfs-gphoto2-volume-monitor; gphoto2 --capture-image-and-download --force-overwrite --filename={outputs}"
 
     def get_attributes(self):
@@ -21,7 +22,8 @@ class DSLR(ProcessElement):
         return units, outputs
 
     def process_inputs(self, inputs, outputs, parameters):
-        image = self.run_command([], 1)
+        with self.lock:
+            image = self.run_command([], 1)
         outputs["output"] = ImageData(image)
 
     def capture(self):
