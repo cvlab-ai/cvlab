@@ -38,6 +38,7 @@ try:
     import cv2
     if str(cv2.__version__) < "3":
         print("WARNING! OpenCV version 2.x detected. It is *strongly advised* to install OpenCV 3.x")
+        print("Please visit: https://opencv.org/releases.html")
 except ImportError:
     print("ERROR! OpenCV is required. Trying to use python-opencv package...")
     print("If it doesn't work, please visit: https://opencv.org/releases.html")
