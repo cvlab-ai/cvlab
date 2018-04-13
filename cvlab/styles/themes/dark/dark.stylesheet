@@ -131,6 +131,13 @@ QTreeView#ToolboxTree:item:hover, QTreeView#ToolboxTree:item:selected
 }
 
 /* Scrollbar */
+
+QWidget#Toolbox QScrollBar
+{
+     background: #323232;
+}
+
+
 QWidget#Toolbox QScrollBar::handle
 {
     background: #252525;
