@@ -23,3 +23,7 @@ def main(*args, **kwargs):
     main_window = MainWindow(app)
     ret_code = app.exec_()
     return ret_code
+
+
+if __name__ == '__main__':
+    main()
