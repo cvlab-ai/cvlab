@@ -47,10 +47,10 @@ class GaussianBlur3D(NormalElement):
             self.may_interrupt()
             cv.GaussianBlur(z, (kernel, kernel), sigmaX, z, sigmaY, borderType)
 
-        for x, y in itertools.product(range(image.shape[1]), range(image.shape[2])):
+        for y in range(image.shape[1]):
             self.may_interrupt()
-            z = image[:, y, x]
-            image[:, y, x] = cv.GaussianBlur(z, (1, kernel), sigmaZ, None, sigmaZ, borderType).reshape(-1)
+            xz = image[:, y]
+            cv.GaussianBlur(xz, (1, kernel), 0, xz, sigmaZ, borderType)
 
         outputs['dst'] = Data(image)
 
