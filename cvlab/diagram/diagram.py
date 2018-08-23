@@ -87,7 +87,7 @@ class Diagram(QObject):
         self.element_added.emit(e, position)
 
     def delete_element(self, e):
-        # todo: jesli usuniemy element, do ktorego chca sie dostac inne elementy, to bedziemy mieli problem!
+        # todo: if we remove element, to which other elements try to access, we gonna have trouble
         with self.diagram_lock.writer:
             to_connect = []
             if len(e.inputs) == 1 and len(e.outputs) == 1:
