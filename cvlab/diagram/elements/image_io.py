@@ -40,6 +40,28 @@ class ImageSequenceLoader(InputElement):
                 data.value = image
 
 
+class ImageLoader3D(InputElement):
+    name = "Image loader 3D"
+    comment = "Loads multiple images as 3D image"
+
+    def get_attributes(self):
+        return [], [Output("output")], [MultiPathParameter("paths", value=["images/lena.jpg"]*10)]
+
+    def process_inputs(self, inputs, outputs, parameters):
+        paths = parameters["paths"]
+        image = []
+
+        for path in sorted(paths):
+            slice = cv.imread(path)
+            self.may_interrupt()
+            image.append(slice)
+            if slice.shape != image[0].shape:
+                raise Exception("Inconsisten slice dimensions")
+
+        image = np.array(image)
+        outputs["output"] = Data(image)
+
+
 class RecurrentSequenceLoader(InputElement):
     name = "Image Recurrent Sequence loader"
     comment = "Loads a recurrent sequence of images from disk (reflecting directory structure)"
