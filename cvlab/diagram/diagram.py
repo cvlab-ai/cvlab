@@ -2,7 +2,7 @@ from _thread import get_ident
 
 import itertools
 
-from PyQt5.QtCore import pyqtSignal, QObject, QReadWriteLock, QTimer
+from PyQt5.QtCore import pyqtSignal, QObject, QReadWriteLock, QTimer, pyqtSlot
 
 from .element import *
 from .errors import ConnectError, GeneralException

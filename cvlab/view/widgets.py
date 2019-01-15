@@ -3,6 +3,7 @@ from distutils.util import strtobool
 
 import cv2
 from PyQt5 import QtCore
+from PyQt5.QtCore import pyqtSlot
 from PyQt5.QtGui import *
 from PyQt5.QtWidgets import *
 

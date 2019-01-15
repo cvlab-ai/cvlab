@@ -1,13 +1,8 @@
-
-
 import os
 import sys
 from threading import Thread
 
-
-
 from xmlrpc.client import ServerProxy
-
 
 from pip._vendor.packaging.version import parse as parse_version
 

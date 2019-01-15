@@ -1,6 +1,3 @@
-
-
-
 class ProcessingTimeInfo(object):
 
     def __init__(self, start, end, units_count, previous_time_infos):

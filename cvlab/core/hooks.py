@@ -1,6 +1,3 @@
-
-
-
 from ..diagram.diagram import Diagram
 from ..diagram.interface import *
 

@@ -1,4 +1,3 @@
-
 from ..diagram.errors import *
 
 

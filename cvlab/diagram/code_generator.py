@@ -1,8 +1,5 @@
 # -*- coding: utf-8 -*-
 
-
-
-
 from ..core.core_element import CoreElement
 from .connectors import Input, Output
 

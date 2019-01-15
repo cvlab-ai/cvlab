@@ -248,9 +248,6 @@ class DataSet(object):
 class ProcessingUnit(DataSet):
     def __init__(self, element, inputs=None, parameters=None, outputs=None):
         super(ProcessingUnit, self).__init__(inputs, parameters, outputs)
-        if __debug__:
-            from ..core.core_element import CoreElement
-            assert isinstance(element, CoreElement)
         self.element = element
         self.calculated = False
 

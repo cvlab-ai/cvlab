@@ -8,7 +8,6 @@ from .processing_time import ProcessingTimeInfo
 from .core_element import CoreElement
 
 
-
 class ThreadedElement(CoreElement):
     """Base class for all threaded elements"""
 

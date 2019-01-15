@@ -2,7 +2,6 @@ import threading
 from collections import OrderedDict
 
 import cv2 as cv
-from PyQt5.QtCore import pyqtSlot, QTimer
 
 from . import id_manager
 from .connectors import Output, Input

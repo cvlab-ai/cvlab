@@ -10,8 +10,8 @@
 """Contains low-level implementation details which aren't consumed directly by users of the Kinect API"""
 
 import ctypes
-from thirdparty.pykinect.nui import KinectError, _NUIDLL
-from thirdparty.pykinect.nui.structs import (ImageFrame, ImageResolution, ImageType,
+from cvlab_experimental.thirdparty.pykinect.nui import KinectError, _NUIDLL
+from cvlab_experimental.thirdparty.pykinect.nui.structs import (ImageFrame, ImageResolution, ImageType,
                                   ImageViewArea,  SkeletonFrame, 
                                   TransformSmoothParameters, _Enumeration)
 
@@ -160,7 +160,6 @@ class _NuiInstance(ctypes.c_voidp):
 
     def InstanceIndex(self):
         """which instance # was it created with, in MSR_NuiCreateInstanceByIndex( )/etc?"""
-        print self.value
         return _NuiInstance._InstanceIndex(self)
 
     def NuiInitialize(self, dwFlags = 0):
@@ -184,7 +183,7 @@ class _NuiInstance(ctypes.c_voidp):
 
     def NuiImageGetColorPixelCoordinatesFromDepthPixel(self, eColorResolution, pcViewArea, lDepthX, lDepthY, usDepthValue):
         x, y = ctypes.c_long(), ctypes.c_long()
-        _NuiInstance._NuiImageGetColorPixelCoordinatesFromDepthPixel(self, eColorResolution, pcViewArea, lDepthX, lDepthY, usDepthValue, byref(x), byref(y))
+        _NuiInstance._NuiImageGetColorPixelCoordinatesFromDepthPixel(self, eColorResolution, pcViewArea, lDepthX, lDepthY, usDepthValue, ctypes.byref(x), ctypes.byref(y))
         return x.value, y.value
 
     def NuiCameraElevationSetAngle(self, lAngleDegrees):
