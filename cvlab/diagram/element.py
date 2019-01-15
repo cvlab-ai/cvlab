@@ -1,11 +1,8 @@
-from __future__ import print_function, unicode_literals, absolute_import
-from builtins import str
-
 import threading
 from collections import OrderedDict
 
 import cv2 as cv
-from PyQt4.QtCore import pyqtSlot, QTimer
+from PyQt5.QtCore import pyqtSlot, QTimer
 
 from . import id_manager
 from .connectors import Output, Input
@@ -70,7 +67,6 @@ class Element(object):
 
     #logic methods
 
-    @pyqtSlot()
     def recalculate(self, refresh_parameters, refresh_structure, force_break):
         """
         Informs that something has changed, and the element must re-do the calculations.

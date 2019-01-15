@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from __future__ import division, unicode_literals
+
 
 from matplotlib.figure import Figure
 from mpl_toolkits.mplot3d import Axes3D

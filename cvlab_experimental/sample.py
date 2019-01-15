@@ -5,7 +5,7 @@
 #
 
 # import whatever libraries you want
-from __future__ import unicode_literals
+
 import cv2 as cv
 
 # also import this

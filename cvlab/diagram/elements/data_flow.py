@@ -1,8 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from __future__ import unicode_literals
 from six import itervalues
-from builtins import zip
 
 from .base import *
 

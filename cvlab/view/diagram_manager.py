@@ -1,15 +1,11 @@
 # -*- coding: utf-8 -*-
 
-from __future__ import unicode_literals, print_function
-from builtins import range, str
-
 import ntpath
 import os
 import json
 from os.path import isfile
 
-from PyQt4 import QtGui
-
+from PyQt5.QtWidgets import *
 
 from ..diagram.diagram import Diagram
 from .workarea import ScrolledWorkArea
@@ -34,7 +30,7 @@ class DiagramManager:
     def get_open_file_name(self):
         global last_file_name
         main_window = self.tabs_container.parent()
-        path = QtGui.QFileDialog.getOpenFileName(main_window, "Open diagram file", last_file_name, self.FILE_TYPES)
+        path, _ = QFileDialog.getOpenFileName(main_window, "Open diagram file", last_file_name, self.FILE_TYPES)
         if path:
             last_file_name = path
         return path
@@ -42,7 +38,7 @@ class DiagramManager:
     def get_save_file_name(self):
         global last_file_name
         main_window = self.tabs_container.parent()
-        path = QtGui.QFileDialog.getSaveFileName(main_window, "Save diagram as", last_file_name, self.FILE_TYPES)
+        path, _ = QFileDialog.getSaveFileName(main_window, "Save diagram as", last_file_name, self.FILE_TYPES)
         if path:
             last_file_name = path
         return path

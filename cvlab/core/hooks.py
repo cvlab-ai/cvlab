@@ -1,5 +1,5 @@
-from __future__ import unicode_literals
-from builtins import zip, object
+
+
 
 from ..diagram.diagram import Diagram
 from ..diagram.interface import *
@@ -50,7 +50,6 @@ class InputHook(Hook):
     def get_data(self):
         return self.data
 
-    # @pyqtSlot(object, OutputHook)
     def set_data(self, data, from_hook):
         # print "set_data signal process in", thread.get_ident()
         assert data is not None
@@ -71,7 +70,6 @@ class InputHook(Hook):
     def delete(self):
         pass
 
-    # @pyqtSlot(OutputHook)
     def connected(self, from_hook):
         assert from_hook is not None
         if self.connector.multiple:
@@ -81,7 +79,6 @@ class InputHook(Hook):
                 self.data = Sequence(self.data.value + [EmptyData()])
         # self.connector.parent.recalculate(False, True, True)
 
-    # @pyqtSlot(OutputHook)
     def disconnected(self, from_hook):
         if self.connector.multiple:
             with self.lock:

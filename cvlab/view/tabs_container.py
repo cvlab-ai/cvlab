@@ -1,19 +1,16 @@
 # -*- coding: utf-8 -*-
 
-from __future__ import unicode_literals
-from builtins import object
-
-from PyQt4 import QtGui
-from PyQt4.QtCore import Qt
+from PyQt5.QtCore import Qt
+from PyQt5.QtWidgets import *
 
 
-class TabsContainer(QtGui.QTabWidget):
+class TabsContainer(QTabWidget):
 
     def __init__(self):
         super(TabsContainer, self).__init__()
         self.diagram_manager = None
         self.tab_manager = TabManager(self.tabBar())
-        self.setTabShape(QtGui.QTabWidget.Triangular)
+        self.setTabShape(QTabWidget.Triangular)
         self.tabBar().setContextMenuPolicy(Qt.CustomContextMenu)
         self.tabBar().customContextMenuRequested.connect(self.tab_manager.show_context_menu)
 
@@ -28,7 +25,7 @@ class TabManager(object):
         idx = self.tab_bar.tabAt(point)
         if idx == -1:
             return
-        menu = QtGui.QMenu()
+        menu = QMenu()
         menu.addAction(get_action(self.tab_bar, TabAction.CLOSE, idx))
         menu.addSeparator()
         menu.addAction(get_action(self.tab_bar, TabAction.SAVE, idx))
@@ -51,7 +48,7 @@ def get_action(parent, action_type, idx):
             return action
 
 
-class TabAction(QtGui.QAction):
+class TabAction(QAction):
 
     CLOSE = 0
     SAVE = 1

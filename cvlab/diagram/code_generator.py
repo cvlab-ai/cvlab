@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
-from __future__ import unicode_literals
-from builtins import str, object
+
+
 
 from ..core.core_element import CoreElement
 from .connectors import Input, Output
@@ -220,7 +220,7 @@ file_template = """\
 
 ### imports ###
 
-from __future__ import print_function, unicode_literals
+
 
 from six import iteritems, itervalues, iterkeys
 

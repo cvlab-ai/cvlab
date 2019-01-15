@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 
-from __future__ import division, unicode_literals
+
 from six import iteritems
-from builtins import zip, str, range
+
 
 import numpy as np
 

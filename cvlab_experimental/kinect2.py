@@ -1,6 +1,6 @@
-from __future__ import print_function, unicode_literals, division
+
 from six import iteritems
-from builtins import range
+
 
 import os
 if os.name != 'nt': raise ImportError("Kinect module only work on Windows")

@@ -1,6 +1,6 @@
-from __future__ import print_function, unicode_literals
 
-from builtins import str
+
+
 
 from cvlab.diagram.elements.base import *
 
@@ -259,7 +259,7 @@ class AnnMlpTrain(Trainable):
         #     return "Train data result: average errors={}".format(errors)
 
     def save(self):
-        path = QtGui.QFileDialog.getSaveFileName(self, "Save neural network")
+        path, _ = QFileDialog.getSaveFileName(self, "Save neural network")
         if not path: return
         self.ann.save(str(path))
 

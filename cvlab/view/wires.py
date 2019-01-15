@@ -1,14 +1,13 @@
 # -*- coding: utf-8 -*-
-
-from __future__ import division, unicode_literals
-from builtins import range, object
-
 import os
 import sys
 
-from PyQt4 import QtGui, QtCore
-from PyQt4.QtCore import pyqtSlot
+from PyQt5 import QtCore
+from PyQt5.QtCore import pyqtSlot
+
 import tinycss2
+from PyQt5.QtGui import *
+from PyQt5.QtWidgets import *
 
 from ..diagram.element import Element
 from ..diagram.connectors import Input, Output
@@ -19,7 +18,7 @@ from .widgets import InOutConnector
 NO_FOREGROUND_WIRES = os.name == 'nt' and sys.getwindowsversion().major >= 6 and sys.getwindowsversion().minor >= 2
 
 
-class WiresBase(QtGui.QWidget):
+class WiresBase(QWidget):
     def __init__(self, workarea, user_actions, wire_tools):
         super(WiresBase, self).__init__(workarea)
         self.workarea = workarea
@@ -29,8 +28,8 @@ class WiresBase(QtGui.QWidget):
 
     def paintEvent(self, e):
         super(WiresBase, self).paintEvent(e)
-        painter = QtGui.QPainter(self)
-        painter.setRenderHint(QtGui.QPainter.Antialiasing, True)
+        painter = QPainter(self)
+        painter.setRenderHint(QPainter.Antialiasing, True)
         self.draw_wires(painter)
 
     def draw_wires(self, painter):
@@ -124,7 +123,7 @@ class WiresBackground(WiresBase):
                 wire.selected = True
                 e.accept()
                 if e.button() == QtCore.Qt.RightButton:
-                    menu = QtGui.QMenu()
+                    menu = QMenu()
                     action = menu.addAction("&Delete")
                     action.triggered.connect(wire.selfdestroy)
                     menu.exec_(QtCore.QPoint(e.globalX(), e.globalY()))
@@ -458,8 +457,8 @@ class Manager(object):
 
 class WirePen(object):
     def __init__(self, color, size, dotted=False):
-        self.arrow = QtGui.QPen(color, size)
-        self.line = QtGui.QPen(color, size)
+        self.arrow = QPen(color, size)
+        self.line = QPen(color, size)
         if dotted:
             self.line.setStyle(QtCore.Qt.DotLine)
 
@@ -502,7 +501,7 @@ class WireTools(object):
 
     @staticmethod
     def get_path_from_points(points):
-        path = QtGui.QPainterPath()
+        path = QPainterPath()
         if len(points) > 0:
             path.moveTo(points[0])
             for point in points[1::]:
@@ -510,7 +509,7 @@ class WireTools(object):
         return path
 
     def draw_start_symbol(self, painter, point, wire_pen):
-        path = QtGui.QPainterPath()
+        path = QPainterPath()
         size = self.wire_style.start_square_size
         half_size = size//2
         path.addRect(point.x() - half_size, point.y() - half_size, size, size)
@@ -563,7 +562,7 @@ class WireStyle(object):
         if token_type == 'dimension':
             parsed_value = int(value)
         elif token_type == 'ident':
-            parsed_value = QtGui.QColor(value)
+            parsed_value = QColor(value)
         elif token_type == 'hash':
-            parsed_value = QtGui.QColor('#' + value)
+            parsed_value = QColor('#' + value)
         setattr(self, attribute_name, parsed_value)

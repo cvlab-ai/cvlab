@@ -1,13 +1,10 @@
 # -*- coding: utf-8 -*-
-
-from __future__ import print_function, unicode_literals
-from builtins import range, str
-from past.builtins import basestring
-
 from distutils.util import strtobool
 
 import cv2
-from PyQt4 import QtGui, QtCore
+from PyQt5 import QtCore
+from PyQt5.QtGui import *
+from PyQt5.QtWidgets import *
 
 from ..diagram.interface import *
 from .mimedata import *
@@ -17,13 +14,13 @@ from . import config
 ALLOW_UPSIZE = True
 
 
-class StyledWidget(QtGui.QWidget):
+class StyledWidget(QWidget):
     def paintEvent(self, e):
         # required for external stylesheet to work
-        o = QtGui.QStyleOption()
+        o = QStyleOption()
         o.initFrom(self)
-        p = QtGui.QPainter(self)
-        self.style().drawPrimitive(QtGui.QStyle.PE_Widget, o, p, self)
+        p = QPainter(self)
+        self.style().drawPrimitive(QStyle.PE_Widget, o, p, self)
 
 
 class InOutConnector(StyledWidget):
@@ -36,7 +33,7 @@ class InOutConnector(StyledWidget):
         self.element = element
         self.workarea = None
         # workaround: the hint should be a tooltip but it is not - because it can't be transparent for mouse (Qt bug)
-        self.hint = QtGui.QLabel(io_handle.name)
+        self.hint = QLabel(io_handle.name)
         self.hint.setAttribute(QtCore.Qt.WA_TransparentForMouseEvents)
         self.hint.setVisible(False)
         self.has_connected_and_selected_wire = False
@@ -54,14 +51,14 @@ class InOutConnector(StyledWidget):
     def mousePressEvent(self, event):
         if event.button() == QtCore.Qt.LeftButton:
             self.element.workarea.user_actions.cursor_line_started.emit()
-            drag = QtGui.QDrag(self)
+            drag = QDrag(self)
             mime_data = QtCore.QMimeData()
             if self.is_input:
                 mime_data.setText(Mime.OUTGOING_CONNECTION)
             else:
                 mime_data.setText(Mime.INCOMING_CONNECTION)
             drag.setMimeData(mime_data)
-            drag.setPixmap(QtGui.QPixmap(1, 1))     # todo: can this hack be removed?
+            drag.setPixmap(QPixmap(1, 1))     # todo: can this hack be removed?
             drag.exec_()
 
     def dropEvent(self, e):
@@ -91,8 +88,8 @@ class InOutConnector(StyledWidget):
 
     def paintEvent(self, e):
         super(InOutConnector, self).paintEvent(e)
-        painter = QtGui.QPainter(self)
-        painter.setRenderHint(QtGui.QPainter.Antialiasing, True)
+        painter = QPainter(self)
+        painter.setRenderHint(QPainter.Antialiasing, True)
         if not self.is_input and len(self.io_handle.connected_to):
             pen, point = self.prepare_drawing_details()
             self.workarea.wire_tools.draw_start_symbol(painter, point, pen)
@@ -130,7 +127,7 @@ class PreviewsContainer(StyledWidget):
         super(PreviewsContainer, self).__init__()
         self.element = element
         self.outputs = outputs
-        layout = QtGui.QVBoxLayout()
+        layout = QVBoxLayout()
         layout.setContentsMargins(0, 0, 0, 0)
         self.preview_size = 120
         self.setObjectName("OutputsPreview")
@@ -142,18 +139,19 @@ class PreviewsContainer(StyledWidget):
         self.image_dialogs_count = 0
 
     def wheelEvent(self, event):
-        assert isinstance(event, QtGui.QWheelEvent)
+        assert isinstance(event, QWheelEvent)
         if event.modifiers() != QtCore.Qt.NoModifier:
             event.ignore()
             return
         new_size = self.preview_size
-        up = event.delta() > 0
-        for _ in range(abs(event.delta() // 80)):
+        up = event.angleDelta().y() > 0
+        for _ in range(abs(event.angleDelta().y() // 80)):
             if up:
                 new_size *= 1.125
             else:
                 new_size /= 1.125
         self.resize_previews(new_size)
+        event.accept()
 
     def resize_previews(self, new_size):
         out_size = np.clip(int(new_size), 16, 2048)
@@ -203,13 +201,13 @@ class PreviewsContainer(StyledWidget):
             preview.update(True)
 
 
-class OutputPreview(QtGui.QHBoxLayout):
+class OutputPreview(QHBoxLayout):
     default_image = None
 
     def __init__(self, output, previews_container):
         super(OutputPreview, self).__init__()
         if not self.default_image:
-            self.default_image = QtGui.QPixmap("images/default.png")
+            self.default_image = QPixmap("images/default.png")
         self.output = output
         self.previews_container = previews_container
         self.setAlignment(QtCore.Qt.AlignCenter)
@@ -228,7 +226,7 @@ class OutputPreview(QtGui.QHBoxLayout):
             if forced or self.previews_container.isVisible() or self.previews[i].image_dialog is not None:
                 if isinstance(arr, np.ndarray):
                     self.previews[i].set_image(arr)
-                elif isinstance(arr, basestring):
+                elif isinstance(arr, str):
                     self.previews[i].set_text(arr)
                 elif isinstance(arr, bool):
                     self.previews[i].set_bool(arr)
@@ -252,7 +250,7 @@ class OutputPreview(QtGui.QHBoxLayout):
         pass
 
 
-class ActionImage(QtGui.QLabel):
+class ActionImage(QLabel):
 
     DATA_TYPE_IMAGE = 0
     DATA_TYPE_TEXT = 1
@@ -361,7 +359,7 @@ class ActionImage(QtGui.QLabel):
     def prepare_actions(self, enable=True):
         if enable:
             self.setContextMenuPolicy(QtCore.Qt.ActionsContextMenu)
-            action = QtGui.QAction('Open in window', self)
+            action = QAction('Open in window', self)
             action.triggered.connect(self.open_image_dialog)
             self.addAction(action)
         else:
@@ -409,19 +407,19 @@ class NumberOutputHelper:
             return self.true_ if value else self.false_
 
 
-class ElementStatusBar(QtGui.QWidget):
+class ElementStatusBar(QWidget):
     def __init__(self, element):
         super(ElementStatusBar, self).__init__()
         self.element = element
         self.default_message = "Element unset."
-        self.message = QtGui.QLabel(self.default_message)
+        self.message = QLabel(self.default_message)
         self.message.setWordWrap(True)
         self.message.setObjectName("ElementStatusLabel")
-        self.timings = QtGui.QLabel("")
+        self.timings = QLabel("")
         self.timings.setVisible(False)
         self.timings.setObjectName("ElementStatusLabel")
         self.timings.setAlignment(QtCore.Qt.AlignRight)
-        hb = QtGui.QHBoxLayout()
+        hb = QHBoxLayout()
         hb.setContentsMargins(0, 0, 0, 0)
         hb.addWidget(self.message)
         hb.addWidget(self.timings)

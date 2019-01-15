@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
 
-from __future__ import unicode_literals
+
 
 from six import itervalues
-from builtins import str, zip, object, TypeError
+
 
 from collections import defaultdict
 from threading import Lock, RLock

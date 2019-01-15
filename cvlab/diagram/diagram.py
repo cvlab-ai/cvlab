@@ -1,12 +1,8 @@
-from __future__ import unicode_literals
-from future import standard_library
-standard_library.install_aliases()
-from builtins import map, str, object
 from _thread import get_ident
 
 import itertools
 
-from PyQt4.QtCore import pyqtSignal, QObject, QReadWriteLock, QTimer
+from PyQt5.QtCore import pyqtSignal, QObject, QReadWriteLock, QTimer
 
 from .element import *
 from .errors import ConnectError, GeneralException
@@ -125,8 +121,9 @@ class Diagram(QObject):
                 input_ = o2
                 output = o1
             if Diagram.makes_loop(output, input_):
-                # print "Loop: {}:{} -> {}:{}".format(output.parent.name, output.name, input_.parent.name, input_.name)
-                raise ConnectError("This connection would create an infinite loop!")
+                print("WARNING Connection loop: {}:{} -> {}:{}".format(output.parent.name, output.name, input_.parent.name, input_.name))
+                # raise ConnectError("This connection would create an infinite loop!")
+                return
             input_.connect(output)
             output.connect(input_)
             if output.desequencing:

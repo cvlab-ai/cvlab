@@ -1,7 +1,5 @@
 # -*- coding: utf-8 -*-
 
-from __future__ import print_function, unicode_literals, division
-
 import json
 import os
 from datetime import datetime, timedelta
@@ -15,10 +13,9 @@ from threading import Lock, Event, Thread
 import numpy as np
 import cv2 as cv
 
-from PyQt4.QtCore import Qt, QObject, pyqtSlot, pyqtSignal, QSize, QTimer
-from PyQt4.QtGui import QContextMenuEvent, QFileDialog, QKeyEvent, QLabel, QMenu, QMessageBox, \
-    QMouseEvent, QPixmap, QScrollArea, QSizePolicy, QWheelEvent, QApplication, QTransform, QCursor, QImage, \
-    QGraphicsDropShadowEffect, QWidget, QGridLayout, QFrame
+from PyQt5.QtCore import Qt, QObject, pyqtSlot, pyqtSignal, QSize, QTimer
+from PyQt5.QtGui import *
+from PyQt5.QtWidgets import *
 
 
 class Keys(object):
@@ -529,7 +526,6 @@ class PreviewWindow(QFrame):
         self.scrollarea.setFocusPolicy(Qt.NoFocus)
 
         layout = QGridLayout()
-        layout.setMargin(0)
         layout.setContentsMargins(0,0,0,0)
         self.setLayout(layout)
         layout.addWidget(self.scrollarea, 0, 0)
@@ -596,7 +592,7 @@ class PreviewWindow(QFrame):
         if blink:
             self.blink(True)
         if show:
-            self.setShown(True)
+            self.show()
             if self.raise_window:
                 self.raise_()
 
@@ -655,7 +651,7 @@ class PreviewWindow(QFrame):
         assert isinstance(event, QWheelEvent)
         event.accept()
 
-        if event.delta() > 0:
+        if event.angleDelta().y() > 0:
             s = 1.1
         else:
             s = 1 / 1.1

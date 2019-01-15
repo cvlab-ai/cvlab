@@ -1,10 +1,7 @@
 # -*- coding: utf-8 -*-
+import itertools
 
-from __future__ import division, unicode_literals
-from builtins import str, range
-
-from PyQt4.QtCore import Qt
-from PyQt4.QtGui import QWidget, QGridLayout, QLabel
+from PyQt5.QtCore import Qt
 
 from .base import *
 
@@ -98,7 +95,7 @@ class MatrixEditor(InputElement):
 
         def wheelEvent(self, event):
             event.accept()
-            delta = self.step if event.delta() > 0 else -self.step
+            delta = self.step if event.angleDelta().y() > 0 else -self.step
             self.add_value(delta)
 
         def add_value(self, delta):

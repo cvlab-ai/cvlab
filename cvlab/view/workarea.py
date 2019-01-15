@@ -1,13 +1,12 @@
 # -*- coding: utf-8 -*-
 
-from __future__ import division, unicode_literals
-from builtins import object
-
 from datetime import datetime, timedelta
 
 import numpy as np
-from PyQt4 import QtGui, QtCore
-from PyQt4.QtCore import pyqtSignal, pyqtSlot, QObject, Qt, QTimer
+from PyQt5 import QtCore
+from PyQt5.QtCore import pyqtSignal, pyqtSlot, QObject, Qt, QTimer
+from PyQt5.QtWidgets import *
+from PyQt5.QtGui import *
 
 from ..diagram.element import Element
 from .elements import GuiElement
@@ -15,7 +14,7 @@ from .mimedata import Mime
 from .wires import WiresForeground, NO_FOREGROUND_WIRES, WiresBackground, WireTools
 
 
-class ScrolledWorkArea(QtGui.QScrollArea):
+class ScrolledWorkArea(QScrollArea):
     def __init__(self, diagram, style_manager):
         super(ScrolledWorkArea, self).__init__()
         self.setObjectName("ScrolledWorkArea")
@@ -47,9 +46,9 @@ class ScrolledWorkArea(QtGui.QScrollArea):
             e.accept()
 
     def wheelEvent(self, event):
-        assert isinstance(event, QtGui.QWheelEvent)
+        assert isinstance(event, QWheelEvent)
         if event.modifiers() in (Qt.ControlModifier, Qt.MetaModifier):
-            if event.delta() < 0:
+            if event.angleDelta().y() < 0:
                 self.workarea.zoom(True)
             else:
                 self.workarea.zoom(False)
@@ -93,7 +92,7 @@ class UserActions(QObject):
     cursor_line_dropped = pyqtSignal()
 
 
-class WorkArea(QtGui.QWidget):
+class WorkArea(QWidget):
     zoom_levels = np.arange(0.1, 4.01, 0.1, dtype=np.float64).tolist()
     DEFAULT_POSITION_GRID = 20
 
@@ -220,7 +219,7 @@ class WorkArea(QtGui.QWidget):
                 rect = e.geometry()
                 rect.setWidth(rect.width() + 50)
                 rect.setHeight(rect.height() + 50)
-                united = united.unite(rect)
+                united = united.united(rect)
         return QtCore.QSize(max(default_size, united.right()), max(default_size, united.bottom()))
 
     def paintEvent(self, e):
@@ -253,7 +252,7 @@ class SelectionManager(object):
 
     def __init__(self, workarea):
         self.workarea = workarea
-        self.rubberBand = QtGui.QRubberBand(QtGui.QRubberBand.Rectangle, self.workarea)
+        self.rubberBand = QRubberBand(QRubberBand.Rectangle, self.workarea)
         self.selection_origin = None
         self.selected_elements = []
         self.last_selection = []
@@ -317,7 +316,6 @@ class SelectionManager(object):
         self.rubberBand.hide()
         self.last_selection[:] = []
 
-    @pyqtSlot()
     def delete_selected(self):
         while len(self.selected_elements) != 0:
             self.workarea.diagram.delete_element(self.selected_elements[0])
@@ -342,9 +340,8 @@ class SelectionManager(object):
         return rect.contains(element.frameGeometry())
 
     def is_control_pressed(self):
-        return (int(QtGui.QApplication.keyboardModifiers()) & QtCore.Qt.ControlModifier) != 0
+        return (int(QApplication.keyboardModifiers()) & QtCore.Qt.ControlModifier) != 0
 
-    @pyqtSlot(Element)
     def on_element_deleted(self, element):
         if element in self.selected_elements:
             self.selected_elements.remove(element)

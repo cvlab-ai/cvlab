@@ -1,10 +1,10 @@
-from __future__ import unicode_literals
+
 
 import threading
 from collections import OrderedDict
 
 import numpy as np
-from PyQt4.QtCore import pyqtSignal, QObject
+from PyQt5.QtCore import pyqtSignal, QObject
 
 from . import id_manager
 
