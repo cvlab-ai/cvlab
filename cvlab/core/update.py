@@ -51,18 +51,18 @@ class Updater(object):
 
         # inside virtualenv?
         if hasattr(sys, 'real_prefix'):
-            pip = os.path.dirname(sys.executable) + "/pip"
+            pip = os.path.dirname(sys.executable) + "/pip3"
             pip = os.path.normpath(pip)
             return "{pip} install --upgrade cvlab".format(**locals())
 
         # inside user's pip directory?
         if os.access(__file__, os.W_OK) and ".local" in __file__:
-            return "pip install --user --upgrade cvlab"
+            return "pip3 install --user --upgrade cvlab"
 
         # inside global pip directory, needs sudo?
         if not os.access(__file__, os.W_OK):
-            return "sudo -H pip install --upgrade cvlab"
+            return "sudo -H pip3 install --upgrade cvlab"
 
         # general
-        return "pip install --upgrade cvlab"
+        return "pip3 install --upgrade cvlab"
 

@@ -15,18 +15,14 @@ CV Lab - Computer Vision Laboratory - a rapid prototyping tool for computer visi
 
 Installation using pip:
 
-    pip install --upgrade cvlab
-    
-Or for Python 3:
-
     pip3 install --upgrade cvlab
-
+    
 This command will install CV Lab (or update if you have already installed it). See the [PyPI page](https://pypi.python.org/pypi/cvlab) for more information.
 
 Alternatively you can clone entire git repository:
 
 
-CV Lab requires: `PyQt4`, `OpenCV`, `numpy`, `scipy`, `pygments`, `future`, `tinycss2`.
+CV Lab requires: `PyQt5`, `OpenCV`, `numpy`, `scipy`, `pygments`, `tinycss2`.
 
 # DESCRIPTION
 
@@ -45,7 +41,11 @@ To run CV Lab just write in console:
     
 or:
 
-    python -O cvlab/__main__.py
+    python3 -m cvlab
+    
+or:
+
+    python3 -O cvlab/__main__.py
     
 ### Creating image processing diagram
 
@@ -88,7 +88,7 @@ Note: code generation is experimental. It may not work correctly with diagrams u
 
 ### Creating your own elements
 
-Adding elements to CV Lab is really simple. See: `cvlab/diagram/elements/custom/sample.py`
+Adding elements to CV Lab is really simple. See: `cvlab_experimental/sample.py`
 
 # KNOWN ISSUES
 
@@ -98,7 +98,7 @@ Due to a bug in old versions of OpenCV Python binding (<3.1), some OpenCV functi
 
 Alternatively, you can install latest unofficial build of OpenCV using pip:
 
-    pip install --upgrade opencv-python
+    pip3 install --upgrade opencv-python
 
 Note that most Linux OS packages often use outdated version of OpenCV. Before using above command you should uninstall them.
 
