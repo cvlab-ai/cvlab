@@ -263,7 +263,6 @@ class Diagram(QObject):
             for con in data['params']:
                 from_ = con['from']
                 to_ = con['to']
-                # print "Lacze", from_, "do", to_
                 param_ids[from_].connect_child(param_ids[to_])
 
         self.zoom_level = 1.0 if "zoom_level" not in data else data["zoom_level"]

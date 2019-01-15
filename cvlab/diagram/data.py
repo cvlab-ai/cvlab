@@ -1,10 +1,5 @@
 # -*- coding: utf-8 -*-
 
-
-
-from six import itervalues
-
-
 from collections import defaultdict
 from threading import Lock, RLock
 
@@ -263,7 +258,7 @@ class ProcessingUnit(DataSet):
         return self.element.actual_processing_unit is self
 
     def ready_to_execute(self):
-        return all(d.ready() for d in itervalues(self.inputs))
+        return all(d.ready() for d in self.inputs.values())
 
     def data_changed(self, data):
         if self.calculated:

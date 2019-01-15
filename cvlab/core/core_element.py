@@ -1,7 +1,5 @@
 # -*- coding: utf-8 -*-
 
-from six import iteritems, itervalues
-
 import inspect
 import re
 
@@ -91,7 +89,7 @@ class CoreElement(Element):
     def get_default_processing_units(self, inputs, parameters, output_ids):
         sequences = 0
 
-        for input_ in itervalues(inputs):
+        for input_ in inputs.values():
             if input_.type() == Data.SEQUENCE:
                 sequences = max(sequences, len(input_.value))
             else:
@@ -105,22 +103,21 @@ class CoreElement(Element):
         outputs = {name: Sequence() for name in output_ids}
 
         for seq_number in range(0, sequences):
-            seq_inputs = {input_name: input_.sequence_get_value(seq_number) for input_name, input_ in
-                          iteritems(inputs)}
+            seq_inputs = {input_name: input_.sequence_get_value(seq_number) for input_name, input_ in inputs.items()}
             seq_units, seq_outputs = self.get_default_processing_units(seq_inputs, parameters, output_ids)
             units += seq_units
-            for output_name, output_data in iteritems(seq_outputs):
+            for output_name, output_data in seq_outputs.items():
                 outputs[output_name].value.append(output_data)
 
         return units, outputs
 
     def clear_outputs(self):
-        for o in itervalues(self.data.outputs):
+        for o in self.data.outputs.values():
             o.clear()
 
     def prepare_parameters(self):
         self.parameters_changed = False
-        for name, parameter in iteritems(self.parameters):
+        for name, parameter in self.parameters.items():
             self.data.parameters[name] = parameter.get()
         self.clear_outputs()
         for unit in self.units:
@@ -136,10 +133,10 @@ class CoreElement(Element):
         self.structure_changed = False
         self.prepare_empty_data()
         self.prepare_parameters()
-        for name, input_ in iteritems(self.inputs):
+        for name, input_ in self.inputs.items():
             self.data.inputs[name] = input_.get()
         self.units, self.data.outputs = self.get_processing_units(self.data.inputs, self.data.parameters)
-        for name, data in iteritems(self.data.outputs):
+        for name, data in self.data.outputs.items():
             self.outputs[name].put(data)
         for unit in self.units:
             unit.connect_observables()
@@ -159,7 +156,7 @@ class CoreElement(Element):
                 continue
             self.actual_processing_unit = unit
             self.may_interrupt()
-            inputs = {n: d.copy() for n, d in iteritems(unit.inputs)}
+            inputs = {n: d.copy() for n, d in unit.inputs.items()}
             self.may_interrupt()
             outputs = {}
             self.process_inputs(inputs, outputs, unit.parameters)

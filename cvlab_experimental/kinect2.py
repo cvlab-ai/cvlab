@@ -1,7 +1,3 @@
-
-from six import iteritems
-
-
 import os
 if os.name != 'nt': raise ImportError("Kinect module only work on Windows")
 
@@ -50,7 +46,7 @@ class KinectCamera(NormalElement):
 
     def process(self):
         parameters = {}
-        for name, parameter in iteritems(self.parameters):
+        for name, parameter in self.parameters.items():
             parameters[name] = parameter.get()
 
         if self.actual_parameters != parameters:

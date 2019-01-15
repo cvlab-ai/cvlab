@@ -4,9 +4,6 @@ import json
 import os
 from datetime import datetime, timedelta
 
-import six
-from six import itervalues
-
 import threading
 from os import path
 from threading import Lock, Event, Thread
@@ -835,7 +832,7 @@ class WindowManager(QObject):
             self.key_lock.notify()
 
     def find_best_place(self):
-        positions_x = [w.frameGeometry().x()+w.width() for w in itervalues(self.windows) if w.isVisible()]
+        positions_x = [w.frameGeometry().x()+w.width() for w in self.windows.values() if w.isVisible()]
         if not positions_x: return None
         x = max(positions_x) + 4
         y = 50
@@ -863,7 +860,7 @@ class WindowManager(QObject):
             return
         path = os.path.expanduser(self.positions_file)
         with self.lock:
-            for name, window in six.iteritems(self.windows):
+            for name, window in self.windows.items():
                 assert isinstance(window, PreviewWindow)
                 self.positions[name] = window.x(), window.y()
         with open(path, 'w') as f:

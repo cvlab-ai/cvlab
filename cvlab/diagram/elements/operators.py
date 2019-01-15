@@ -1,8 +1,5 @@
 # -*- coding: utf-8 -*-
 
-
-from six import itervalues
-
 from copy import *
 
 from .base import *
@@ -14,7 +11,7 @@ class PlusOperator(MultiInputOneOutputElement):
 
     def process_inputs(self, inputs, outputs, parameters):
         output = Data()
-        for input in itervalues(inputs):
+        for input in inputs.values():
             if output.type() == output.NONE:
                 output.value = copy(input.value)
             else:
@@ -51,7 +48,7 @@ class AverageOperator(MultiInputOneOutputElement):
 
     def process_inputs(self, inputs, outputs, parameters):
         temp = None
-        for input_ in itervalues(inputs):
+        for input_ in inputs.values():
             if temp is None:
                 temp = np.float32(input_.value)
             else:
@@ -65,7 +62,7 @@ class MaxOperator(MultiInputOneOutputElement):
 
     def process_inputs(self, inputs, outputs, parameters):
         temp = None
-        for input_ in itervalues(inputs):
+        for input_ in inputs.values():
             if temp is None:
                 temp = copy(input_.value)
             else:
@@ -79,7 +76,7 @@ class MinOperator(MultiInputOneOutputElement):
 
     def process_inputs(self, inputs, outputs, parameters):
         temp = None
-        for input_ in itervalues(inputs):
+        for input_ in inputs.values():
             if temp is None:
                 temp = copy(input_.value)
             else:

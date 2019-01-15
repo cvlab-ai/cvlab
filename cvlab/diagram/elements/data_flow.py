@@ -1,7 +1,5 @@
 # -*- coding: utf-8 -*-
 
-from six import itervalues
-
 from .base import *
 
 
@@ -159,7 +157,7 @@ class ConcatenateOperator(MultiInputOneOutputElement):
 
     def process_inputs(self, inputs, outputs, parameters):
         output = Data()
-        output.value = np.concatenate([d.value for d in itervalues(inputs)])
+        output.value = np.concatenate([d.value for d in inputs.values()])
         outputs["output"] = output
 
 

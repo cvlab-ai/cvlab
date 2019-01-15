@@ -220,10 +220,6 @@ file_template = """\
 
 ### imports ###
 
-
-
-from six import iteritems, itervalues, iterkeys
-
 {imports}
 
 ### helpers ###
