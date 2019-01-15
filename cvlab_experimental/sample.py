@@ -9,7 +9,7 @@ from __future__ import unicode_literals
 import cv2 as cv
 
 # also import this
-from ..base import *
+from cvlab.diagram.elements.base import *
 
 
 # create a class which inherits NormalElement

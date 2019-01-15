@@ -125,8 +125,8 @@ class Data(object):
                 return iter([self])
 
     def desequence_all(self):
+        """Returns a one-dimensional array with all sequence values"""
         with self.lock:
-            """Zwraca tablice jednowymiarowa z wszystkimi wartosciami sekwencji"""
             if self._type == Data.NONE: return [None]
             if self._type == Data.IMAGE: return [self._value]
             if self._type == Data.SEQUENCE:

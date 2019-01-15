@@ -1,6 +1,9 @@
 # -*- coding: utf-8 -*-
 
 from __future__ import print_function, unicode_literals
+
+import sys
+
 from six import itervalues, iteritems
 
 import importlib
@@ -19,7 +22,7 @@ all_elements = {}
 
 
 def element_name(name):
-    name = re.match(r"(cvlab\.)?(diagram\.)?(elements\.)?(experimental\.|testing\.|custom\.)?(.+)", name).group(5)
+    name = re.match(r"(cvlab[^.]*\.)?(diagram\.)?(elements\.)?(experimental\.|testing\.|custom\.)?(.+)", name).group(5)
     return name
 
 
@@ -89,11 +92,30 @@ def load_modules(modules, package):
             #     traceback.print_exc()
 
 
+def load_plugins():
+    for path in sys.path:
+        if not os.path.isdir(path): continue
+        for module in os.listdir(path):
+            if not module.startswith("cvlab_"): continue
+            module_path = path + "/" + module
+            if os.path.isdir(module_path) and not os.path.isfile(module_path + "/__init__.py"): continue
+            if module in sys.modules: continue
+            try:
+                print("Loading plugin:", module)
+                importlib.import_module(module)
+            except Exception as e:
+                print("Error while loading module", module, ":", e)
+
+
 def load_auto(path):
     modules = available_modules(path)
-    package = os.path.dirname(path).replace(os.path.dirname(__file__), "").replace("\\","/").replace("/",".")
-    package = "cvlab.diagram.elements" + package
+    package = path.replace("\\","/")
+    package = package[package.index("cvlab"):]
+    package = re.sub(r"/__init__\.py.*", "", package)
+    package = package.replace("/",".")
+    package = package.replace("cvlab.cvlab","cvlab")
     load_modules(modules, package)
 
 
 load_auto(__file__)
+load_plugins()

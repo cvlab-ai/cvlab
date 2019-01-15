@@ -20,7 +20,7 @@ from .styles import StyleManager
 
 LOAD_LAST_DIAGRAMS = True
 LOAD_DEFAULT_DIAGRAM = True
-DEFAULT_DIAGRAM_PATH = "default.json"
+DEFAULT_DIAGRAM_PATH = "default.cvlab"
 ICON_PATH = os.path.dirname(__file__) + "/../images/icon.png"
 FONT_PATH = os.path.dirname(__file__) + "/../styles/fonts/Carlito-Regular.ttf"
 

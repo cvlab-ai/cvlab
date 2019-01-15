@@ -22,7 +22,7 @@ last_file_name = ""
 
 class DiagramManager:
 
-    FILE_TYPES = "JSON (*.json);; All Files (*)"
+    FILE_TYPES = "CV Lab diagram (*.cvlab);;JSON (*.json);;All Files (*)"
 
     def __init__(self, tabs_container, style_manager):
         self.tabs_container = tabs_container

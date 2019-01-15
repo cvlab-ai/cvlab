@@ -1,4 +1,4 @@
-from __future__ import print_function, unicode_literals
+from __future__ import print_function, unicode_literals, absolute_import
 
 import os
 if os.name != 'nt': raise ImportError("Kinect module only work on Windows")
@@ -10,7 +10,7 @@ from builtins import range
 
 from cvlab.diagram.elements.base import *
 
-from cvlab.thirdparty.pykinect import nui
+from .thirdparty.pykinect import nui
 
 
 class Kinect(NormalElement):
