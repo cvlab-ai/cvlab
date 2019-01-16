@@ -131,6 +131,16 @@ class PointParameter(Parameter):
         Parameter.set(self, tuple(value))
 
 
+class ScalarParameter(Parameter):
+    def __init__(self, id, name=None, value=(0, 0, 0, 0)):
+        super(ScalarParameter, self).__init__(id, name, value)
+
+    def set(self, value):
+        value = list(value) + [0,0,0,0]
+        value = tuple(value[:4])
+        Parameter.set(self, value)
+
+
 class ComboboxParameter(Parameter):
     def __init__(self, id, values, name=None, default_value_idx=None):
         super(ComboboxParameter, self).__init__(id, name)
@@ -140,11 +150,11 @@ class ComboboxParameter(Parameter):
         else:
             self.value = list(self.values.values())[0]
 
-    def to_json(self):
-        return list(self.values.values()).index(self.value)
+    # def to_json(self):
+    #     return list(self.values.values()).index(self.value)
 
-    def from_json(self, data):
-        self.set(list(self.values.values())[data])
+    # def from_json(self, data):
+    #     self.set(list(self.values.values())[data])
 
 
 class ButtonParameter(Parameter):

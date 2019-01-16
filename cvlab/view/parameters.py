@@ -266,56 +266,53 @@ class GuiFloatParameter(QHBoxLayout):
         self.ignore_changes = False
 
 
-class GuiTwoIntsParameter(QHBoxLayout):
-    def __init__(self, parameter, element):
-        super(GuiTwoIntsParameter, self).__init__()
+class GuiMultiNumberParameter(QHBoxLayout):
+    def __init__(self, parameter, element, count, type):
+        super().__init__()
 
         self.parameter = parameter
         self.element = element
+        self.count = count
+        self.type = type
 
         self.label = QLabel(self.parameter.name)
         self.addWidget(self.label)
 
         min_val = self.parameter.min_val
         max_val = self.parameter.max_val
-        self.spin1 = QSpinBox()
-        self.spin1.setRange(min_val, max_val)
-        self.addWidget(self.spin1)
-        self.spin2 = QSpinBox()
-        self.spin2.setRange(min_val, max_val)
-        self.addWidget(self.spin2)
+
+        self.spins = []
+        for i in range(count):
+            spin = QSpinBox()
+            spin.setRange(min_val, max_val)
+            self.addWidget(spin)
+            self.spins.append(spin)
+
         self.on_value_changed()
 
-        #zdarzenie jest generowane od razu, wiec caly obiekt musi juz byc gotowy
-        self.spin1.valueChanged.connect(self.spin1_value_changed)
-        self.spin2.valueChanged.connect(self.spin2_value_changed)
+        # event is generated instantly, so the whole object must be ready
+        for spin in self.spins:
+            spin.valueChanged.connect(self.spin_value_changed)
+
         self.parameter.value_changed.connect(self.on_value_changed)
 
     def gui_value(self):
-        return int(self.spin1.value()), int(self.spin2.value())
-
-    def is_value_outdated(self):
-        return self.parameter.get() != self.gui_value()
+        return tuple(self.type(spin.value()) for spin in self.spins)
 
     @pyqtSlot()
-    def spin1_value_changed(self):
-        value = self.parameter.get()
-        if value[0] != self.spin1.value():
-            new_value = (self.spin1.value(), value[1])
-            self.parameter.set(new_value)
-
-    @pyqtSlot()
-    def spin2_value_changed(self):
-        value = self.parameter.get()
-        if value[1] != self.spin2.value():
-            new_value = (value[0], self.spin2.value())
-            self.parameter.set(new_value)
+    def spin_value_changed(self):
+        parameter_value = self.parameter.get()
+        spin_value = self.gui_value()
+        if parameter_value != spin_value:
+            self.parameter.set(spin_value)
 
     @pyqtSlot()
     def on_value_changed(self):
-        if self.is_value_outdated():
-            self.spin1.setValue(self.parameter.get()[0])
-            self.spin2.setValue(self.parameter.get()[1])
+        value = self.parameter.get()
+        gui_value = self.gui_value()
+        if value != gui_value:
+            for spin, value in zip(self.spins, value):
+                spin.setValue(value)
 
 
 class GuiComboboxParameter(QHBoxLayout):

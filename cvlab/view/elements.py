@@ -81,7 +81,9 @@ class GuiElement(Element, StyledWidget):
             elif isinstance(param, ComboboxParameter):
                 layout.addLayout(GuiComboboxParameter(param, self))
             elif isinstance(param, SizeParameter) or isinstance(param, PointParameter):
-                layout.addLayout(GuiTwoIntsParameter(param, self))
+                layout.addLayout(GuiMultiNumberParameter(param, self, 2, int))
+            elif isinstance(param, ScalarParameter):
+                layout.addLayout(GuiMultiNumberParameter(param, self, 4, float))
             elif isinstance(param, TextParameter):
                 layout.addLayout(GuiTextParameter(param, self))
 
