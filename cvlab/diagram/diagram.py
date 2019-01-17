@@ -7,6 +7,7 @@ from PyQt5.QtCore import pyqtSignal, QObject, QReadWriteLock, QTimer, pyqtSlot
 from .element import *
 from .errors import ConnectError, GeneralException
 from .serialization import ComplexJsonEncoder, ComplexJsonDecoder
+from ..version import __version__
 
 
 class ReadLocker(object):
@@ -174,7 +175,7 @@ class Diagram(QObject):
         self.painter = painter
 
     def save_to_json(self):
-        return ComplexJsonEncoder(indent=4, sort_keys=True).encode(self)
+        return ComplexJsonEncoder(indent=2, sort_keys=True).encode(self)
 
     def load_from_json(self, ascii_data):
         if not self.painter:
@@ -225,8 +226,10 @@ class Diagram(QObject):
                 })
                 # connected_params.append([par_id, param_ids[to]])
 
+        filetype = "CV-Lab diagram save file. See: https://github.com/cvlab-ai/cvlab "
+
         return {"_type": "diagram", "elements": elements, "wires": wires, "params": connected_params,
-                "zoom_level": self.zoom_level}
+                "zoom_level": self.zoom_level, "_version": __version__, "_filetype": filetype}
 
     def from_json(self, data):
         #TODO: catch json parsing errors and present proper message

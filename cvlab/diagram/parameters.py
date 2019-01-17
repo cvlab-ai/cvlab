@@ -150,11 +150,23 @@ class ComboboxParameter(Parameter):
         else:
             self.value = list(self.values.values())[0]
 
-    # def to_json(self):
-    #     return list(self.values.values()).index(self.value)
+    def to_json(self):
+        # return list(self.values.values()).index(self.value)  # cv-lab v1.0
+        index = list(self.values.values()).index(self.value)
+        name = list(self.values)[index]
+        return {"name": name, "value": self.value}
 
-    # def from_json(self, data):
-    #     self.set(list(self.values.values())[data])
+    def from_json(self, data):
+        if isinstance(data, int):  # cv-lab v1.0
+            if 0 <= data < len(self.values):
+                value = list(self.values.values())[data]
+            else:
+                print("Warning: Cannot decode parameter '{}' value '{}'".format(self.name, data))
+                value = data
+        else: # cv-lab v1.1+
+            value = data["value"]
+
+        self.set(value)
 
 
 class ButtonParameter(Parameter):
