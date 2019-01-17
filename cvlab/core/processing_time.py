@@ -1,4 +1,4 @@
-class ProcessingTimeInfo(object):
+class ProcessingTimeInfo:
 
     def __init__(self, start, end, units_count, previous_time_infos):
         milis = int(1000 * (end - start))

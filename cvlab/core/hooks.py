@@ -2,7 +2,7 @@ from ..diagram.diagram import Diagram
 from ..diagram.interface import *
 
 
-class Notifier(object):
+class Notifier:
     def __init__(self):
         self._lock = threading.Condition()
         self._do_notify = False

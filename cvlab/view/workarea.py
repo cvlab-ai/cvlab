@@ -248,7 +248,7 @@ class WorkArea(QWidget):
         return int(round(float(x)/self.position_grid) * self.position_grid), int(round(float(y)/self.position_grid) * self.position_grid)
 
 
-class SelectionManager(object):
+class SelectionManager:
 
     def __init__(self, workarea):
         self.workarea = workarea

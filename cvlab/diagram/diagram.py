@@ -10,7 +10,7 @@ from .serialization import ComplexJsonEncoder, ComplexJsonDecoder
 from ..version import __version__
 
 
-class ReadLocker(object):
+class ReadLocker:
     def __init__(self, parent):
         assert isinstance(parent, DiagramLock)
         self.parent = parent
@@ -26,7 +26,7 @@ class ReadLocker(object):
         self.parent.unlock()
 
 
-class WriteLocker(object):
+class WriteLocker:
     def __init__(self, parent):
         assert isinstance(parent, DiagramLock)
         self.parent = parent

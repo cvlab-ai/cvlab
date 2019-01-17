@@ -138,7 +138,7 @@ class WiresBackground(WiresBase):
         self.update()
 
 
-class Wire(object):
+class Wire:
     def __init__(self, start_object, end_object, manager=None, workarea=None):
         self._selected = False
         self.manager = manager
@@ -249,7 +249,7 @@ class Wire(object):
             self.end_point = end_object
 
 
-class WireOptimizer(object):
+class WireOptimizer:
 
     """
     Class optimizing two kinds of wires shapes:
@@ -417,7 +417,7 @@ class WireOptimizer(object):
         return None
 
 
-class Manager(object):
+class Manager:
     def __init__(self, workarea):
         self.wires = []
         self.connectors_map = {}
@@ -455,7 +455,7 @@ class Manager(object):
                     wire.update_position()
 
 
-class WirePen(object):
+class WirePen:
     def __init__(self, color, size, dotted=False):
         self.arrow = QPen(color, size)
         self.line = QPen(color, size)
@@ -463,7 +463,7 @@ class WirePen(object):
             self.line.setStyle(QtCore.Qt.DotLine)
 
 
-class WireTools(object):
+class WireTools:
 
     def __init__(self, style_manager):
         self.pen_regular = None
@@ -521,7 +521,7 @@ class WireTools(object):
         painter.fillPath(path, wire_pen.arrow.brush())
 
 
-class WireStyle(object):
+class WireStyle:
 
     def __init__(self, stylesheet):
 

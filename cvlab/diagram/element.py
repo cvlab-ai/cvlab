@@ -8,7 +8,7 @@ from .connectors import Output, Input
 from .parameters import Parameter
 
 
-class Element(object):
+class Element:
     name = "Unnamed element"
     comment = ""
     icon = None

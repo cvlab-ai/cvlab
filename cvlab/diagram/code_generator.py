@@ -7,11 +7,10 @@ data_header = """\
 
 from collections import defaultdict
 from copy import copy
-from exceptions import TypeError
 from threading import Lock, RLock
 
 
-class Data(object):
+class Data:
     NONE = 0
     SEQUENCE = 1
     IMAGE = 2
@@ -248,7 +247,7 @@ if __name__ == "__main__":
 """
 
 
-class CodeGenerator(object):
+class CodeGenerator:
     def __init__(self, element):
         self.base_element = element
         self.functions = {}  # code -> name

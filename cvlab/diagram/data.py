@@ -6,7 +6,7 @@ from threading import Lock, RLock
 from .errors import ProcessingError
 
 
-class Data(object):
+class Data:
     NONE = 0
     SEQUENCE = 1
     IMAGE = 2
@@ -225,7 +225,7 @@ def ImageData(value=None):
 
 
 
-class DataSet(object):
+class DataSet:
     def __init__(self, inputs=None, parameters=None, outputs=None):
         self.inputs = inputs if inputs is not None else {}
         self.parameters = parameters if parameters is not None else {}

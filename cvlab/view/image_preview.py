@@ -15,7 +15,7 @@ from PyQt5.QtGui import *
 from PyQt5.QtWidgets import *
 
 
-class Keys(object):
+class Keys:
     NONE = -1
     MOUSE = -2
 
@@ -909,7 +909,7 @@ class ManagerThread(Thread):
         return self.manager.moveWindow(winname, x, y)
 
 
-class Manager(object):
+class Manager:
     def __init__(self):
         self._manager = None
         self.lock = Lock()

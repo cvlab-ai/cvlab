@@ -15,7 +15,7 @@ class TabsContainer(QTabWidget):
         self.tabBar().customContextMenuRequested.connect(self.tab_manager.show_context_menu)
 
 
-class TabManager(object):
+class TabManager:
     def __init__(self, tab_bar):
         self.tab_bar = tab_bar
 

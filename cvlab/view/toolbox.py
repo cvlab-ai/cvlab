@@ -118,7 +118,7 @@ class FilterProxy(QtCore.QSortFilterProxyModel):
         return super(FilterProxy, self).filterAcceptsRow(source_row, source_parent)
 
 
-class ClassStringMapper(object):
+class ClassStringMapper:
     def __init__(self, class_list):
         self.map = {}
         for class_type in class_list:

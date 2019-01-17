@@ -9,7 +9,7 @@ from pip._vendor.packaging.version import parse as parse_version
 from ..version import package_name, __version__
 
 
-class Updater(object):
+class Updater:
     pypi_url = 'https://pypi.python.org/pypi'
 
     def check(self):
