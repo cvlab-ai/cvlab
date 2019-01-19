@@ -1641,6 +1641,33 @@ class OpenCVAuto2_Erode(NormalElement):
         dst = cv2.erode(src=src, kernel=kernel, anchor=anchor, iterations=iterations, borderType=borderType, borderValue=borderValue)
         outputs['dst'] = Data(dst)
 
+### estimateAffine2D ###
+
+class OpenCVAuto2_EstimateAffine2D(NormalElement):
+    name = 'EstimateAffine2D'
+    comment = '''estimateAffine2D(from, to[, inliers[, method[, ransacReprojThreshold[, maxIters[, confidence[, refineIters]]]]]]) -> retval, inliers\n@brief Computes an optimal affine transformation between two 2D point sets.\n\nIt computes\n\f[\n\begin{bmatrix}\nx\\\ny\\\n\end{bmatrix}\n=\n\begin{bmatrix}\na_{11} & a_{12}\\\na_{21} & a_{22}\\\n\end{bmatrix}\n\begin{bmatrix}\nX\\\nY\\\n\end{bmatrix}\n+\n\begin{bmatrix}\nb_1\\\nb_2\\\n\end{bmatrix}\n\f]\n\n@param from First input 2D point set containing \f$(X,Y)\f$.\n@param to Second input 2D point set containing \f$(x,y)\f$.\n@param inliers Output vector indicating which points are inliers (1-inlier, 0-outlier).\n@param method Robust method used to compute transformation. The following methods are possible:\n-   cv::RANSAC - RANSAC-based robust method\n-   cv::LMEDS - Least-Median robust method\nRANSAC is the default method.\n@param ransacReprojThreshold Maximum reprojection error in the RANSAC algorithm to consider\na point as an inlier. Applies only to RANSAC.\n@param maxIters The maximum number of robust method iterations.\n@param confidence Confidence level, between 0 and 1, for the estimated transformation. Anything\nbetween 0.95 and 0.99 is usually good enough. Values too close to 1 can slow down the estimation\nsignificantly. Values lower than 0.8-0.9 can result in an incorrectly estimated transformation.\n@param refineIters Maximum number of iterations of refining algorithm (Levenberg-Marquardt).\nPassing 0 will disable refining, so the output matrix will be output of robust method.\n\n@return Output 2D affine transformation matrix \f$2 \times 3\f$ or empty matrix if transformation\ncould not be estimated. The returned matrix has the following form:\n\f[\n\begin{bmatrix}\na_{11} & a_{12} & b_1\\\na_{21} & a_{22} & b_2\\\n\end{bmatrix}\n\f]\n\nThe function estimates an optimal 2D affine transformation between two 2D point sets using the\nselected robust algorithm.\n\nThe computed transformation is then refined further (using only inliers) with the\nLevenberg-Marquardt method to reduce the re-projection error even more.\n\n@note\nThe RANSAC method can handle practically any ratio of outliers but needs a threshold to\ndistinguish inliers from outliers. The method LMeDS does not need any threshold but it works\ncorrectly only when there are more than 50% of inliers.\n\n@sa estimateAffinePartial2D, getAffineTransform'''
+
+    def get_attributes(self):
+        return [Input('from_', 'from_'),
+                Input('to', 'to')], \
+               [Output('inliers', 'inliers')], \
+               [IntParameter('method', 'method'),
+                FloatParameter('ransacReprojThreshold', 'ransacReprojThreshold'),
+                IntParameter('maxIters', 'maxIters', min_=0),
+                FloatParameter('confidence', 'confidence'),
+                IntParameter('refineIters', 'refineIters', min_=0)]
+
+    def process_inputs(self, inputs, outputs, parameters):
+        from_ = inputs['from_'].value
+        to = inputs['to'].value
+        method = parameters['method']
+        ransacReprojThreshold = parameters['ransacReprojThreshold']
+        maxIters = parameters['maxIters']
+        confidence = parameters['confidence']
+        refineIters = parameters['refineIters']
+        retval, inliers = cv2.estimateAffine2D(from_=from_, to=to, method=method, ransacReprojThreshold=ransacReprojThreshold, maxIters=maxIters, confidence=confidence, refineIters=refineIters)
+        outputs['inliers'] = Data(inliers)
+
 ### estimateAffine3D ###
 
 class OpenCVAuto2_EstimateAffine3D(NormalElement):
@@ -1662,6 +1689,33 @@ class OpenCVAuto2_EstimateAffine3D(NormalElement):
         confidence = parameters['confidence']
         retval, out, inliers = cv2.estimateAffine3D(src=src, dst=dst, ransacThreshold=ransacThreshold, confidence=confidence)
         outputs['out'] = Data(out)
+        outputs['inliers'] = Data(inliers)
+
+### estimateAffinePartial2D ###
+
+class OpenCVAuto2_EstimateAffinePartial2D(NormalElement):
+    name = 'EstimateAffinePartial2D'
+    comment = '''estimateAffinePartial2D(from, to[, inliers[, method[, ransacReprojThreshold[, maxIters[, confidence[, refineIters]]]]]]) -> retval, inliers\n@brief Computes an optimal limited affine transformation with 4 degrees of freedom between\ntwo 2D point sets.\n\n@param from First input 2D point set.\n@param to Second input 2D point set.\n@param inliers Output vector indicating which points are inliers.\n@param method Robust method used to compute transformation. The following methods are possible:\n-   cv::RANSAC - RANSAC-based robust method\n-   cv::LMEDS - Least-Median robust method\nRANSAC is the default method.\n@param ransacReprojThreshold Maximum reprojection error in the RANSAC algorithm to consider\na point as an inlier. Applies only to RANSAC.\n@param maxIters The maximum number of robust method iterations.\n@param confidence Confidence level, between 0 and 1, for the estimated transformation. Anything\nbetween 0.95 and 0.99 is usually good enough. Values too close to 1 can slow down the estimation\nsignificantly. Values lower than 0.8-0.9 can result in an incorrectly estimated transformation.\n@param refineIters Maximum number of iterations of refining algorithm (Levenberg-Marquardt).\nPassing 0 will disable refining, so the output matrix will be output of robust method.\n\n@return Output 2D affine transformation (4 degrees of freedom) matrix \f$2 \times 3\f$ or\nempty matrix if transformation could not be estimated.\n\nThe function estimates an optimal 2D affine transformation with 4 degrees of freedom limited to\ncombinations of translation, rotation, and uniform scaling. Uses the selected algorithm for robust\nestimation.\n\nThe computed transformation is then refined further (using only inliers) with the\nLevenberg-Marquardt method to reduce the re-projection error even more.\n\nEstimated transformation matrix is:\n\f[ \begin{bmatrix} \cos(\theta) \cdot s & -\sin(\theta) \cdot s & t_x \\\n\sin(\theta) \cdot s & \cos(\theta) \cdot s & t_y\n\end{bmatrix} \f]\nWhere \f$ \theta \f$ is the rotation angle, \f$ s \f$ the scaling factor and \f$ t_x, t_y \f$ are\ntranslations in \f$ x, y \f$ axes respectively.\n\n@note\nThe RANSAC method can handle practically any ratio of outliers but need a threshold to\ndistinguish inliers from outliers. The method LMeDS does not need any threshold but it works\ncorrectly only when there are more than 50% of inliers.\n\n@sa estimateAffine2D, getAffineTransform'''
+
+    def get_attributes(self):
+        return [Input('from_', 'from_'),
+                Input('to', 'to')], \
+               [Output('inliers', 'inliers')], \
+               [IntParameter('method', 'method'),
+                FloatParameter('ransacReprojThreshold', 'ransacReprojThreshold'),
+                IntParameter('maxIters', 'maxIters', min_=0),
+                FloatParameter('confidence', 'confidence'),
+                IntParameter('refineIters', 'refineIters', min_=0)]
+
+    def process_inputs(self, inputs, outputs, parameters):
+        from_ = inputs['from_'].value
+        to = inputs['to'].value
+        method = parameters['method']
+        ransacReprojThreshold = parameters['ransacReprojThreshold']
+        maxIters = parameters['maxIters']
+        confidence = parameters['confidence']
+        refineIters = parameters['refineIters']
+        retval, inliers = cv2.estimateAffinePartial2D(from_=from_, to=to, method=method, ransacReprojThreshold=ransacReprojThreshold, maxIters=maxIters, confidence=confidence, refineIters=refineIters)
         outputs['inliers'] = Data(inliers)
 
 ### exp ###

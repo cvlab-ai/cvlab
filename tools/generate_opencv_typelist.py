@@ -5,7 +5,7 @@ import sys
 
 class TypeDef:
     def __init__(self, name="", type="", args=None):
-        self.name = name
+        self.name = name if name not in ("from","import","def") else name + "_"
         self.type = type
         self.args = args or []
 
