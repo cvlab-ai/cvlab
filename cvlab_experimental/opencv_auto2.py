@@ -16,7 +16,7 @@ class OpenCVAuto2_GaussianBlur(NormalElement):
                [SizeParameter('ksize', 'ksize'),
                 FloatParameter('sigmaX', 'sigmaX'),
                 FloatParameter('sigmaY', 'sigmaY'),
-                ComboboxParameter('borderType', [('BORDER_CONSTANT',0),('BORDER_DEFAULT',4),('BORDER_ISOLATED',16),('BORDER_REFLECT',2),('BORDER_REFLECT101',4),('BORDER_REFLECT_101',4),('BORDER_REPLICATE',1),('BORDER_TRANSPARENT',5),('BORDER_WRAP',3)])]
+                ComboboxParameter('borderType', [('BORDER_CONSTANT',0),('BORDER_REPLICATE',1),('BORDER_REFLECT',2),('BORDER_WRAP',3),('BORDER_DEFAULT',4),('BORDER_REFLECT101',4),('BORDER_REFLECT_101',4),('BORDER_TRANSPARENT',5),('BORDER_ISOLATED',16)])]
 
     def process_inputs(self, inputs, outputs, parameters):
         src = inputs['src'].value
@@ -26,6 +26,120 @@ class OpenCVAuto2_GaussianBlur(NormalElement):
         borderType = parameters['borderType']
         dst = cv2.GaussianBlur(src=src, ksize=ksize, sigmaX=sigmaX, sigmaY=sigmaY, borderType=borderType)
         outputs['dst'] = Data(dst)
+
+### HoughCircles ###
+
+class OpenCVAuto2_HoughCircles(NormalElement):
+    name = 'HoughCircles'
+    comment = '''HoughCircles(image, method, dp, minDist[, circles[, param1[, param2[, minRadius[, maxRadius]]]]]) -> circles\n@brief Finds circles in a grayscale image using the Hough transform.\n\nThe function finds circles in a grayscale image using a modification of the Hough transform.\n\nExample: :\n@include snippets/imgproc_HoughLinesCircles.cpp\n\n@note Usually the function detects the centers of circles well. However, it may fail to find correct\nradii. You can assist to the function by specifying the radius range ( minRadius and maxRadius ) if\nyou know it. Or, you may set maxRadius to a negative number to return centers only without radius\nsearch, and find the correct radius using an additional procedure.\n\n@param image 8-bit, single-channel, grayscale input image.\n@param circles Output vector of found circles. Each vector is encoded as  3 or 4 element\nfloating-point vector \f$(x, y, radius)\f$ or \f$(x, y, radius, votes)\f$ .\n@param method Detection method, see #HoughModes. Currently, the only implemented method is #HOUGH_GRADIENT\n@param dp Inverse ratio of the accumulator resolution to the image resolution. For example, if\ndp=1 , the accumulator has the same resolution as the input image. If dp=2 , the accumulator has\nhalf as big width and height.\n@param minDist Minimum distance between the centers of the detected circles. If the parameter is\ntoo small, multiple neighbor circles may be falsely detected in addition to a true one. If it is\ntoo large, some circles may be missed.\n@param param1 First method-specific parameter. In case of #HOUGH_GRADIENT , it is the higher\nthreshold of the two passed to the Canny edge detector (the lower one is twice smaller).\n@param param2 Second method-specific parameter. In case of #HOUGH_GRADIENT , it is the\naccumulator threshold for the circle centers at the detection stage. The smaller it is, the more\nfalse circles may be detected. Circles, corresponding to the larger accumulator values, will be\nreturned first.\n@param minRadius Minimum circle radius.\n@param maxRadius Maximum circle radius. If <= 0, uses the maximum image dimension. If < 0, returns\ncenters without finding the radius.\n\n@sa fitEllipse, minEnclosingCircle'''
+
+    def get_attributes(self):
+        return [Input('image', 'image')], \
+               [Output('circles', 'circles')], \
+               [IntParameter('method', 'method'),
+                FloatParameter('dp', 'dp'),
+                FloatParameter('minDist', 'minDist'),
+                FloatParameter('param1', 'param1'),
+                FloatParameter('param2', 'param2'),
+                IntParameter('minRadius', 'minRadius', min_=0),
+                IntParameter('maxRadius', 'maxRadius', min_=0)]
+
+    def process_inputs(self, inputs, outputs, parameters):
+        image = inputs['image'].value
+        method = parameters['method']
+        dp = parameters['dp']
+        minDist = parameters['minDist']
+        param1 = parameters['param1']
+        param2 = parameters['param2']
+        minRadius = parameters['minRadius']
+        maxRadius = parameters['maxRadius']
+        circles = cv2.HoughCircles(image=image, method=method, dp=dp, minDist=minDist, param1=param1, param2=param2, minRadius=minRadius, maxRadius=maxRadius)
+        outputs['circles'] = Data(circles)
+
+### HoughLines ###
+
+class OpenCVAuto2_HoughLines(NormalElement):
+    name = 'HoughLines'
+    comment = '''HoughLines(image, rho, theta, threshold[, lines[, srn[, stn[, min_theta[, max_theta]]]]]) -> lines\n@brief Finds lines in a binary image using the standard Hough transform.\n\nThe function implements the standard or standard multi-scale Hough transform algorithm for line\ndetection. See <http://homepages.inf.ed.ac.uk/rbf/HIPR2/hough.htm> for a good explanation of Hough\ntransform.\n\n@param image 8-bit, single-channel binary source image. The image may be modified by the function.\n@param lines Output vector of lines. Each line is represented by a 2 or 3 element vector\n\f$(\rho, \theta)\f$ or \f$(\rho, \theta, \votes)\f$ . \f$\rho\f$ is the distance from the coordinate origin \f$(0,0)\f$ (top-left corner of\nthe image). \f$\theta\f$ is the line rotation angle in radians (\n\f$0 \sim \textrm{vertical line}, \pi/2 \sim \textrm{horizontal line}\f$ ).\n\f$\votes\f$ is the value of accumulator.\n@param rho Distance resolution of the accumulator in pixels.\n@param theta Angle resolution of the accumulator in radians.\n@param threshold Accumulator threshold parameter. Only those lines are returned that get enough\nvotes ( \f$>\texttt{threshold}\f$ ).\n@param srn For the multi-scale Hough transform, it is a divisor for the distance resolution rho .\nThe coarse accumulator distance resolution is rho and the accurate accumulator resolution is\nrho/srn . If both srn=0 and stn=0 , the classical Hough transform is used. Otherwise, both these\nparameters should be positive.\n@param stn For the multi-scale Hough transform, it is a divisor for the distance resolution theta.\n@param min_theta For standard and multi-scale Hough transform, minimum angle to check for lines.\nMust fall between 0 and max_theta.\n@param max_theta For standard and multi-scale Hough transform, maximum angle to check for lines.\nMust fall between min_theta and CV_PI.'''
+
+    def get_attributes(self):
+        return [Input('image', 'image')], \
+               [Output('lines', 'lines')], \
+               [FloatParameter('rho', 'rho'),
+                FloatParameter('theta', 'theta'),
+                FloatParameter('threshold', 'threshold'),
+                FloatParameter('srn', 'srn'),
+                FloatParameter('stn', 'stn'),
+                FloatParameter('min_theta', 'min_theta'),
+                FloatParameter('max_theta', 'max_theta')]
+
+    def process_inputs(self, inputs, outputs, parameters):
+        image = inputs['image'].value
+        rho = parameters['rho']
+        theta = parameters['theta']
+        threshold = parameters['threshold']
+        srn = parameters['srn']
+        stn = parameters['stn']
+        min_theta = parameters['min_theta']
+        max_theta = parameters['max_theta']
+        lines = cv2.HoughLines(image=image, rho=rho, theta=theta, threshold=threshold, srn=srn, stn=stn, min_theta=min_theta, max_theta=max_theta)
+        outputs['lines'] = Data(lines)
+
+### HoughLinesP ###
+
+class OpenCVAuto2_HoughLinesP(NormalElement):
+    name = 'HoughLinesP'
+    comment = '''HoughLinesP(image, rho, theta, threshold[, lines[, minLineLength[, maxLineGap]]]) -> lines\n@brief Finds line segments in a binary image using the probabilistic Hough transform.\n\nThe function implements the probabilistic Hough transform algorithm for line detection, described\nin @cite Matas00\n\nSee the line detection example below:\n@include snippets/imgproc_HoughLinesP.cpp\nThis is a sample picture the function parameters have been tuned for:\n\n![image](pics/building.jpg)\n\nAnd this is the output of the above program in case of the probabilistic Hough transform:\n\n![image](pics/houghp.png)\n\n@param image 8-bit, single-channel binary source image. The image may be modified by the function.\n@param lines Output vector of lines. Each line is represented by a 4-element vector\n\f$(x_1, y_1, x_2, y_2)\f$ , where \f$(x_1,y_1)\f$ and \f$(x_2, y_2)\f$ are the ending points of each detected\nline segment.\n@param rho Distance resolution of the accumulator in pixels.\n@param theta Angle resolution of the accumulator in radians.\n@param threshold Accumulator threshold parameter. Only those lines are returned that get enough\nvotes ( \f$>\texttt{threshold}\f$ ).\n@param minLineLength Minimum line length. Line segments shorter than that are rejected.\n@param maxLineGap Maximum allowed gap between points on the same line to link them.\n\n@sa LineSegmentDetector'''
+
+    def get_attributes(self):
+        return [Input('image', 'image')], \
+               [Output('lines', 'lines')], \
+               [FloatParameter('rho', 'rho'),
+                FloatParameter('theta', 'theta'),
+                FloatParameter('threshold', 'threshold'),
+                FloatParameter('minLineLength', 'minLineLength'),
+                FloatParameter('maxLineGap', 'maxLineGap')]
+
+    def process_inputs(self, inputs, outputs, parameters):
+        image = inputs['image'].value
+        rho = parameters['rho']
+        theta = parameters['theta']
+        threshold = parameters['threshold']
+        minLineLength = parameters['minLineLength']
+        maxLineGap = parameters['maxLineGap']
+        lines = cv2.HoughLinesP(image=image, rho=rho, theta=theta, threshold=threshold, minLineLength=minLineLength, maxLineGap=maxLineGap)
+        outputs['lines'] = Data(lines)
+
+### HoughLinesPointSet ###
+
+class OpenCVAuto2_HoughLinesPointSet(NormalElement):
+    name = 'HoughLinesPointSet'
+    comment = '''HoughLinesPointSet(_point, lines_max, threshold, min_rho, max_rho, rho_step, min_theta, max_theta, theta_step[, _lines]) -> _lines\n@brief Finds lines in a set of points using the standard Hough transform.\n\nThe function finds lines in a set of points using a modification of the Hough transform.\n@include snippets/imgproc_HoughLinesPointSet.cpp\n@param _point Input vector of points. Each vector must be encoded as a Point vector \f$(x,y)\f$. Type must be CV_32FC2 or CV_32SC2.\n@param _lines Output vector of found lines. Each vector is encoded as a vector<Vec3d> \f$(votes, rho, theta)\f$.\nThe larger the value of 'votes', the higher the reliability of the Hough line.\n@param lines_max Max count of hough lines.\n@param threshold Accumulator threshold parameter. Only those lines are returned that get enough\nvotes ( \f$>\texttt{threshold}\f$ )\n@param min_rho Minimum Distance value of the accumulator in pixels.\n@param max_rho Maximum Distance value of the accumulator in pixels.\n@param rho_step Distance resolution of the accumulator in pixels.\n@param min_theta Minimum angle value of the accumulator in radians.\n@param max_theta Maximum angle value of the accumulator in radians.\n@param theta_step Angle resolution of the accumulator in radians.'''
+
+    def get_attributes(self):
+        return [Input('_point', '_point')], \
+               [Output('_lines', '_lines')], \
+               [IntParameter('lines_max', 'lines_max'),
+                FloatParameter('threshold', 'threshold'),
+                FloatParameter('min_rho', 'min_rho'),
+                FloatParameter('max_rho', 'max_rho'),
+                FloatParameter('rho_step', 'rho_step'),
+                FloatParameter('min_theta', 'min_theta'),
+                FloatParameter('max_theta', 'max_theta'),
+                FloatParameter('theta_step', 'theta_step')]
+
+    def process_inputs(self, inputs, outputs, parameters):
+        _point = inputs['_point'].value
+        lines_max = parameters['lines_max']
+        threshold = parameters['threshold']
+        min_rho = parameters['min_rho']
+        max_rho = parameters['max_rho']
+        rho_step = parameters['rho_step']
+        min_theta = parameters['min_theta']
+        max_theta = parameters['max_theta']
+        theta_step = parameters['theta_step']
+        _lines = cv2.HoughLinesPointSet(_point=_point, lines_max=lines_max, threshold=threshold, min_rho=min_rho, max_rho=max_rho, rho_step=rho_step, min_theta=min_theta, max_theta=max_theta, theta_step=theta_step)
+        outputs['_lines'] = Data(_lines)
 
 ### HuMoments ###
 
@@ -63,6 +177,24 @@ KeyPoint_convert(points2f[, size[, response[, octave[, class_id]]]]) -> keypoint
         points2f = cv2.KeyPoint_convert(keypoints=keypoints)
         outputs['points2f'] = Data(points2f)
 
+### LUT ###
+
+class OpenCVAuto2_LUT(NormalElement):
+    name = 'LUT'
+    comment = '''LUT(src, lut[, dst]) -> dst\n@brief Performs a look-up table transform of an array.\n\nThe function LUT fills the output array with values from the look-up table. Indices of the entries\nare taken from the input array. That is, the function processes each element of src as follows:\n\f[\texttt{dst} (I)  \leftarrow \texttt{lut(src(I) + d)}\f]\nwhere\n\f[d =  \fork{0}{if \(\texttt{src}\) has depth \(\texttt{CV_8U}\)}{128}{if \(\texttt{src}\) has depth \(\texttt{CV_8S}\)}\f]\n@param src input array of 8-bit elements.\n@param lut look-up table of 256 elements; in case of multi-channel input array, the table should\neither have a single channel (in this case the same table is used for all channels) or the same\nnumber of channels as in the input array.\n@param dst output array of the same size and number of channels as src, and the same depth as lut.\n@sa  convertScaleAbs, Mat::convertTo'''
+
+    def get_attributes(self):
+        return [Input('src', 'src'),
+                Input('lut', 'lut')], \
+               [Output('dst', 'dst')], \
+               []
+
+    def process_inputs(self, inputs, outputs, parameters):
+        src = inputs['src'].value
+        lut = inputs['lut'].value
+        dst = cv2.LUT(src=src, lut=lut)
+        outputs['dst'] = Data(dst)
+
 ### Laplacian ###
 
 class OpenCVAuto2_Laplacian(NormalElement):
@@ -72,19 +204,86 @@ class OpenCVAuto2_Laplacian(NormalElement):
     def get_attributes(self):
         return [Input('src', 'src')], \
                [Output('dst', 'dst')], \
-               [ComboboxParameter('ddepth', [('NONE',0),('CV_8U',0),('CV_8UC1',0),('CV_8UC2',8),('CV_8UC3',16),('CV_8UC4',24),('CV_8S',1),('CV_8SC1',1),('CV_8SC2',9),('CV_8SC3',17),('CV_8SC4',25),('CV_16U',2),('CV_16UC1',2),('CV_16UC2',10),('CV_16UC3',18),('CV_16UC4',26),('CV_16S',3),('CV_16SC1',3),('CV_16SC2',11),('CV_16SC3',19),('CV_16SC4',27),('CV_32S',4),('CV_32SC1',4),('CV_32SC2',12),('CV_32SC3',20),('CV_32SC4',28),('CV_32F',5),('CV_32FC1',5),('CV_32FC2',13),('CV_32FC3',21),('CV_32FC4',29),('CV_64F',6),('CV_64FC1',6),('CV_64FC2',14),('CV_64FC3',22),('CV_64FC4',30)]),
+               [ComboboxParameter('ddepth', [('NONE',-1),('CV_8U',0),('CV_8UC1',0),('CV_8S',1),('CV_8SC1',1),('CV_16U',2),('CV_16UC1',2),('CV_16S',3),('CV_16SC1',3),('CV_32S',4),('CV_32SC1',4),('CV_32F',5),('CV_32FC1',5),('CV_64F',6),('CV_64FC1',6),('CV_8UC2',8),('CV_8SC2',9),('CV_16UC2',10),('CV_16SC2',11),('CV_32SC2',12),('CV_32FC2',13),('CV_64FC2',14),('CV_8UC3',16),('CV_8SC3',17),('CV_16UC3',18),('CV_16SC3',19),('CV_32SC3',20),('CV_32FC3',21),('CV_64FC3',22),('CV_8UC4',24),('CV_8SC4',25),('CV_16UC4',26),('CV_16SC4',27),('CV_32SC4',28),('CV_32FC4',29),('CV_64FC4',30)]),
                 SizeParameter('ksize', 'ksize'),
                 FloatParameter('scale', 'scale'),
-                ComboboxParameter('borderType', [('BORDER_CONSTANT',0),('BORDER_DEFAULT',4),('BORDER_ISOLATED',16),('BORDER_REFLECT',2),('BORDER_REFLECT101',4),('BORDER_REFLECT_101',4),('BORDER_REPLICATE',1),('BORDER_TRANSPARENT',5),('BORDER_WRAP',3)])]
+                FloatParameter('delta', 'delta'),
+                ComboboxParameter('borderType', [('BORDER_CONSTANT',0),('BORDER_REPLICATE',1),('BORDER_REFLECT',2),('BORDER_WRAP',3),('BORDER_DEFAULT',4),('BORDER_REFLECT101',4),('BORDER_REFLECT_101',4),('BORDER_TRANSPARENT',5),('BORDER_ISOLATED',16)])]
 
     def process_inputs(self, inputs, outputs, parameters):
         src = inputs['src'].value
         ddepth = parameters['ddepth']
         ksize = parameters['ksize']
         scale = parameters['scale']
+        delta = parameters['delta']
         borderType = parameters['borderType']
-        dst = cv2.Laplacian(src=src, ddepth=ddepth, ksize=ksize, scale=scale, borderType=borderType)
+        dst = cv2.Laplacian(src=src, ddepth=ddepth, ksize=ksize, scale=scale, delta=delta, borderType=borderType)
         outputs['dst'] = Data(dst)
+
+### PCABackProject ###
+
+class OpenCVAuto2_PCABackProject(NormalElement):
+    name = 'PCABackProject'
+    comment = '''PCABackProject(data, mean, eigenvectors[, result]) -> result\nwrap PCA::backProject'''
+
+    def get_attributes(self):
+        return [Input('data', 'data'),
+                Input('mean', 'mean'),
+                Input('eigenvectors', 'eigenvectors')], \
+               [Output('result', 'result')], \
+               []
+
+    def process_inputs(self, inputs, outputs, parameters):
+        data = inputs['data'].value
+        mean = inputs['mean'].value
+        eigenvectors = inputs['eigenvectors'].value
+        result = cv2.PCABackProject(data=data, mean=mean, eigenvectors=eigenvectors)
+        outputs['result'] = Data(result)
+
+### PCACompute ###
+
+class OpenCVAuto2_PCACompute(NormalElement):
+    name = 'PCACompute'
+    comment = '''PCACompute(data, mean[, eigenvectors[, maxComponents]]) -> mean, eigenvectors\nwrap PCA::operator()
+
+
+
+PCACompute(data, mean, retainedVariance[, eigenvectors]) -> mean, eigenvectors\nwrap PCA::operator()'''
+
+    def get_attributes(self):
+        return [Input('data', 'data'),
+                Input('mean', 'mean')], \
+               [Output('mean', 'mean'),
+                Output('eigenvectors', 'eigenvectors')], \
+               [IntParameter('maxComponents', 'maxComponents')]
+
+    def process_inputs(self, inputs, outputs, parameters):
+        data = inputs['data'].value
+        mean = inputs['mean'].value.copy()
+        maxComponents = parameters['maxComponents']
+        mean, eigenvectors = cv2.PCACompute(data=data, mean=mean, maxComponents=maxComponents)
+        outputs['mean'] = Data(mean)
+        outputs['eigenvectors'] = Data(eigenvectors)
+
+### PCAProject ###
+
+class OpenCVAuto2_PCAProject(NormalElement):
+    name = 'PCAProject'
+    comment = '''PCAProject(data, mean, eigenvectors[, result]) -> result\nwrap PCA::project'''
+
+    def get_attributes(self):
+        return [Input('data', 'data'),
+                Input('mean', 'mean'),
+                Input('eigenvectors', 'eigenvectors')], \
+               [Output('result', 'result')], \
+               []
+
+    def process_inputs(self, inputs, outputs, parameters):
+        data = inputs['data'].value
+        mean = inputs['mean'].value
+        eigenvectors = inputs['eigenvectors'].value
+        result = cv2.PCAProject(data=data, mean=mean, eigenvectors=eigenvectors)
+        outputs['result'] = Data(result)
 
 ### RQDecomp3x3 ###
 
@@ -128,6 +327,28 @@ class OpenCVAuto2_Rodrigues(NormalElement):
         outputs['dst'] = Data(dst)
         outputs['jacobian'] = Data(jacobian)
 
+### SVBackSubst ###
+
+class OpenCVAuto2_SVBackSubst(NormalElement):
+    name = 'SVBackSubst'
+    comment = '''SVBackSubst(w, u, vt, rhs[, dst]) -> dst\nwrap SVD::backSubst'''
+
+    def get_attributes(self):
+        return [Input('w', 'w'),
+                Input('u', 'u'),
+                Input('vt', 'vt'),
+                Input('rhs', 'rhs')], \
+               [Output('dst', 'dst')], \
+               []
+
+    def process_inputs(self, inputs, outputs, parameters):
+        w = inputs['w'].value
+        u = inputs['u'].value
+        vt = inputs['vt'].value
+        rhs = inputs['rhs'].value
+        dst = cv2.SVBackSubst(w=w, u=u, vt=vt, rhs=rhs)
+        outputs['dst'] = Data(dst)
+
 ### Scharr ###
 
 class OpenCVAuto2_Scharr(NormalElement):
@@ -137,11 +358,12 @@ class OpenCVAuto2_Scharr(NormalElement):
     def get_attributes(self):
         return [Input('src', 'src')], \
                [Output('dst', 'dst')], \
-               [ComboboxParameter('ddepth', [('NONE',0),('CV_8U',0),('CV_8UC1',0),('CV_8UC2',8),('CV_8UC3',16),('CV_8UC4',24),('CV_8S',1),('CV_8SC1',1),('CV_8SC2',9),('CV_8SC3',17),('CV_8SC4',25),('CV_16U',2),('CV_16UC1',2),('CV_16UC2',10),('CV_16UC3',18),('CV_16UC4',26),('CV_16S',3),('CV_16SC1',3),('CV_16SC2',11),('CV_16SC3',19),('CV_16SC4',27),('CV_32S',4),('CV_32SC1',4),('CV_32SC2',12),('CV_32SC3',20),('CV_32SC4',28),('CV_32F',5),('CV_32FC1',5),('CV_32FC2',13),('CV_32FC3',21),('CV_32FC4',29),('CV_64F',6),('CV_64FC1',6),('CV_64FC2',14),('CV_64FC3',22),('CV_64FC4',30)]),
-                IntParameter('dx', 'dx'),
-                IntParameter('dy', 'dy'),
+               [ComboboxParameter('ddepth', [('NONE',-1),('CV_8U',0),('CV_8UC1',0),('CV_8S',1),('CV_8SC1',1),('CV_16U',2),('CV_16UC1',2),('CV_16S',3),('CV_16SC1',3),('CV_32S',4),('CV_32SC1',4),('CV_32F',5),('CV_32FC1',5),('CV_64F',6),('CV_64FC1',6),('CV_8UC2',8),('CV_8SC2',9),('CV_16UC2',10),('CV_16SC2',11),('CV_32SC2',12),('CV_32FC2',13),('CV_64FC2',14),('CV_8UC3',16),('CV_8SC3',17),('CV_16UC3',18),('CV_16SC3',19),('CV_32SC3',20),('CV_32FC3',21),('CV_64FC3',22),('CV_8UC4',24),('CV_8SC4',25),('CV_16UC4',26),('CV_16SC4',27),('CV_32SC4',28),('CV_32FC4',29),('CV_64FC4',30)]),
+                IntParameter('dx', 'dx', min_=0),
+                IntParameter('dy', 'dy', min_=0),
                 FloatParameter('scale', 'scale'),
-                ComboboxParameter('borderType', [('BORDER_CONSTANT',0),('BORDER_DEFAULT',4),('BORDER_ISOLATED',16),('BORDER_REFLECT',2),('BORDER_REFLECT101',4),('BORDER_REFLECT_101',4),('BORDER_REPLICATE',1),('BORDER_TRANSPARENT',5),('BORDER_WRAP',3)])]
+                FloatParameter('delta', 'delta'),
+                ComboboxParameter('borderType', [('BORDER_CONSTANT',0),('BORDER_REPLICATE',1),('BORDER_REFLECT',2),('BORDER_WRAP',3),('BORDER_DEFAULT',4),('BORDER_REFLECT101',4),('BORDER_REFLECT_101',4),('BORDER_TRANSPARENT',5),('BORDER_ISOLATED',16)])]
 
     def process_inputs(self, inputs, outputs, parameters):
         src = inputs['src'].value
@@ -149,8 +371,9 @@ class OpenCVAuto2_Scharr(NormalElement):
         dx = parameters['dx']
         dy = parameters['dy']
         scale = parameters['scale']
+        delta = parameters['delta']
         borderType = parameters['borderType']
-        dst = cv2.Scharr(src=src, ddepth=ddepth, dx=dx, dy=dy, scale=scale, borderType=borderType)
+        dst = cv2.Scharr(src=src, ddepth=ddepth, dx=dx, dy=dy, scale=scale, delta=delta, borderType=borderType)
         outputs['dst'] = Data(dst)
 
 ### Sobel ###
@@ -162,12 +385,13 @@ class OpenCVAuto2_Sobel(NormalElement):
     def get_attributes(self):
         return [Input('src', 'src')], \
                [Output('dst', 'dst')], \
-               [ComboboxParameter('ddepth', [('NONE',0),('CV_8U',0),('CV_8UC1',0),('CV_8UC2',8),('CV_8UC3',16),('CV_8UC4',24),('CV_8S',1),('CV_8SC1',1),('CV_8SC2',9),('CV_8SC3',17),('CV_8SC4',25),('CV_16U',2),('CV_16UC1',2),('CV_16UC2',10),('CV_16UC3',18),('CV_16UC4',26),('CV_16S',3),('CV_16SC1',3),('CV_16SC2',11),('CV_16SC3',19),('CV_16SC4',27),('CV_32S',4),('CV_32SC1',4),('CV_32SC2',12),('CV_32SC3',20),('CV_32SC4',28),('CV_32F',5),('CV_32FC1',5),('CV_32FC2',13),('CV_32FC3',21),('CV_32FC4',29),('CV_64F',6),('CV_64FC1',6),('CV_64FC2',14),('CV_64FC3',22),('CV_64FC4',30)]),
-                IntParameter('dx', 'dx'),
-                IntParameter('dy', 'dy'),
+               [ComboboxParameter('ddepth', [('NONE',-1),('CV_8U',0),('CV_8UC1',0),('CV_8S',1),('CV_8SC1',1),('CV_16U',2),('CV_16UC1',2),('CV_16S',3),('CV_16SC1',3),('CV_32S',4),('CV_32SC1',4),('CV_32F',5),('CV_32FC1',5),('CV_64F',6),('CV_64FC1',6),('CV_8UC2',8),('CV_8SC2',9),('CV_16UC2',10),('CV_16SC2',11),('CV_32SC2',12),('CV_32FC2',13),('CV_64FC2',14),('CV_8UC3',16),('CV_8SC3',17),('CV_16UC3',18),('CV_16SC3',19),('CV_32SC3',20),('CV_32FC3',21),('CV_64FC3',22),('CV_8UC4',24),('CV_8SC4',25),('CV_16UC4',26),('CV_16SC4',27),('CV_32SC4',28),('CV_32FC4',29),('CV_64FC4',30)]),
+                IntParameter('dx', 'dx', min_=0),
+                IntParameter('dy', 'dy', min_=0),
                 SizeParameter('ksize', 'ksize'),
                 FloatParameter('scale', 'scale'),
-                ComboboxParameter('borderType', [('BORDER_CONSTANT',0),('BORDER_DEFAULT',4),('BORDER_ISOLATED',16),('BORDER_REFLECT',2),('BORDER_REFLECT101',4),('BORDER_REFLECT_101',4),('BORDER_REPLICATE',1),('BORDER_TRANSPARENT',5),('BORDER_WRAP',3)])]
+                FloatParameter('delta', 'delta'),
+                ComboboxParameter('borderType', [('BORDER_CONSTANT',0),('BORDER_REPLICATE',1),('BORDER_REFLECT',2),('BORDER_WRAP',3),('BORDER_DEFAULT',4),('BORDER_REFLECT101',4),('BORDER_REFLECT_101',4),('BORDER_TRANSPARENT',5),('BORDER_ISOLATED',16)])]
 
     def process_inputs(self, inputs, outputs, parameters):
         src = inputs['src'].value
@@ -176,8 +400,9 @@ class OpenCVAuto2_Sobel(NormalElement):
         dy = parameters['dy']
         ksize = parameters['ksize']
         scale = parameters['scale']
+        delta = parameters['delta']
         borderType = parameters['borderType']
-        dst = cv2.Sobel(src=src, ddepth=ddepth, dx=dx, dy=dy, ksize=ksize, scale=scale, borderType=borderType)
+        dst = cv2.Sobel(src=src, ddepth=ddepth, dx=dx, dy=dy, ksize=ksize, scale=scale, delta=delta, borderType=borderType)
         outputs['dst'] = Data(dst)
 
 ### absdiff ###
@@ -213,7 +438,7 @@ class OpenCVAuto2_Accumulate(NormalElement):
 
     def process_inputs(self, inputs, outputs, parameters):
         src = inputs['src'].value
-        dst = inputs['dst'].value
+        dst = inputs['dst'].value.copy()
         mask = inputs['mask'].value
         dst = cv2.accumulate(src=src, dst=dst, mask=mask)
         outputs['dst'] = Data(dst)
@@ -235,7 +460,7 @@ class OpenCVAuto2_AccumulateProduct(NormalElement):
     def process_inputs(self, inputs, outputs, parameters):
         src1 = inputs['src1'].value
         src2 = inputs['src2'].value
-        dst = inputs['dst'].value
+        dst = inputs['dst'].value.copy()
         mask = inputs['mask'].value
         dst = cv2.accumulateProduct(src1=src1, src2=src2, dst=dst, mask=mask)
         outputs['dst'] = Data(dst)
@@ -255,7 +480,7 @@ class OpenCVAuto2_AccumulateSquare(NormalElement):
 
     def process_inputs(self, inputs, outputs, parameters):
         src = inputs['src'].value
-        dst = inputs['dst'].value
+        dst = inputs['dst'].value.copy()
         mask = inputs['mask'].value
         dst = cv2.accumulateSquare(src=src, dst=dst, mask=mask)
         outputs['dst'] = Data(dst)
@@ -275,10 +500,35 @@ class OpenCVAuto2_AccumulateWeighted(NormalElement):
 
     def process_inputs(self, inputs, outputs, parameters):
         src = inputs['src'].value
-        dst = inputs['dst'].value
+        dst = inputs['dst'].value.copy()
         mask = inputs['mask'].value
         alpha = parameters['alpha']
         dst = cv2.accumulateWeighted(src=src, dst=dst, mask=mask, alpha=alpha)
+        outputs['dst'] = Data(dst)
+
+### adaptiveThreshold ###
+
+class OpenCVAuto2_AdaptiveThreshold(NormalElement):
+    name = 'AdaptiveThreshold'
+    comment = '''adaptiveThreshold(src, maxValue, adaptiveMethod, thresholdType, blockSize, C[, dst]) -> dst\n@brief Applies an adaptive threshold to an array.\n\nThe function transforms a grayscale image to a binary image according to the formulae:\n-   **THRESH_BINARY**\n\f[dst(x,y) =  \fork{\texttt{maxValue}}{if \(src(x,y) > T(x,y)\)}{0}{otherwise}\f]\n-   **THRESH_BINARY_INV**\n\f[dst(x,y) =  \fork{0}{if \(src(x,y) > T(x,y)\)}{\texttt{maxValue}}{otherwise}\f]\nwhere \f$T(x,y)\f$ is a threshold calculated individually for each pixel (see adaptiveMethod parameter).\n\nThe function can process the image in-place.\n\n@param src Source 8-bit single-channel image.\n@param dst Destination image of the same size and the same type as src.\n@param maxValue Non-zero value assigned to the pixels for which the condition is satisfied\n@param adaptiveMethod Adaptive thresholding algorithm to use, see #AdaptiveThresholdTypes.\nThe #BORDER_REPLICATE | #BORDER_ISOLATED is used to process boundaries.\n@param thresholdType Thresholding type that must be either #THRESH_BINARY or #THRESH_BINARY_INV,\nsee #ThresholdTypes.\n@param blockSize Size of a pixel neighborhood that is used to calculate a threshold value for the\npixel: 3, 5, 7, and so on.\n@param C Constant subtracted from the mean or weighted mean (see the details below). Normally, it\nis positive but may be zero or negative as well.\n\n@sa  threshold, blur, GaussianBlur'''
+
+    def get_attributes(self):
+        return [Input('src', 'src')], \
+               [Output('dst', 'dst')], \
+               [FloatParameter('maxValue', 'maxValue'),
+                IntParameter('adaptiveMethod', 'adaptiveMethod'),
+                FloatParameter('thresholdType', 'thresholdType'),
+                SizeParameter('blockSize', 'blockSize'),
+                FloatParameter('C', 'C')]
+
+    def process_inputs(self, inputs, outputs, parameters):
+        src = inputs['src'].value
+        maxValue = parameters['maxValue']
+        adaptiveMethod = parameters['adaptiveMethod']
+        thresholdType = parameters['thresholdType']
+        blockSize = parameters['blockSize']
+        C = parameters['C']
+        dst = cv2.adaptiveThreshold(src=src, maxValue=maxValue, adaptiveMethod=adaptiveMethod, thresholdType=thresholdType, blockSize=blockSize, C=C)
         outputs['dst'] = Data(dst)
 
 ### add ###
@@ -292,7 +542,7 @@ class OpenCVAuto2_Add(NormalElement):
                 Input('src2', 'src2'),
                 Input('mask', 'mask', optional=True)], \
                [Output('dst', 'dst')], \
-               [ComboboxParameter('dtype', [('NONE',0),('CV_8U',0),('CV_8UC1',0),('CV_8UC2',8),('CV_8UC3',16),('CV_8UC4',24),('CV_8S',1),('CV_8SC1',1),('CV_8SC2',9),('CV_8SC3',17),('CV_8SC4',25),('CV_16U',2),('CV_16UC1',2),('CV_16UC2',10),('CV_16UC3',18),('CV_16UC4',26),('CV_16S',3),('CV_16SC1',3),('CV_16SC2',11),('CV_16SC3',19),('CV_16SC4',27),('CV_32S',4),('CV_32SC1',4),('CV_32SC2',12),('CV_32SC3',20),('CV_32SC4',28),('CV_32F',5),('CV_32FC1',5),('CV_32FC2',13),('CV_32FC3',21),('CV_32FC4',29),('CV_64F',6),('CV_64FC1',6),('CV_64FC2',14),('CV_64FC3',22),('CV_64FC4',30)])]
+               [ComboboxParameter('dtype', [('NONE',-1),('CV_8U',0),('CV_8UC1',0),('CV_8S',1),('CV_8SC1',1),('CV_16U',2),('CV_16UC1',2),('CV_16S',3),('CV_16SC1',3),('CV_32S',4),('CV_32SC1',4),('CV_32F',5),('CV_32FC1',5),('CV_64F',6),('CV_64FC1',6),('CV_8UC2',8),('CV_8SC2',9),('CV_16UC2',10),('CV_16SC2',11),('CV_32SC2',12),('CV_32FC2',13),('CV_64FC2',14),('CV_8UC3',16),('CV_8SC3',17),('CV_16UC3',18),('CV_16SC3',19),('CV_32SC3',20),('CV_32FC3',21),('CV_64FC3',22),('CV_8UC4',24),('CV_8SC4',25),('CV_16UC4',26),('CV_16SC4',27),('CV_32SC4',28),('CV_32FC4',29),('CV_64FC4',30)])]
 
     def process_inputs(self, inputs, outputs, parameters):
         src1 = inputs['src1'].value
@@ -315,7 +565,7 @@ class OpenCVAuto2_AddWeighted(NormalElement):
                [FloatParameter('alpha', 'alpha'),
                 FloatParameter('beta', 'beta'),
                 FloatParameter('gamma', 'gamma'),
-                ComboboxParameter('dtype', [('NONE',0),('CV_8U',0),('CV_8UC1',0),('CV_8UC2',8),('CV_8UC3',16),('CV_8UC4',24),('CV_8S',1),('CV_8SC1',1),('CV_8SC2',9),('CV_8SC3',17),('CV_8SC4',25),('CV_16U',2),('CV_16UC1',2),('CV_16UC2',10),('CV_16UC3',18),('CV_16UC4',26),('CV_16S',3),('CV_16SC1',3),('CV_16SC2',11),('CV_16SC3',19),('CV_16SC4',27),('CV_32S',4),('CV_32SC1',4),('CV_32SC2',12),('CV_32SC3',20),('CV_32SC4',28),('CV_32F',5),('CV_32FC1',5),('CV_32FC2',13),('CV_32FC3',21),('CV_32FC4',29),('CV_64F',6),('CV_64FC1',6),('CV_64FC2',14),('CV_64FC3',22),('CV_64FC4',30)])]
+                ComboboxParameter('dtype', [('NONE',-1),('CV_8U',0),('CV_8UC1',0),('CV_8S',1),('CV_8SC1',1),('CV_16U',2),('CV_16UC1',2),('CV_16S',3),('CV_16SC1',3),('CV_32S',4),('CV_32SC1',4),('CV_32F',5),('CV_32FC1',5),('CV_64F',6),('CV_64FC1',6),('CV_8UC2',8),('CV_8SC2',9),('CV_16UC2',10),('CV_16SC2',11),('CV_32SC2',12),('CV_32FC2',13),('CV_64FC2',14),('CV_8UC3',16),('CV_8SC3',17),('CV_16UC3',18),('CV_16SC3',19),('CV_32SC3',20),('CV_32FC3',21),('CV_64FC3',22),('CV_8UC4',24),('CV_8SC4',25),('CV_16UC4',26),('CV_16SC4',27),('CV_32SC4',28),('CV_32FC4',29),('CV_64FC4',30)])]
 
     def process_inputs(self, inputs, outputs, parameters):
         src1 = inputs['src1'].value
@@ -325,6 +575,27 @@ class OpenCVAuto2_AddWeighted(NormalElement):
         gamma = parameters['gamma']
         dtype = parameters['dtype']
         dst = cv2.addWeighted(src1=src1, src2=src2, alpha=alpha, beta=beta, gamma=gamma, dtype=dtype)
+        outputs['dst'] = Data(dst)
+
+### applyColorMap ###
+
+class OpenCVAuto2_ApplyColorMap(NormalElement):
+    name = 'ApplyColorMap'
+    comment = '''applyColorMap(src, colormap[, dst]) -> dst\n@brief Applies a GNU Octave/MATLAB equivalent colormap on a given image.\n\n@param src The source image, grayscale or colored of type CV_8UC1 or CV_8UC3.\n@param dst The result is the colormapped source image. Note: Mat::create is called on dst.\n@param colormap The colormap to apply, see #ColormapTypes
+
+
+
+applyColorMap(src, userColor[, dst]) -> dst\n@brief Applies a user colormap on a given image.\n\n@param src The source image, grayscale or colored of type CV_8UC1 or CV_8UC3.\n@param dst The result is the colormapped source image. Note: Mat::create is called on dst.\n@param userColor The colormap to apply of type CV_8UC1 or CV_8UC3 and size 256'''
+
+    def get_attributes(self):
+        return [Input('src', 'src')], \
+               [Output('dst', 'dst')], \
+               [IntParameter('colormap', 'colormap')]
+
+    def process_inputs(self, inputs, outputs, parameters):
+        src = inputs['src'].value
+        colormap = parameters['colormap']
+        dst = cv2.applyColorMap(src=src, colormap=colormap)
         outputs['dst'] = Data(dst)
 
 ### arrowedLine ###
@@ -339,39 +610,45 @@ class OpenCVAuto2_ArrowedLine(NormalElement):
                [PointParameter('pt1', 'pt1'),
                 PointParameter('pt2', 'pt2'),
                 ScalarParameter('color', 'color'),
-                IntParameter('thickness', 'thickness')]
+                IntParameter('thickness', 'thickness', min_=-1, max_=100),
+                IntParameter('line_type', 'line_type'),
+                IntParameter('shift', 'shift'),
+                FloatParameter('tipLength', 'tipLength')]
 
     def process_inputs(self, inputs, outputs, parameters):
-        img = inputs['img'].value
+        img = inputs['img'].value.copy()
         pt1 = parameters['pt1']
         pt2 = parameters['pt2']
         color = parameters['color']
         thickness = parameters['thickness']
-        img = cv2.arrowedLine(img=img, pt1=pt1, pt2=pt2, color=color, thickness=thickness)
+        line_type = parameters['line_type']
+        shift = parameters['shift']
+        tipLength = parameters['tipLength']
+        img = cv2.arrowedLine(img=img, pt1=pt1, pt2=pt2, color=color, thickness=thickness, line_type=line_type, shift=shift, tipLength=tipLength)
         outputs['img'] = Data(img)
 
-### batchDistance ###
+### bilateralFilter ###
 
-class OpenCVAuto2_BatchDistance(NormalElement):
-    name = 'BatchDistance'
-    comment = '''batchDistance(src1, src2, dtype[, dist[, nidx[, normType[, K[, mask[, update[, crosscheck]]]]]]]) -> dist, nidx\n@brief naive nearest neighbor finder\n\nsee http://en.wikipedia.org/wiki/Nearest_neighbor_search\n@todo document'''
+class OpenCVAuto2_BilateralFilter(NormalElement):
+    name = 'BilateralFilter'
+    comment = '''bilateralFilter(src, d, sigmaColor, sigmaSpace[, dst[, borderType]]) -> dst\n@brief Applies the bilateral filter to an image.\n\nThe function applies bilateral filtering to the input image, as described in\nhttp://www.dai.ed.ac.uk/CVonline/LOCAL_COPIES/MANDUCHI1/Bilateral_Filtering.html\nbilateralFilter can reduce unwanted noise very well while keeping edges fairly sharp. However, it is\nvery slow compared to most filters.\n\n_Sigma values_: For simplicity, you can set the 2 sigma values to be the same. If they are small (\<\n10), the filter will not have much effect, whereas if they are large (\> 150), they will have a very\nstrong effect, making the image look "cartoonish".\n\n_Filter size_: Large filters (d \> 5) are very slow, so it is recommended to use d=5 for real-time\napplications, and perhaps d=9 for offline applications that need heavy noise filtering.\n\nThis filter does not work inplace.\n@param src Source 8-bit or floating-point, 1-channel or 3-channel image.\n@param dst Destination image of the same size and type as src .\n@param d Diameter of each pixel neighborhood that is used during filtering. If it is non-positive,\nit is computed from sigmaSpace.\n@param sigmaColor Filter sigma in the color space. A larger value of the parameter means that\nfarther colors within the pixel neighborhood (see sigmaSpace) will be mixed together, resulting\nin larger areas of semi-equal color.\n@param sigmaSpace Filter sigma in the coordinate space. A larger value of the parameter means that\nfarther pixels will influence each other as long as their colors are close enough (see sigmaColor\n). When d\>0, it specifies the neighborhood size regardless of sigmaSpace. Otherwise, d is\nproportional to sigmaSpace.\n@param borderType border mode used to extrapolate pixels outside of the image, see #BorderTypes'''
 
     def get_attributes(self):
-        return [Input('src1', 'src1'),
-                Input('src2', 'src2'),
-                Input('mask', 'mask', optional=True)], \
-               [Output('dist', 'dist'),
-                Output('nidx', 'nidx')], \
-               [ComboboxParameter('dtype', [('NONE',0),('CV_8U',0),('CV_8UC1',0),('CV_8UC2',8),('CV_8UC3',16),('CV_8UC4',24),('CV_8S',1),('CV_8SC1',1),('CV_8SC2',9),('CV_8SC3',17),('CV_8SC4',25),('CV_16U',2),('CV_16UC1',2),('CV_16UC2',10),('CV_16UC3',18),('CV_16UC4',26),('CV_16S',3),('CV_16SC1',3),('CV_16SC2',11),('CV_16SC3',19),('CV_16SC4',27),('CV_32S',4),('CV_32SC1',4),('CV_32SC2',12),('CV_32SC3',20),('CV_32SC4',28),('CV_32F',5),('CV_32FC1',5),('CV_32FC2',13),('CV_32FC3',21),('CV_32FC4',29),('CV_64F',6),('CV_64FC1',6),('CV_64FC2',14),('CV_64FC3',22),('CV_64FC4',30)])]
+        return [Input('src', 'src')], \
+               [Output('dst', 'dst')], \
+               [IntParameter('d', 'd'),
+                FloatParameter('sigmaColor', 'sigmaColor'),
+                FloatParameter('sigmaSpace', 'sigmaSpace'),
+                ComboboxParameter('borderType', [('BORDER_CONSTANT',0),('BORDER_REPLICATE',1),('BORDER_REFLECT',2),('BORDER_WRAP',3),('BORDER_DEFAULT',4),('BORDER_REFLECT101',4),('BORDER_REFLECT_101',4),('BORDER_TRANSPARENT',5),('BORDER_ISOLATED',16)])]
 
     def process_inputs(self, inputs, outputs, parameters):
-        src1 = inputs['src1'].value
-        src2 = inputs['src2'].value
-        mask = inputs['mask'].value
-        dtype = parameters['dtype']
-        dist, nidx = cv2.batchDistance(src1=src1, src2=src2, mask=mask, dtype=dtype)
-        outputs['dist'] = Data(dist)
-        outputs['nidx'] = Data(nidx)
+        src = inputs['src'].value
+        d = parameters['d']
+        sigmaColor = parameters['sigmaColor']
+        sigmaSpace = parameters['sigmaSpace']
+        borderType = parameters['borderType']
+        dst = cv2.bilateralFilter(src=src, d=d, sigmaColor=sigmaColor, sigmaSpace=sigmaSpace, borderType=borderType)
+        outputs['dst'] = Data(dst)
 
 ### bitwise_and ###
 
@@ -462,7 +739,7 @@ class OpenCVAuto2_Blur(NormalElement):
                [Output('dst', 'dst')], \
                [SizeParameter('ksize', 'ksize'),
                 PointParameter('anchor', 'anchor'),
-                ComboboxParameter('borderType', [('BORDER_CONSTANT',0),('BORDER_DEFAULT',4),('BORDER_ISOLATED',16),('BORDER_REFLECT',2),('BORDER_REFLECT101',4),('BORDER_REFLECT_101',4),('BORDER_REPLICATE',1),('BORDER_TRANSPARENT',5),('BORDER_WRAP',3)])]
+                ComboboxParameter('borderType', [('BORDER_CONSTANT',0),('BORDER_REPLICATE',1),('BORDER_REFLECT',2),('BORDER_WRAP',3),('BORDER_DEFAULT',4),('BORDER_REFLECT101',4),('BORDER_REFLECT_101',4),('BORDER_TRANSPARENT',5),('BORDER_ISOLATED',16)])]
 
     def process_inputs(self, inputs, outputs, parameters):
         src = inputs['src'].value
@@ -472,28 +749,61 @@ class OpenCVAuto2_Blur(NormalElement):
         dst = cv2.blur(src=src, ksize=ksize, anchor=anchor, borderType=borderType)
         outputs['dst'] = Data(dst)
 
-### boxFilter ###
+### calcBackProject ###
 
-class OpenCVAuto2_BoxFilter(NormalElement):
-    name = 'BoxFilter'
-    comment = '''boxFilter(src, ddepth, ksize[, dst[, anchor[, normalize[, borderType]]]]) -> dst\n@brief Blurs an image using the box filter.\n\nThe function smooths an image using the kernel:\n\n\f[\texttt{K} =  \alpha \begin{bmatrix} 1 & 1 & 1 &  \cdots & 1 & 1  \\ 1 & 1 & 1 &  \cdots & 1 & 1  \\ \hdotsfor{6} \\ 1 & 1 & 1 &  \cdots & 1 & 1 \end{bmatrix}\f]\n\nwhere\n\n\f[\alpha = \fork{\frac{1}{\texttt{ksize.width*ksize.height}}}{when \texttt{normalize=true}}{1}{otherwise}\f]\n\nUnnormalized box filter is useful for computing various integral characteristics over each pixel\nneighborhood, such as covariance matrices of image derivatives (used in dense optical flow\nalgorithms, and so on). If you need to compute pixel sums over variable-size windows, use #integral.\n\n@param src input image.\n@param dst output image of the same size and type as src.\n@param ddepth the output image depth (-1 to use src.depth()).\n@param ksize blurring kernel size.\n@param anchor anchor point; default value Point(-1,-1) means that the anchor is at the kernel\ncenter.\n@param normalize flag, specifying whether the kernel is normalized by its area or not.\n@param borderType border mode used to extrapolate pixels outside of the image, see #BorderTypes\n@sa  blur, bilateralFilter, GaussianBlur, medianBlur, integral'''
+class OpenCVAuto2_CalcBackProject(NormalElement):
+    name = 'CalcBackProject'
+    comment = '''calcBackProject(images, channels, hist, ranges, scale[, dst]) -> dst\n@overload'''
 
     def get_attributes(self):
-        return [Input('src', 'src')], \
+        return [Input('images', 'images'),
+                Input('channels', 'channels'),
+                Input('hist', 'hist'),
+                Input('ranges', 'ranges')], \
                [Output('dst', 'dst')], \
-               [ComboboxParameter('ddepth', [('NONE',0),('CV_8U',0),('CV_8UC1',0),('CV_8UC2',8),('CV_8UC3',16),('CV_8UC4',24),('CV_8S',1),('CV_8SC1',1),('CV_8SC2',9),('CV_8SC3',17),('CV_8SC4',25),('CV_16U',2),('CV_16UC1',2),('CV_16UC2',10),('CV_16UC3',18),('CV_16UC4',26),('CV_16S',3),('CV_16SC1',3),('CV_16SC2',11),('CV_16SC3',19),('CV_16SC4',27),('CV_32S',4),('CV_32SC1',4),('CV_32SC2',12),('CV_32SC3',20),('CV_32SC4',28),('CV_32F',5),('CV_32FC1',5),('CV_32FC2',13),('CV_32FC3',21),('CV_32FC4',29),('CV_64F',6),('CV_64FC1',6),('CV_64FC2',14),('CV_64FC3',22),('CV_64FC4',30)]),
-                SizeParameter('ksize', 'ksize'),
-                PointParameter('anchor', 'anchor'),
-                ComboboxParameter('borderType', [('BORDER_CONSTANT',0),('BORDER_DEFAULT',4),('BORDER_ISOLATED',16),('BORDER_REFLECT',2),('BORDER_REFLECT101',4),('BORDER_REFLECT_101',4),('BORDER_REPLICATE',1),('BORDER_TRANSPARENT',5),('BORDER_WRAP',3)])]
+               [FloatParameter('scale', 'scale')]
 
     def process_inputs(self, inputs, outputs, parameters):
-        src = inputs['src'].value
-        ddepth = parameters['ddepth']
-        ksize = parameters['ksize']
-        anchor = parameters['anchor']
-        borderType = parameters['borderType']
-        dst = cv2.boxFilter(src=src, ddepth=ddepth, ksize=ksize, anchor=anchor, borderType=borderType)
+        images = inputs['images'].value
+        channels = inputs['channels'].value
+        hist = inputs['hist'].value
+        ranges = inputs['ranges'].value
+        scale = parameters['scale']
+        dst = cv2.calcBackProject(images=images, channels=channels, hist=hist, ranges=ranges, scale=scale)
         outputs['dst'] = Data(dst)
+
+### calcOpticalFlowFarneback ###
+
+class OpenCVAuto2_CalcOpticalFlowFarneback(NormalElement):
+    name = 'CalcOpticalFlowFarneback'
+    comment = '''calcOpticalFlowFarneback(prev, next, flow, pyr_scale, levels, winsize, iterations, poly_n, poly_sigma, flags) -> flow\n@brief Computes a dense optical flow using the Gunnar Farneback's algorithm.\n\n@param prev first 8-bit single-channel input image.\n@param next second input image of the same size and the same type as prev.\n@param flow computed flow image that has the same size as prev and type CV_32FC2.\n@param pyr_scale parameter, specifying the image scale (\<1) to build pyramids for each image;\npyr_scale=0.5 means a classical pyramid, where each next layer is twice smaller than the previous\none.\n@param levels number of pyramid layers including the initial image; levels=1 means that no extra\nlayers are created and only the original images are used.\n@param winsize averaging window size; larger values increase the algorithm robustness to image\nnoise and give more chances for fast motion detection, but yield more blurred motion field.\n@param iterations number of iterations the algorithm does at each pyramid level.\n@param poly_n size of the pixel neighborhood used to find polynomial expansion in each pixel;\nlarger values mean that the image will be approximated with smoother surfaces, yielding more\nrobust algorithm and more blurred motion field, typically poly_n =5 or 7.\n@param poly_sigma standard deviation of the Gaussian that is used to smooth derivatives used as a\nbasis for the polynomial expansion; for poly_n=5, you can set poly_sigma=1.1, for poly_n=7, a\ngood value would be poly_sigma=1.5.\n@param flags operation flags that can be a combination of the following:\n-   **OPTFLOW_USE_INITIAL_FLOW** uses the input flow as an initial flow approximation.\n-   **OPTFLOW_FARNEBACK_GAUSSIAN** uses the Gaussian \f$\texttt{winsize}\times\texttt{winsize}\f$\nfilter instead of a box filter of the same size for optical flow estimation; usually, this\noption gives z more accurate flow than with a box filter, at the cost of lower speed;\nnormally, winsize for a Gaussian window should be set to a larger value to achieve the same\nlevel of robustness.\n\nThe function finds an optical flow for each prev pixel using the @cite Farneback2003 algorithm so that\n\n\f[\texttt{prev} (y,x)  \sim \texttt{next} ( y + \texttt{flow} (y,x)[1],  x + \texttt{flow} (y,x)[0])\f]\n\n@note\n\n-   An example using the optical flow algorithm described by Gunnar Farneback can be found at\nopencv_source_code/samples/cpp/fback.cpp\n-   (Python) An example using the optical flow algorithm described by Gunnar Farneback can be\nfound at opencv_source_code/samples/python/opt_flow.py'''
+
+    def get_attributes(self):
+        return [Input('prev', 'prev'),
+                Input('next', 'next'),
+                Input('flow', 'flow')], \
+               [Output('flow', 'flow')], \
+               [FloatParameter('pyr_scale', 'pyr_scale'),
+                IntParameter('levels', 'levels'),
+                SizeParameter('winsize', 'winsize'),
+                IntParameter('iterations', 'iterations', min_=0),
+                IntParameter('poly_n', 'poly_n'),
+                FloatParameter('poly_sigma', 'poly_sigma'),
+                ComboboxParameter('flags', [('OPTFLOW_USE_INITIAL_FLOW',4),('OPTFLOW_LK_GET_MIN_EIGENVALS',8),('OPTFLOW_FARNEBACK_GAUSSIAN',256)])]
+
+    def process_inputs(self, inputs, outputs, parameters):
+        prev = inputs['prev'].value
+        next = inputs['next'].value
+        flow = inputs['flow'].value.copy()
+        pyr_scale = parameters['pyr_scale']
+        levels = parameters['levels']
+        winsize = parameters['winsize']
+        iterations = parameters['iterations']
+        poly_n = parameters['poly_n']
+        poly_sigma = parameters['poly_sigma']
+        flags = parameters['flags']
+        flow = cv2.calcOpticalFlowFarneback(prev=prev, next=next, flow=flow, pyr_scale=pyr_scale, levels=levels, winsize=winsize, iterations=iterations, poly_n=poly_n, poly_sigma=poly_sigma, flags=flags)
+        outputs['flow'] = Data(flow)
 
 ### calibrateCameraExtended ###
 
@@ -514,14 +824,14 @@ class OpenCVAuto2_CalibrateCameraExtended(NormalElement):
                 Output('stdDeviationsIntrinsics', 'stdDeviationsIntrinsics'),
                 Output('stdDeviationsExtrinsics', 'stdDeviationsExtrinsics'),
                 Output('perViewErrors', 'perViewErrors')], \
-               [ComboboxParameter('flags', [('CALIB_USE_INTRINSIC_GUESS',1),('CALIB_FIX_PRINCIPAL_POINT',4),('CALIB_FIX_ASPECT_RATIO',2),('CALIB_ZERO_TANGENT_DIST',8),('CALIB_FIX_K1',32),('CALIB_FIX_K6',8192),('CALIB_RATIONAL_MODEL',16384),('CALIB_THIN_PRISM_MODEL',32768),('CALIB_FIX_S1_S2_S3_S4',65536),('CALIB_TILTED_MODEL',262144),('CALIB_FIX_TAUX_TAUY',524288)])]
+               [ComboboxParameter('flags', [('CALIB_USE_INTRINSIC_GUESS',1),('CALIB_CB_ADAPTIVE_THRESH',1),('CALIB_CB_SYMMETRIC_GRID',1),('CALIB_FIX_ASPECT_RATIO',2),('CALIB_CB_ASYMMETRIC_GRID',2),('CALIB_CB_NORMALIZE_IMAGE',2),('CALIB_FIX_PRINCIPAL_POINT',4),('CALIB_CB_CLUSTERING',4),('CALIB_CB_FILTER_QUADS',4),('CALIB_ZERO_TANGENT_DIST',8),('CALIB_CB_FAST_CHECK',8),('CALIB_FIX_FOCAL_LENGTH',16),('CALIB_FIX_K1',32),('CALIB_FIX_K2',64),('CALIB_FIX_K3',128),('CALIB_FIX_INTRINSIC',256),('CALIB_SAME_FOCAL_LENGTH',512),('CALIB_ZERO_DISPARITY',1024),('CALIB_FIX_K4',2048),('CALIB_FIX_K5',4096),('CALIB_FIX_K6',8192),('CALIB_RATIONAL_MODEL',16384),('CALIB_THIN_PRISM_MODEL',32768),('CALIB_FIX_S1_S2_S3_S4',65536),('CALIB_USE_LU',131072),('CALIB_TILTED_MODEL',262144),('CALIB_FIX_TAUX_TAUY',524288),('CALIB_USE_QR',1048576),('CALIB_FIX_TANGENT_DIST',2097152),('CALIB_USE_EXTRINSIC_GUESS',4194304)])]
 
     def process_inputs(self, inputs, outputs, parameters):
         objectPoints = inputs['objectPoints'].value
         imagePoints = inputs['imagePoints'].value
         imageSize = inputs['imageSize'].value
-        cameraMatrix = inputs['cameraMatrix'].value
-        distCoeffs = inputs['distCoeffs'].value
+        cameraMatrix = inputs['cameraMatrix'].value.copy()
+        distCoeffs = inputs['distCoeffs'].value.copy()
         flags = parameters['flags']
         retval, cameraMatrix, distCoeffs, rvecs, tvecs, stdDeviationsIntrinsics, stdDeviationsExtrinsics, perViewErrors = cv2.calibrateCameraExtended(objectPoints=objectPoints, imagePoints=imagePoints, imageSize=imageSize, cameraMatrix=cameraMatrix, distCoeffs=distCoeffs, flags=flags)
         outputs['cameraMatrix'] = Data(cameraMatrix)
@@ -531,6 +841,35 @@ class OpenCVAuto2_CalibrateCameraExtended(NormalElement):
         outputs['stdDeviationsIntrinsics'] = Data(stdDeviationsIntrinsics)
         outputs['stdDeviationsExtrinsics'] = Data(stdDeviationsExtrinsics)
         outputs['perViewErrors'] = Data(perViewErrors)
+
+### calibrationMatrixValues ###
+
+class OpenCVAuto2_CalibrationMatrixValues(NormalElement):
+    name = 'CalibrationMatrixValues'
+    comment = '''calibrationMatrixValues(cameraMatrix, imageSize, apertureWidth, apertureHeight) -> fovx, fovy, focalLength, principalPoint, aspectRatio\n@brief Computes useful camera characteristics from the camera matrix.\n\n@param cameraMatrix Input camera matrix that can be estimated by calibrateCamera or\nstereoCalibrate .\n@param imageSize Input image size in pixels.\n@param apertureWidth Physical width in mm of the sensor.\n@param apertureHeight Physical height in mm of the sensor.\n@param fovx Output field of view in degrees along the horizontal sensor axis.\n@param fovy Output field of view in degrees along the vertical sensor axis.\n@param focalLength Focal length of the lens in mm.\n@param principalPoint Principal point in mm.\n@param aspectRatio \f$f_y/f_x\f$\n\nThe function computes various useful camera characteristics from the previously estimated camera\nmatrix.\n\n@note\nDo keep in mind that the unity measure 'mm' stands for whatever unit of measure one chooses for\nthe chessboard pitch (it can thus be any value).'''
+
+    def get_attributes(self):
+        return [Input('cameraMatrix', 'cameraMatrix'),
+                Input('imageSize', 'imageSize')], \
+               [Output('fovx', 'fovx'),
+                Output('fovy', 'fovy'),
+                Output('focalLength', 'focalLength'),
+                Output('principalPoint', 'principalPoint'),
+                Output('aspectRatio', 'aspectRatio')], \
+               [FloatParameter('apertureWidth', 'apertureWidth'),
+                FloatParameter('apertureHeight', 'apertureHeight')]
+
+    def process_inputs(self, inputs, outputs, parameters):
+        cameraMatrix = inputs['cameraMatrix'].value
+        imageSize = inputs['imageSize'].value
+        apertureWidth = parameters['apertureWidth']
+        apertureHeight = parameters['apertureHeight']
+        fovx, fovy, focalLength, principalPoint, aspectRatio = cv2.calibrationMatrixValues(cameraMatrix=cameraMatrix, imageSize=imageSize, apertureWidth=apertureWidth, apertureHeight=apertureHeight)
+        outputs['fovx'] = Data(fovx)
+        outputs['fovy'] = Data(fovy)
+        outputs['focalLength'] = Data(focalLength)
+        outputs['principalPoint'] = Data(principalPoint)
+        outputs['aspectRatio'] = Data(aspectRatio)
 
 ### circle ###
 
@@ -542,17 +881,21 @@ class OpenCVAuto2_Circle(NormalElement):
         return [Input('img', 'img')], \
                [Output('img', 'img')], \
                [PointParameter('center', 'center'),
-                IntParameter('radius', 'radius'),
+                IntParameter('radius', 'radius', min_=1, max_=1000),
                 ScalarParameter('color', 'color'),
-                IntParameter('thickness', 'thickness')]
+                IntParameter('thickness', 'thickness', min_=-1, max_=100),
+                ComboboxParameter('lineType', [('LINE_4',4),('LINE_8',8),('LINE_AA',16)]),
+                IntParameter('shift', 'shift')]
 
     def process_inputs(self, inputs, outputs, parameters):
-        img = inputs['img'].value
+        img = inputs['img'].value.copy()
         center = parameters['center']
         radius = parameters['radius']
         color = parameters['color']
         thickness = parameters['thickness']
-        img = cv2.circle(img=img, center=center, radius=radius, color=color, thickness=thickness)
+        lineType = parameters['lineType']
+        shift = parameters['shift']
+        img = cv2.circle(img=img, center=center, radius=radius, color=color, thickness=thickness, lineType=lineType, shift=shift)
         outputs['img'] = Data(img)
 
 ### colorChange ###
@@ -573,21 +916,44 @@ class OpenCVAuto2_ColorChange(NormalElement):
         dst = cv2.colorChange(src=src, mask=mask)
         outputs['dst'] = Data(dst)
 
-### completeSymm ###
+### compare ###
 
-class OpenCVAuto2_CompleteSymm(NormalElement):
-    name = 'CompleteSymm'
-    comment = '''completeSymm(m[, lowerToUpper]) -> m\n@brief Copies the lower or the upper half of a square matrix to its another half.\n\nThe function cv::completeSymm copies the lower or the upper half of a square matrix to\nits another half. The matrix diagonal remains unchanged:\n- \f$\texttt{m}_{ij}=\texttt{m}_{ji}\f$ for \f$i > j\f$ if\nlowerToUpper=false\n- \f$\texttt{m}_{ij}=\texttt{m}_{ji}\f$ for \f$i < j\f$ if\nlowerToUpper=true\n\n@param m input-output floating-point square matrix.\n@param lowerToUpper operation flag; if true, the lower half is copied to\nthe upper half. Otherwise, the upper half is copied to the lower half.\n@sa flip, transpose'''
+class OpenCVAuto2_Compare(NormalElement):
+    name = 'Compare'
+    comment = '''compare(src1, src2, cmpop[, dst]) -> dst\n@brief Performs the per-element comparison of two arrays or an array and scalar value.\n\nThe function compares:\n*   Elements of two arrays when src1 and src2 have the same size:\n\f[\texttt{dst} (I) =  \texttt{src1} (I)  \,\texttt{cmpop}\, \texttt{src2} (I)\f]\n*   Elements of src1 with a scalar src2 when src2 is constructed from\nScalar or has a single element:\n\f[\texttt{dst} (I) =  \texttt{src1}(I) \,\texttt{cmpop}\,  \texttt{src2}\f]\n*   src1 with elements of src2 when src1 is constructed from Scalar or\nhas a single element:\n\f[\texttt{dst} (I) =  \texttt{src1}  \,\texttt{cmpop}\, \texttt{src2} (I)\f]\nWhen the comparison result is true, the corresponding element of output\narray is set to 255. The comparison operations can be replaced with the\nequivalent matrix expressions:\n@code{.cpp}\nMat dst1 = src1 >= src2;\nMat dst2 = src1 < 8;\n...\n@endcode\n@param src1 first input array or a scalar; when it is an array, it must have a single channel.\n@param src2 second input array or a scalar; when it is an array, it must have a single channel.\n@param dst output array of type ref CV_8U that has the same size and the same number of channels as\nthe input arrays.\n@param cmpop a flag, that specifies correspondence between the arrays (cv::CmpTypes)\n@sa checkRange, min, max, threshold'''
 
     def get_attributes(self):
-        return [Input('m', 'm')], \
-               [Output('m', 'm')], \
+        return [Input('src1', 'src1'),
+                Input('src2', 'src2')], \
+               [Output('dst', 'dst')], \
+               [IntParameter('cmpop', 'cmpop')]
+
+    def process_inputs(self, inputs, outputs, parameters):
+        src1 = inputs['src1'].value
+        src2 = inputs['src2'].value
+        cmpop = parameters['cmpop']
+        dst = cv2.compare(src1=src1, src2=src2, cmpop=cmpop)
+        outputs['dst'] = Data(dst)
+
+### computeCorrespondEpilines ###
+
+class OpenCVAuto2_ComputeCorrespondEpilines(NormalElement):
+    name = 'ComputeCorrespondEpilines'
+    comment = '''computeCorrespondEpilines(points, whichImage, F[, lines]) -> lines\n@brief For points in an image of a stereo pair, computes the corresponding epilines in the other image.\n\n@param points Input points. \f$N \times 1\f$ or \f$1 \times N\f$ matrix of type CV_32FC2 or\nvector\<Point2f\> .\n@param whichImage Index of the image (1 or 2) that contains the points .\n@param F Fundamental matrix that can be estimated using findFundamentalMat or stereoRectify .\n@param lines Output vector of the epipolar lines corresponding to the points in the other image.\nEach line \f$ax + by + c=0\f$ is encoded by 3 numbers \f$(a, b, c)\f$ .\n\nFor every point in one of the two images of a stereo pair, the function finds the equation of the\ncorresponding epipolar line in the other image.\n\nFrom the fundamental matrix definition (see findFundamentalMat ), line \f$l^{(2)}_i\f$ in the second\nimage for the point \f$p^{(1)}_i\f$ in the first image (when whichImage=1 ) is computed as:\n\n\f[l^{(2)}_i = F p^{(1)}_i\f]\n\nAnd vice versa, when whichImage=2, \f$l^{(1)}_i\f$ is computed from \f$p^{(2)}_i\f$ as:\n\n\f[l^{(1)}_i = F^T p^{(2)}_i\f]\n\nLine coefficients are defined up to a scale. They are normalized so that \f$a_i^2+b_i^2=1\f$ .'''
+
+    def get_attributes(self):
+        return [Input('points', 'points'),
+                Input('whichImage', 'whichImage'),
+                Input('F', 'F')], \
+               [Output('lines', 'lines')], \
                []
 
     def process_inputs(self, inputs, outputs, parameters):
-        m = inputs['m'].value
-        m = cv2.completeSymm(m=m)
-        outputs['m'] = Data(m)
+        points = inputs['points'].value
+        whichImage = inputs['whichImage'].value
+        F = inputs['F'].value
+        lines = cv2.computeCorrespondEpilines(points=points, whichImage=whichImage, F=F)
+        outputs['lines'] = Data(lines)
 
 ### connectedComponents ###
 
@@ -598,11 +964,14 @@ class OpenCVAuto2_ConnectedComponents(NormalElement):
     def get_attributes(self):
         return [Input('image', 'image')], \
                [Output('labels', 'labels')], \
-               []
+               [IntParameter('connectivity', 'connectivity'),
+                IntParameter('ltype', 'ltype')]
 
     def process_inputs(self, inputs, outputs, parameters):
         image = inputs['image'].value
-        retval, labels = cv2.connectedComponents(image=image)
+        connectivity = parameters['connectivity']
+        ltype = parameters['ltype']
+        retval, labels = cv2.connectedComponents(image=image, connectivity=connectivity, ltype=ltype)
         outputs['labels'] = Data(labels)
 
 ### connectedComponentsWithStats ###
@@ -616,11 +985,14 @@ class OpenCVAuto2_ConnectedComponentsWithStats(NormalElement):
                [Output('labels', 'labels'),
                 Output('stats', 'stats'),
                 Output('centroids', 'centroids')], \
-               []
+               [IntParameter('connectivity', 'connectivity'),
+                IntParameter('ltype', 'ltype')]
 
     def process_inputs(self, inputs, outputs, parameters):
         image = inputs['image'].value
-        retval, labels, stats, centroids = cv2.connectedComponentsWithStats(image=image)
+        connectivity = parameters['connectivity']
+        ltype = parameters['ltype']
+        retval, labels, stats, centroids = cv2.connectedComponentsWithStats(image=image, connectivity=connectivity, ltype=ltype)
         outputs['labels'] = Data(labels)
         outputs['stats'] = Data(stats)
         outputs['centroids'] = Data(centroids)
@@ -692,23 +1064,23 @@ class OpenCVAuto2_ConvertScaleAbs(NormalElement):
         dst = cv2.convertScaleAbs(src=src, alpha=alpha, beta=beta)
         outputs['dst'] = Data(dst)
 
-### convexHull ###
+### convexityDefects ###
 
-class OpenCVAuto2_ConvexHull(NormalElement):
-    name = 'ConvexHull'
-    comment = '''convexHull(points[, hull[, clockwise[, returnPoints]]]) -> hull\n@brief Finds the convex hull of a point set.\n\nThe function cv::convexHull finds the convex hull of a 2D point set using the Sklansky's algorithm @cite Sklansky82\nthat has *O(N logN)* complexity in the current implementation.\n\n@param points Input 2D point set, stored in std::vector or Mat.\n@param hull Output convex hull. It is either an integer vector of indices or vector of points. In\nthe first case, the hull elements are 0-based indices of the convex hull points in the original\narray (since the set of convex hull points is a subset of the original point set). In the second\ncase, hull elements are the convex hull points themselves.\n@param clockwise Orientation flag. If it is true, the output convex hull is oriented clockwise.\nOtherwise, it is oriented counter-clockwise. The assumed coordinate system has its X axis pointing\nto the right, and its Y axis pointing upwards.\n@param returnPoints Operation flag. In case of a matrix, when the flag is true, the function\nreturns convex hull points. Otherwise, it returns indices of the convex hull points. When the\noutput array is std::vector, the flag is ignored, and the output depends on the type of the\nvector: std::vector\<int\> implies returnPoints=false, std::vector\<Point\> implies\nreturnPoints=true.\n\n@note `points` and `hull` should be different arrays, inplace processing isn't supported.'''
+class OpenCVAuto2_ConvexityDefects(NormalElement):
+    name = 'ConvexityDefects'
+    comment = '''convexityDefects(contour, convexhull[, convexityDefects]) -> convexityDefects\n@brief Finds the convexity defects of a contour.\n\nThe figure below displays convexity defects of a hand contour:\n\n![image](pics/defects.png)\n\n@param contour Input contour.\n@param convexhull Convex hull obtained using convexHull that should contain indices of the contour\npoints that make the hull.\n@param convexityDefects The output vector of convexity defects. In C++ and the new Python/Java\ninterface each convexity defect is represented as 4-element integer vector (a.k.a. #Vec4i):\n(start_index, end_index, farthest_pt_index, fixpt_depth), where indices are 0-based indices\nin the original contour of the convexity defect beginning, end and the farthest point, and\nfixpt_depth is fixed-point approximation (with 8 fractional bits) of the distance between the\nfarthest contour point and the hull. That is, to get the floating-point value of the depth will be\nfixpt_depth/256.0.'''
 
     def get_attributes(self):
-        return [Input('points', 'points'),
-                Input('returnPoints', 'returnPoints', optional=True)], \
-               [Output('hull', 'hull')], \
+        return [Input('contour', 'contour'),
+                Input('convexhull', 'convexhull')], \
+               [Output('convexityDefects', 'convexityDefects')], \
                []
 
     def process_inputs(self, inputs, outputs, parameters):
-        points = inputs['points'].value
-        returnPoints = inputs['returnPoints'].value
-        hull = cv2.convexHull(points=points, returnPoints=returnPoints)
-        outputs['hull'] = Data(hull)
+        contour = inputs['contour'].value
+        convexhull = inputs['convexhull'].value
+        convexityDefects = cv2.convexityDefects(contour=contour, convexhull=convexhull)
+        outputs['convexityDefects'] = Data(convexityDefects)
 
 ### cornerEigenValsAndVecs ###
 
@@ -721,7 +1093,7 @@ class OpenCVAuto2_CornerEigenValsAndVecs(NormalElement):
                [Output('dst', 'dst')], \
                [SizeParameter('blockSize', 'blockSize'),
                 SizeParameter('ksize', 'ksize'),
-                ComboboxParameter('borderType', [('BORDER_CONSTANT',0),('BORDER_DEFAULT',4),('BORDER_ISOLATED',16),('BORDER_REFLECT',2),('BORDER_REFLECT101',4),('BORDER_REFLECT_101',4),('BORDER_REPLICATE',1),('BORDER_TRANSPARENT',5),('BORDER_WRAP',3)])]
+                ComboboxParameter('borderType', [('BORDER_CONSTANT',0),('BORDER_REPLICATE',1),('BORDER_REFLECT',2),('BORDER_WRAP',3),('BORDER_DEFAULT',4),('BORDER_REFLECT101',4),('BORDER_REFLECT_101',4),('BORDER_TRANSPARENT',5),('BORDER_ISOLATED',16)])]
 
     def process_inputs(self, inputs, outputs, parameters):
         src = inputs['src'].value
@@ -729,6 +1101,29 @@ class OpenCVAuto2_CornerEigenValsAndVecs(NormalElement):
         ksize = parameters['ksize']
         borderType = parameters['borderType']
         dst = cv2.cornerEigenValsAndVecs(src=src, blockSize=blockSize, ksize=ksize, borderType=borderType)
+        outputs['dst'] = Data(dst)
+
+### cornerHarris ###
+
+class OpenCVAuto2_CornerHarris(NormalElement):
+    name = 'CornerHarris'
+    comment = '''cornerHarris(src, blockSize, ksize, k[, dst[, borderType]]) -> dst\n@brief Harris corner detector.\n\nThe function runs the Harris corner detector on the image. Similarly to cornerMinEigenVal and\ncornerEigenValsAndVecs , for each pixel \f$(x, y)\f$ it calculates a \f$2\times2\f$ gradient covariance\nmatrix \f$M^{(x,y)}\f$ over a \f$\texttt{blockSize} \times \texttt{blockSize}\f$ neighborhood. Then, it\ncomputes the following characteristic:\n\n\f[\texttt{dst} (x,y) =  \mathrm{det} M^{(x,y)} - k  \cdot \left ( \mathrm{tr} M^{(x,y)} \right )^2\f]\n\nCorners in the image can be found as the local maxima of this response map.\n\n@param src Input single-channel 8-bit or floating-point image.\n@param dst Image to store the Harris detector responses. It has the type CV_32FC1 and the same\nsize as src .\n@param blockSize Neighborhood size (see the details on #cornerEigenValsAndVecs ).\n@param ksize Aperture parameter for the Sobel operator.\n@param k Harris detector free parameter. See the formula below.\n@param borderType Pixel extrapolation method. See #BorderTypes.'''
+
+    def get_attributes(self):
+        return [Input('src', 'src')], \
+               [Output('dst', 'dst')], \
+               [SizeParameter('blockSize', 'blockSize'),
+                SizeParameter('ksize', 'ksize'),
+                FloatParameter('k', 'k'),
+                ComboboxParameter('borderType', [('BORDER_CONSTANT',0),('BORDER_REPLICATE',1),('BORDER_REFLECT',2),('BORDER_WRAP',3),('BORDER_DEFAULT',4),('BORDER_REFLECT101',4),('BORDER_REFLECT_101',4),('BORDER_TRANSPARENT',5),('BORDER_ISOLATED',16)])]
+
+    def process_inputs(self, inputs, outputs, parameters):
+        src = inputs['src'].value
+        blockSize = parameters['blockSize']
+        ksize = parameters['ksize']
+        k = parameters['k']
+        borderType = parameters['borderType']
+        dst = cv2.cornerHarris(src=src, blockSize=blockSize, ksize=ksize, k=k, borderType=borderType)
         outputs['dst'] = Data(dst)
 
 ### cornerMinEigenVal ###
@@ -742,7 +1137,7 @@ class OpenCVAuto2_CornerMinEigenVal(NormalElement):
                [Output('dst', 'dst')], \
                [SizeParameter('blockSize', 'blockSize'),
                 SizeParameter('ksize', 'ksize'),
-                ComboboxParameter('borderType', [('BORDER_CONSTANT',0),('BORDER_DEFAULT',4),('BORDER_ISOLATED',16),('BORDER_REFLECT',2),('BORDER_REFLECT101',4),('BORDER_REFLECT_101',4),('BORDER_REPLICATE',1),('BORDER_TRANSPARENT',5),('BORDER_WRAP',3)])]
+                ComboboxParameter('borderType', [('BORDER_CONSTANT',0),('BORDER_REPLICATE',1),('BORDER_REFLECT',2),('BORDER_WRAP',3),('BORDER_DEFAULT',4),('BORDER_REFLECT101',4),('BORDER_REFLECT_101',4),('BORDER_TRANSPARENT',5),('BORDER_ISOLATED',16)])]
 
     def process_inputs(self, inputs, outputs, parameters):
         src = inputs['src'].value
@@ -750,6 +1145,46 @@ class OpenCVAuto2_CornerMinEigenVal(NormalElement):
         ksize = parameters['ksize']
         borderType = parameters['borderType']
         dst = cv2.cornerMinEigenVal(src=src, blockSize=blockSize, ksize=ksize, borderType=borderType)
+        outputs['dst'] = Data(dst)
+
+### correctMatches ###
+
+class OpenCVAuto2_CorrectMatches(NormalElement):
+    name = 'CorrectMatches'
+    comment = '''correctMatches(F, points1, points2[, newPoints1[, newPoints2]]) -> newPoints1, newPoints2\n@brief Refines coordinates of corresponding points.\n\n@param F 3x3 fundamental matrix.\n@param points1 1xN array containing the first set of points.\n@param points2 1xN array containing the second set of points.\n@param newPoints1 The optimized points1.\n@param newPoints2 The optimized points2.\n\nThe function implements the Optimal Triangulation Method (see Multiple View Geometry for details).\nFor each given point correspondence points1[i] \<-\> points2[i], and a fundamental matrix F, it\ncomputes the corrected correspondences newPoints1[i] \<-\> newPoints2[i] that minimize the geometric\nerror \f$d(points1[i], newPoints1[i])^2 + d(points2[i],newPoints2[i])^2\f$ (where \f$d(a,b)\f$ is the\ngeometric distance between points \f$a\f$ and \f$b\f$ ) subject to the epipolar constraint\n\f$newPoints2^T * F * newPoints1 = 0\f$ .'''
+
+    def get_attributes(self):
+        return [Input('F', 'F'),
+                Input('points1', 'points1'),
+                Input('points2', 'points2')], \
+               [Output('newPoints1', 'newPoints1'),
+                Output('newPoints2', 'newPoints2')], \
+               []
+
+    def process_inputs(self, inputs, outputs, parameters):
+        F = inputs['F'].value
+        points1 = inputs['points1'].value
+        points2 = inputs['points2'].value
+        newPoints1, newPoints2 = cv2.correctMatches(F=F, points1=points1, points2=points2)
+        outputs['newPoints1'] = Data(newPoints1)
+        outputs['newPoints2'] = Data(newPoints2)
+
+### createHanningWindow ###
+
+class OpenCVAuto2_CreateHanningWindow(NormalElement):
+    name = 'CreateHanningWindow'
+    comment = '''createHanningWindow(winSize, type[, dst]) -> dst\n@brief This function computes a Hanning window coefficients in two dimensions.\n\nSee (http://en.wikipedia.org/wiki/Hann_function) and (http://en.wikipedia.org/wiki/Window_function)\nfor more information.\n\nAn example is shown below:\n@code\n// create hanning window of size 100x100 and type CV_32F\nMat hann;\ncreateHanningWindow(hann, Size(100, 100), CV_32F);\n@endcode\n@param dst Destination array to place Hann coefficients in\n@param winSize The window size specifications (both width and height must be > 1)\n@param type Created array type'''
+
+    def get_attributes(self):
+        return [], \
+               [Output('dst', 'dst')], \
+               [SizeParameter('winSize', 'winSize'),
+                IntParameter('type', 'type')]
+
+    def process_inputs(self, inputs, outputs, parameters):
+        winSize = parameters['winSize']
+        type = parameters['type']
+        dst = cv2.createHanningWindow(winSize=winSize, type=type)
         outputs['dst'] = Data(dst)
 
 ### cvtColor ###
@@ -761,12 +1196,14 @@ class OpenCVAuto2_CvtColor(NormalElement):
     def get_attributes(self):
         return [Input('src', 'src')], \
                [Output('dst', 'dst')], \
-               [ComboboxParameter('code', [('COLOR_BGR2BGR555',22),('COLOR_BGR2BGR565',12),('COLOR_BGR2BGRA',0),('COLOR_BGR2GRAY',6),('COLOR_BGR2HLS',52),('COLOR_BGR2HLS_FULL',68),('COLOR_BGR2HSV',40),('COLOR_BGR2HSV_FULL',66),('COLOR_BGR2Lab',44),('COLOR_BGR2LAB',44),('COLOR_BGR2Luv',50),('COLOR_BGR2LUV',50),('COLOR_BGR2RGB',4),('COLOR_BGR2RGBA',2),('COLOR_BGR2XYZ',32),('COLOR_BGR2YCrCb',36),('COLOR_BGR2YCR_CB',36),('COLOR_BGR2YUV',82),('COLOR_BGR2YUV_I420',128),('COLOR_BGR2YUV_IYUV',128),('COLOR_BGR2YUV_YV12',132),('COLOR_BGR5552BGR',24),('COLOR_BGR5552BGRA',28),('COLOR_BGR5552GRAY',31),('COLOR_BGR5552RGB',25),('COLOR_BGR5552RGBA',29),('COLOR_BGR5652BGR',14),('COLOR_BGR5652BGRA',18),('COLOR_BGR5652GRAY',21),('COLOR_BGR5652RGB',15),('COLOR_BGR5652RGBA',19),('COLOR_BGRA2BGR',1),('COLOR_BGRA2BGR555',26),('COLOR_BGRA2BGR565',16),('COLOR_BGRA2GRAY',10),('COLOR_BGRA2RGB',3),('COLOR_BGRA2RGBA',5),('COLOR_BGRA2YUV_I420',130),('COLOR_BGRA2YUV_IYUV',130),('COLOR_BGRA2YUV_YV12',134),('COLOR_BayerBG2BGR',46),('COLOR_BAYER_BG2BGR',46),('COLOR_BayerBG2BGRA',139),('COLOR_BAYER_BG2BGRA',139),('COLOR_BayerBG2BGR_EA',135),('COLOR_BAYER_BG2BGR_EA',135),('COLOR_BayerBG2BGR_VNG',62),('COLOR_BAYER_BG2BGR_VNG',62),('COLOR_BayerBG2GRAY',86),('COLOR_BAYER_BG2GRAY',86),('COLOR_BayerBG2RGB',48),('COLOR_BAYER_BG2RGB',48),('COLOR_BayerBG2RGBA',141),('COLOR_BAYER_BG2RGBA',141),('COLOR_BayerBG2RGB_EA',137),('COLOR_BAYER_BG2RGB_EA',137),('COLOR_BayerBG2RGB_VNG',64),('COLOR_BAYER_BG2RGB_VNG',64),('COLOR_BayerGB2BGR',47),('COLOR_BAYER_GB2BGR',47),('COLOR_BayerGB2BGRA',140),('COLOR_BAYER_GB2BGRA',140),('COLOR_BayerGB2BGR_EA',136),('COLOR_BAYER_GB2BGR_EA',136),('COLOR_BayerGB2BGR_VNG',63),('COLOR_BAYER_GB2BGR_VNG',63),('COLOR_BayerGB2GRAY',87),('COLOR_BAYER_GB2GRAY',87),('COLOR_BayerGB2RGB',49),('COLOR_BAYER_GB2RGB',49),('COLOR_BayerGB2RGBA',142),('COLOR_BAYER_GB2RGBA',142),('COLOR_BayerGB2RGB_EA',138),('COLOR_BAYER_GB2RGB_EA',138),('COLOR_BayerGB2RGB_VNG',65),('COLOR_BAYER_GB2RGB_VNG',65),('COLOR_BayerGR2BGR',49),('COLOR_BAYER_GR2BGR',49),('COLOR_BayerGR2BGRA',142),('COLOR_BAYER_GR2BGRA',142),('COLOR_BayerGR2BGR_EA',138),('COLOR_BAYER_GR2BGR_EA',138),('COLOR_BayerGR2BGR_VNG',65),('COLOR_BAYER_GR2BGR_VNG',65),('COLOR_BayerGR2GRAY',89),('COLOR_BAYER_GR2GRAY',89),('COLOR_BayerGR2RGB',47),('COLOR_BAYER_GR2RGB',47),('COLOR_BayerGR2RGBA',140),('COLOR_BAYER_GR2RGBA',140),('COLOR_BayerGR2RGB_EA',136),('COLOR_BAYER_GR2RGB_EA',136),('COLOR_BayerGR2RGB_VNG',63),('COLOR_BAYER_GR2RGB_VNG',63),('COLOR_BayerRG2BGR',48),('COLOR_BAYER_RG2BGR',48),('COLOR_BayerRG2BGRA',141),('COLOR_BAYER_RG2BGRA',141),('COLOR_BayerRG2BGR_EA',137),('COLOR_BAYER_RG2BGR_EA',137),('COLOR_BayerRG2BGR_VNG',64),('COLOR_BAYER_RG2BGR_VNG',64),('COLOR_BayerRG2GRAY',88),('COLOR_BAYER_RG2GRAY',88),('COLOR_BayerRG2RGB',46),('COLOR_BAYER_RG2RGB',46),('COLOR_BayerRG2RGBA',139),('COLOR_BAYER_RG2RGBA',139),('COLOR_BayerRG2RGB_EA',135),('COLOR_BAYER_RG2RGB_EA',135),('COLOR_BayerRG2RGB_VNG',62),('COLOR_BAYER_RG2RGB_VNG',62),('COLOR_COLORCVT_MAX',143),('COLOR_GRAY2BGR',8),('COLOR_GRAY2BGR555',30),('COLOR_GRAY2BGR565',20),('COLOR_GRAY2BGRA',9),('COLOR_GRAY2RGB',8),('COLOR_GRAY2RGBA',9),('COLOR_HLS2BGR',60),('COLOR_HLS2BGR_FULL',72),('COLOR_HLS2RGB',61),('COLOR_HLS2RGB_FULL',73),('COLOR_HSV2BGR',54),('COLOR_HSV2BGR_FULL',70),('COLOR_HSV2RGB',55),('COLOR_HSV2RGB_FULL',71),('COLOR_LBGR2Lab',74),('COLOR_LBGR2LAB',74),('COLOR_LBGR2Luv',76),('COLOR_LBGR2LUV',76),('COLOR_LRGB2Lab',75),('COLOR_LRGB2LAB',75),('COLOR_LRGB2Luv',77),('COLOR_LRGB2LUV',77),('COLOR_Lab2BGR',56),('COLOR_LAB2BGR',56),('COLOR_Lab2LBGR',78),('COLOR_LAB2LBGR',78),('COLOR_Lab2LRGB',79),('COLOR_LAB2LRGB',79),('COLOR_Lab2RGB',57),('COLOR_LAB2RGB',57),('COLOR_Luv2BGR',58),('COLOR_LUV2BGR',58),('COLOR_Luv2LBGR',80),('COLOR_LUV2LBGR',80),('COLOR_Luv2LRGB',81),('COLOR_LUV2LRGB',81),('COLOR_Luv2RGB',59),('COLOR_LUV2RGB',59),('COLOR_RGB2BGR',4),('COLOR_RGB2BGR555',23),('COLOR_RGB2BGR565',13),('COLOR_RGB2BGRA',2),('COLOR_RGB2GRAY',7),('COLOR_RGB2HLS',53),('COLOR_RGB2HLS_FULL',69),('COLOR_RGB2HSV',41),('COLOR_RGB2HSV_FULL',67),('COLOR_RGB2Lab',45),('COLOR_RGB2LAB',45),('COLOR_RGB2Luv',51),('COLOR_RGB2LUV',51),('COLOR_RGB2RGBA',0),('COLOR_RGB2XYZ',33),('COLOR_RGB2YCrCb',37),('COLOR_RGB2YCR_CB',37),('COLOR_RGB2YUV',83),('COLOR_RGB2YUV_I420',127),('COLOR_RGB2YUV_IYUV',127),('COLOR_RGB2YUV_YV12',131),('COLOR_RGBA2BGR',3),('COLOR_RGBA2BGR555',27),('COLOR_RGBA2BGR565',17),('COLOR_RGBA2BGRA',5),('COLOR_RGBA2GRAY',11),('COLOR_RGBA2RGB',1),('COLOR_RGBA2YUV_I420',129),('COLOR_RGBA2YUV_IYUV',129),('COLOR_RGBA2YUV_YV12',133),('COLOR_RGBA2mRGBA',125),('COLOR_RGBA2M_RGBA',125),('COLOR_XYZ2BGR',34),('COLOR_XYZ2RGB',35),('COLOR_YCrCb2BGR',38),('COLOR_YCR_CB2BGR',38),('COLOR_YCrCb2RGB',39),('COLOR_YCR_CB2RGB',39),('COLOR_YUV2BGR',84),('COLOR_YUV2BGRA_I420',105),('COLOR_YUV2BGRA_IYUV',105),('COLOR_YUV2BGRA_NV12',95),('COLOR_YUV2BGRA_NV21',97),('COLOR_YUV2BGRA_UYNV',112),('COLOR_YUV2BGRA_UYVY',112),('COLOR_YUV2BGRA_Y422',112),('COLOR_YUV2BGRA_YUNV',120),('COLOR_YUV2BGRA_YUY2',120),('COLOR_YUV2BGRA_YUYV',120),('COLOR_YUV2BGRA_YV12',103),('COLOR_YUV2BGRA_YVYU',122),('COLOR_YUV2BGR_I420',101),('COLOR_YUV2BGR_IYUV',101),('COLOR_YUV2BGR_NV12',91),('COLOR_YUV2BGR_NV21',93),('COLOR_YUV2BGR_UYNV',108),('COLOR_YUV2BGR_UYVY',108),('COLOR_YUV2BGR_Y422',108),('COLOR_YUV2BGR_YUNV',116),('COLOR_YUV2BGR_YUY2',116),('COLOR_YUV2BGR_YUYV',116),('COLOR_YUV2BGR_YV12',99),('COLOR_YUV2BGR_YVYU',118),('COLOR_YUV2GRAY_420',106),('COLOR_YUV2GRAY_I420',106),('COLOR_YUV2GRAY_IYUV',106),('COLOR_YUV2GRAY_NV12',106),('COLOR_YUV2GRAY_NV21',106),('COLOR_YUV2GRAY_UYNV',123),('COLOR_YUV2GRAY_UYVY',123),('COLOR_YUV2GRAY_Y422',123),('COLOR_YUV2GRAY_YUNV',124),('COLOR_YUV2GRAY_YUY2',124),('COLOR_YUV2GRAY_YUYV',124),('COLOR_YUV2GRAY_YV12',106),('COLOR_YUV2GRAY_YVYU',124),('COLOR_YUV2RGB',85),('COLOR_YUV2RGBA_I420',104),('COLOR_YUV2RGBA_IYUV',104),('COLOR_YUV2RGBA_NV12',94),('COLOR_YUV2RGBA_NV21',96),('COLOR_YUV2RGBA_UYNV',111),('COLOR_YUV2RGBA_UYVY',111),('COLOR_YUV2RGBA_Y422',111),('COLOR_YUV2RGBA_YUNV',119),('COLOR_YUV2RGBA_YUY2',119),('COLOR_YUV2RGBA_YUYV',119),('COLOR_YUV2RGBA_YV12',102),('COLOR_YUV2RGBA_YVYU',121),('COLOR_YUV2RGB_I420',100),('COLOR_YUV2RGB_IYUV',100),('COLOR_YUV2RGB_NV12',90),('COLOR_YUV2RGB_NV21',92),('COLOR_YUV2RGB_UYNV',107),('COLOR_YUV2RGB_UYVY',107),('COLOR_YUV2RGB_Y422',107),('COLOR_YUV2RGB_YUNV',115),('COLOR_YUV2RGB_YUY2',115),('COLOR_YUV2RGB_YUYV',115),('COLOR_YUV2RGB_YV12',98),('COLOR_YUV2RGB_YVYU',117),('COLOR_YUV420p2BGR',99),('COLOR_YUV420P2BGR',99),('COLOR_YUV420p2BGRA',103),('COLOR_YUV420P2BGRA',103),('COLOR_YUV420p2GRAY',106),('COLOR_YUV420P2GRAY',106),('COLOR_YUV420p2RGB',98),('COLOR_YUV420P2RGB',98),('COLOR_YUV420p2RGBA',102),('COLOR_YUV420P2RGBA',102),('COLOR_YUV420sp2BGR',93),('COLOR_YUV420SP2BGR',93),('COLOR_YUV420sp2BGRA',97),('COLOR_YUV420SP2BGRA',97),('COLOR_YUV420sp2GRAY',106),('COLOR_YUV420SP2GRAY',106),('COLOR_YUV420sp2RGB',92),('COLOR_YUV420SP2RGB',92),('COLOR_YUV420sp2RGBA',96),('COLOR_YUV420SP2RGBA',96),('COLOR_mRGBA2RGBA',126),('COLOR_M_RGBA2RGBA',126)])]
+               [ComboboxParameter('code', [('COLOR_BGR2BGRA',0),('COLOR_RGB2RGBA',0),('COLOR_BGRA2BGR',1),('COLOR_RGBA2RGB',1),('COLOR_BGR2RGBA',2),('COLOR_RGB2BGRA',2),('COLOR_BGRA2RGB',3),('COLOR_RGBA2BGR',3),('COLOR_BGR2RGB',4),('COLOR_RGB2BGR',4),('COLOR_BGRA2RGBA',5),('COLOR_RGBA2BGRA',5),('COLOR_BGR2GRAY',6),('COLOR_RGB2GRAY',7),('COLOR_GRAY2BGR',8),('COLOR_GRAY2RGB',8),('COLOR_GRAY2BGRA',9),('COLOR_GRAY2RGBA',9),('COLOR_BGRA2GRAY',10),('COLOR_RGBA2GRAY',11),('COLOR_BGR2BGR565',12),('COLOR_RGB2BGR565',13),('COLOR_BGR5652BGR',14),('COLOR_BGR5652RGB',15),('COLOR_BGRA2BGR565',16),('COLOR_RGBA2BGR565',17),('COLOR_BGR5652BGRA',18),('COLOR_BGR5652RGBA',19),('COLOR_GRAY2BGR565',20),('COLOR_BGR5652GRAY',21),('COLOR_BGR2BGR555',22),('COLOR_RGB2BGR555',23),('COLOR_BGR5552BGR',24),('COLOR_BGR5552RGB',25),('COLOR_BGRA2BGR555',26),('COLOR_RGBA2BGR555',27),('COLOR_BGR5552BGRA',28),('COLOR_BGR5552RGBA',29),('COLOR_GRAY2BGR555',30),('COLOR_BGR5552GRAY',31),('COLOR_BGR2XYZ',32),('COLOR_RGB2XYZ',33),('COLOR_XYZ2BGR',34),('COLOR_XYZ2RGB',35),('COLOR_BGR2YCrCb',36),('COLOR_BGR2YCR_CB',36),('COLOR_RGB2YCrCb',37),('COLOR_RGB2YCR_CB',37),('COLOR_YCrCb2BGR',38),('COLOR_YCR_CB2BGR',38),('COLOR_YCrCb2RGB',39),('COLOR_YCR_CB2RGB',39),('COLOR_BGR2HSV',40),('COLOR_RGB2HSV',41),('COLOR_BGR2Lab',44),('COLOR_BGR2LAB',44),('COLOR_RGB2Lab',45),('COLOR_RGB2LAB',45),('COLOR_BayerBG2BGR',46),('COLOR_BAYER_BG2BGR',46),('COLOR_BayerRG2RGB',46),('COLOR_BAYER_RG2RGB',46),('COLOR_BayerGB2BGR',47),('COLOR_BAYER_GB2BGR',47),('COLOR_BayerGR2RGB',47),('COLOR_BAYER_GR2RGB',47),('COLOR_BayerBG2RGB',48),('COLOR_BAYER_BG2RGB',48),('COLOR_BayerRG2BGR',48),('COLOR_BAYER_RG2BGR',48),('COLOR_BayerGB2RGB',49),('COLOR_BAYER_GB2RGB',49),('COLOR_BayerGR2BGR',49),('COLOR_BAYER_GR2BGR',49),('COLOR_BGR2Luv',50),('COLOR_BGR2LUV',50),('COLOR_RGB2Luv',51),('COLOR_RGB2LUV',51),('COLOR_BGR2HLS',52),('COLOR_RGB2HLS',53),('COLOR_HSV2BGR',54),('COLOR_HSV2RGB',55),('COLOR_Lab2BGR',56),('COLOR_LAB2BGR',56),('COLOR_Lab2RGB',57),('COLOR_LAB2RGB',57),('COLOR_Luv2BGR',58),('COLOR_LUV2BGR',58),('COLOR_Luv2RGB',59),('COLOR_LUV2RGB',59),('COLOR_HLS2BGR',60),('COLOR_HLS2RGB',61),('COLOR_BayerBG2BGR_VNG',62),('COLOR_BAYER_BG2BGR_VNG',62),('COLOR_BayerRG2RGB_VNG',62),('COLOR_BAYER_RG2RGB_VNG',62),('COLOR_BayerGB2BGR_VNG',63),('COLOR_BAYER_GB2BGR_VNG',63),('COLOR_BayerGR2RGB_VNG',63),('COLOR_BAYER_GR2RGB_VNG',63),('COLOR_BayerBG2RGB_VNG',64),('COLOR_BAYER_BG2RGB_VNG',64),('COLOR_BayerRG2BGR_VNG',64),('COLOR_BAYER_RG2BGR_VNG',64),('COLOR_BayerGB2RGB_VNG',65),('COLOR_BAYER_GB2RGB_VNG',65),('COLOR_BayerGR2BGR_VNG',65),('COLOR_BAYER_GR2BGR_VNG',65),('COLOR_BGR2HSV_FULL',66),('COLOR_RGB2HSV_FULL',67),('COLOR_BGR2HLS_FULL',68),('COLOR_RGB2HLS_FULL',69),('COLOR_HSV2BGR_FULL',70),('COLOR_HSV2RGB_FULL',71),('COLOR_HLS2BGR_FULL',72),('COLOR_HLS2RGB_FULL',73),('COLOR_LBGR2Lab',74),('COLOR_LBGR2LAB',74),('COLOR_LRGB2Lab',75),('COLOR_LRGB2LAB',75),('COLOR_LBGR2Luv',76),('COLOR_LBGR2LUV',76),('COLOR_LRGB2Luv',77),('COLOR_LRGB2LUV',77),('COLOR_Lab2LBGR',78),('COLOR_LAB2LBGR',78),('COLOR_Lab2LRGB',79),('COLOR_LAB2LRGB',79),('COLOR_Luv2LBGR',80),('COLOR_LUV2LBGR',80),('COLOR_Luv2LRGB',81),('COLOR_LUV2LRGB',81),('COLOR_BGR2YUV',82),('COLOR_RGB2YUV',83),('COLOR_YUV2BGR',84),('COLOR_YUV2RGB',85),('COLOR_BayerBG2GRAY',86),('COLOR_BAYER_BG2GRAY',86),('COLOR_BayerGB2GRAY',87),('COLOR_BAYER_GB2GRAY',87),('COLOR_BayerRG2GRAY',88),('COLOR_BAYER_RG2GRAY',88),('COLOR_BayerGR2GRAY',89),('COLOR_BAYER_GR2GRAY',89),('COLOR_YUV2RGB_NV12',90),('COLOR_YUV2BGR_NV12',91),('COLOR_YUV2RGB_NV21',92),('COLOR_YUV420sp2RGB',92),('COLOR_YUV420SP2RGB',92),('COLOR_YUV2BGR_NV21',93),('COLOR_YUV420sp2BGR',93),('COLOR_YUV420SP2BGR',93),('COLOR_YUV2RGBA_NV12',94),('COLOR_YUV2BGRA_NV12',95),('COLOR_YUV2RGBA_NV21',96),('COLOR_YUV420sp2RGBA',96),('COLOR_YUV420SP2RGBA',96),('COLOR_YUV2BGRA_NV21',97),('COLOR_YUV420sp2BGRA',97),('COLOR_YUV420SP2BGRA',97),('COLOR_YUV2RGB_YV12',98),('COLOR_YUV420p2RGB',98),('COLOR_YUV420P2RGB',98),('COLOR_YUV2BGR_YV12',99),('COLOR_YUV420p2BGR',99),('COLOR_YUV420P2BGR',99),('COLOR_YUV2RGB_I420',100),('COLOR_YUV2RGB_IYUV',100),('COLOR_YUV2BGR_I420',101),('COLOR_YUV2BGR_IYUV',101),('COLOR_YUV2RGBA_YV12',102),('COLOR_YUV420p2RGBA',102),('COLOR_YUV420P2RGBA',102),('COLOR_YUV2BGRA_YV12',103),('COLOR_YUV420p2BGRA',103),('COLOR_YUV420P2BGRA',103),('COLOR_YUV2RGBA_I420',104),('COLOR_YUV2RGBA_IYUV',104),('COLOR_YUV2BGRA_I420',105),('COLOR_YUV2BGRA_IYUV',105),('COLOR_YUV2GRAY_420',106),('COLOR_YUV2GRAY_I420',106),('COLOR_YUV2GRAY_IYUV',106),('COLOR_YUV2GRAY_NV12',106),('COLOR_YUV2GRAY_NV21',106),('COLOR_YUV2GRAY_YV12',106),('COLOR_YUV420p2GRAY',106),('COLOR_YUV420P2GRAY',106),('COLOR_YUV420sp2GRAY',106),('COLOR_YUV420SP2GRAY',106),('COLOR_YUV2RGB_UYNV',107),('COLOR_YUV2RGB_UYVY',107),('COLOR_YUV2RGB_Y422',107),('COLOR_YUV2BGR_UYNV',108),('COLOR_YUV2BGR_UYVY',108),('COLOR_YUV2BGR_Y422',108),('COLOR_YUV2RGBA_UYNV',111),('COLOR_YUV2RGBA_UYVY',111),('COLOR_YUV2RGBA_Y422',111),('COLOR_YUV2BGRA_UYNV',112),('COLOR_YUV2BGRA_UYVY',112),('COLOR_YUV2BGRA_Y422',112),('COLOR_YUV2RGB_YUNV',115),('COLOR_YUV2RGB_YUY2',115),('COLOR_YUV2RGB_YUYV',115),('COLOR_YUV2BGR_YUNV',116),('COLOR_YUV2BGR_YUY2',116),('COLOR_YUV2BGR_YUYV',116),('COLOR_YUV2RGB_YVYU',117),('COLOR_YUV2BGR_YVYU',118),('COLOR_YUV2RGBA_YUNV',119),('COLOR_YUV2RGBA_YUY2',119),('COLOR_YUV2RGBA_YUYV',119),('COLOR_YUV2BGRA_YUNV',120),('COLOR_YUV2BGRA_YUY2',120),('COLOR_YUV2BGRA_YUYV',120),('COLOR_YUV2RGBA_YVYU',121),('COLOR_YUV2BGRA_YVYU',122),('COLOR_YUV2GRAY_UYNV',123),('COLOR_YUV2GRAY_UYVY',123),('COLOR_YUV2GRAY_Y422',123),('COLOR_YUV2GRAY_YUNV',124),('COLOR_YUV2GRAY_YUY2',124),('COLOR_YUV2GRAY_YUYV',124),('COLOR_YUV2GRAY_YVYU',124),('COLOR_RGBA2mRGBA',125),('COLOR_RGBA2M_RGBA',125),('COLOR_mRGBA2RGBA',126),('COLOR_M_RGBA2RGBA',126),('COLOR_RGB2YUV_I420',127),('COLOR_RGB2YUV_IYUV',127),('COLOR_BGR2YUV_I420',128),('COLOR_BGR2YUV_IYUV',128),('COLOR_RGBA2YUV_I420',129),('COLOR_RGBA2YUV_IYUV',129),('COLOR_BGRA2YUV_I420',130),('COLOR_BGRA2YUV_IYUV',130),('COLOR_RGB2YUV_YV12',131),('COLOR_BGR2YUV_YV12',132),('COLOR_RGBA2YUV_YV12',133),('COLOR_BGRA2YUV_YV12',134),('COLOR_BayerBG2BGR_EA',135),('COLOR_BAYER_BG2BGR_EA',135),('COLOR_BayerRG2RGB_EA',135),('COLOR_BAYER_RG2RGB_EA',135),('COLOR_BayerGB2BGR_EA',136),('COLOR_BAYER_GB2BGR_EA',136),('COLOR_BayerGR2RGB_EA',136),('COLOR_BAYER_GR2RGB_EA',136),('COLOR_BayerBG2RGB_EA',137),('COLOR_BAYER_BG2RGB_EA',137),('COLOR_BayerRG2BGR_EA',137),('COLOR_BAYER_RG2BGR_EA',137),('COLOR_BayerGB2RGB_EA',138),('COLOR_BAYER_GB2RGB_EA',138),('COLOR_BayerGR2BGR_EA',138),('COLOR_BAYER_GR2BGR_EA',138),('COLOR_BayerBG2BGRA',139),('COLOR_BAYER_BG2BGRA',139),('COLOR_BayerRG2RGBA',139),('COLOR_BAYER_RG2RGBA',139),('COLOR_BayerGB2BGRA',140),('COLOR_BAYER_GB2BGRA',140),('COLOR_BayerGR2RGBA',140),('COLOR_BAYER_GR2RGBA',140),('COLOR_BayerBG2RGBA',141),('COLOR_BAYER_BG2RGBA',141),('COLOR_BayerRG2BGRA',141),('COLOR_BAYER_RG2BGRA',141),('COLOR_BayerGB2RGBA',142),('COLOR_BAYER_GB2RGBA',142),('COLOR_BayerGR2BGRA',142),('COLOR_BAYER_GR2BGRA',142),('COLOR_COLORCVT_MAX',143)]),
+                IntParameter('dstCn', 'dstCn')]
 
     def process_inputs(self, inputs, outputs, parameters):
         src = inputs['src'].value
         code = parameters['code']
-        dst = cv2.cvtColor(src=src, code=code)
+        dstCn = parameters['dstCn']
+        dst = cv2.cvtColor(src=src, code=code, dstCn=dstCn)
         outputs['dst'] = Data(dst)
 
 ### cvtColorTwoPlane ###
@@ -780,7 +1217,7 @@ class OpenCVAuto2_CvtColorTwoPlane(NormalElement):
         return [Input('src1', 'src1'),
                 Input('src2', 'src2')], \
                [Output('dst', 'dst')], \
-               [ComboboxParameter('code', [('COLOR_BGR2BGR555',22),('COLOR_BGR2BGR565',12),('COLOR_BGR2BGRA',0),('COLOR_BGR2GRAY',6),('COLOR_BGR2HLS',52),('COLOR_BGR2HLS_FULL',68),('COLOR_BGR2HSV',40),('COLOR_BGR2HSV_FULL',66),('COLOR_BGR2Lab',44),('COLOR_BGR2LAB',44),('COLOR_BGR2Luv',50),('COLOR_BGR2LUV',50),('COLOR_BGR2RGB',4),('COLOR_BGR2RGBA',2),('COLOR_BGR2XYZ',32),('COLOR_BGR2YCrCb',36),('COLOR_BGR2YCR_CB',36),('COLOR_BGR2YUV',82),('COLOR_BGR2YUV_I420',128),('COLOR_BGR2YUV_IYUV',128),('COLOR_BGR2YUV_YV12',132),('COLOR_BGR5552BGR',24),('COLOR_BGR5552BGRA',28),('COLOR_BGR5552GRAY',31),('COLOR_BGR5552RGB',25),('COLOR_BGR5552RGBA',29),('COLOR_BGR5652BGR',14),('COLOR_BGR5652BGRA',18),('COLOR_BGR5652GRAY',21),('COLOR_BGR5652RGB',15),('COLOR_BGR5652RGBA',19),('COLOR_BGRA2BGR',1),('COLOR_BGRA2BGR555',26),('COLOR_BGRA2BGR565',16),('COLOR_BGRA2GRAY',10),('COLOR_BGRA2RGB',3),('COLOR_BGRA2RGBA',5),('COLOR_BGRA2YUV_I420',130),('COLOR_BGRA2YUV_IYUV',130),('COLOR_BGRA2YUV_YV12',134),('COLOR_BayerBG2BGR',46),('COLOR_BAYER_BG2BGR',46),('COLOR_BayerBG2BGRA',139),('COLOR_BAYER_BG2BGRA',139),('COLOR_BayerBG2BGR_EA',135),('COLOR_BAYER_BG2BGR_EA',135),('COLOR_BayerBG2BGR_VNG',62),('COLOR_BAYER_BG2BGR_VNG',62),('COLOR_BayerBG2GRAY',86),('COLOR_BAYER_BG2GRAY',86),('COLOR_BayerBG2RGB',48),('COLOR_BAYER_BG2RGB',48),('COLOR_BayerBG2RGBA',141),('COLOR_BAYER_BG2RGBA',141),('COLOR_BayerBG2RGB_EA',137),('COLOR_BAYER_BG2RGB_EA',137),('COLOR_BayerBG2RGB_VNG',64),('COLOR_BAYER_BG2RGB_VNG',64),('COLOR_BayerGB2BGR',47),('COLOR_BAYER_GB2BGR',47),('COLOR_BayerGB2BGRA',140),('COLOR_BAYER_GB2BGRA',140),('COLOR_BayerGB2BGR_EA',136),('COLOR_BAYER_GB2BGR_EA',136),('COLOR_BayerGB2BGR_VNG',63),('COLOR_BAYER_GB2BGR_VNG',63),('COLOR_BayerGB2GRAY',87),('COLOR_BAYER_GB2GRAY',87),('COLOR_BayerGB2RGB',49),('COLOR_BAYER_GB2RGB',49),('COLOR_BayerGB2RGBA',142),('COLOR_BAYER_GB2RGBA',142),('COLOR_BayerGB2RGB_EA',138),('COLOR_BAYER_GB2RGB_EA',138),('COLOR_BayerGB2RGB_VNG',65),('COLOR_BAYER_GB2RGB_VNG',65),('COLOR_BayerGR2BGR',49),('COLOR_BAYER_GR2BGR',49),('COLOR_BayerGR2BGRA',142),('COLOR_BAYER_GR2BGRA',142),('COLOR_BayerGR2BGR_EA',138),('COLOR_BAYER_GR2BGR_EA',138),('COLOR_BayerGR2BGR_VNG',65),('COLOR_BAYER_GR2BGR_VNG',65),('COLOR_BayerGR2GRAY',89),('COLOR_BAYER_GR2GRAY',89),('COLOR_BayerGR2RGB',47),('COLOR_BAYER_GR2RGB',47),('COLOR_BayerGR2RGBA',140),('COLOR_BAYER_GR2RGBA',140),('COLOR_BayerGR2RGB_EA',136),('COLOR_BAYER_GR2RGB_EA',136),('COLOR_BayerGR2RGB_VNG',63),('COLOR_BAYER_GR2RGB_VNG',63),('COLOR_BayerRG2BGR',48),('COLOR_BAYER_RG2BGR',48),('COLOR_BayerRG2BGRA',141),('COLOR_BAYER_RG2BGRA',141),('COLOR_BayerRG2BGR_EA',137),('COLOR_BAYER_RG2BGR_EA',137),('COLOR_BayerRG2BGR_VNG',64),('COLOR_BAYER_RG2BGR_VNG',64),('COLOR_BayerRG2GRAY',88),('COLOR_BAYER_RG2GRAY',88),('COLOR_BayerRG2RGB',46),('COLOR_BAYER_RG2RGB',46),('COLOR_BayerRG2RGBA',139),('COLOR_BAYER_RG2RGBA',139),('COLOR_BayerRG2RGB_EA',135),('COLOR_BAYER_RG2RGB_EA',135),('COLOR_BayerRG2RGB_VNG',62),('COLOR_BAYER_RG2RGB_VNG',62),('COLOR_COLORCVT_MAX',143),('COLOR_GRAY2BGR',8),('COLOR_GRAY2BGR555',30),('COLOR_GRAY2BGR565',20),('COLOR_GRAY2BGRA',9),('COLOR_GRAY2RGB',8),('COLOR_GRAY2RGBA',9),('COLOR_HLS2BGR',60),('COLOR_HLS2BGR_FULL',72),('COLOR_HLS2RGB',61),('COLOR_HLS2RGB_FULL',73),('COLOR_HSV2BGR',54),('COLOR_HSV2BGR_FULL',70),('COLOR_HSV2RGB',55),('COLOR_HSV2RGB_FULL',71),('COLOR_LBGR2Lab',74),('COLOR_LBGR2LAB',74),('COLOR_LBGR2Luv',76),('COLOR_LBGR2LUV',76),('COLOR_LRGB2Lab',75),('COLOR_LRGB2LAB',75),('COLOR_LRGB2Luv',77),('COLOR_LRGB2LUV',77),('COLOR_Lab2BGR',56),('COLOR_LAB2BGR',56),('COLOR_Lab2LBGR',78),('COLOR_LAB2LBGR',78),('COLOR_Lab2LRGB',79),('COLOR_LAB2LRGB',79),('COLOR_Lab2RGB',57),('COLOR_LAB2RGB',57),('COLOR_Luv2BGR',58),('COLOR_LUV2BGR',58),('COLOR_Luv2LBGR',80),('COLOR_LUV2LBGR',80),('COLOR_Luv2LRGB',81),('COLOR_LUV2LRGB',81),('COLOR_Luv2RGB',59),('COLOR_LUV2RGB',59),('COLOR_RGB2BGR',4),('COLOR_RGB2BGR555',23),('COLOR_RGB2BGR565',13),('COLOR_RGB2BGRA',2),('COLOR_RGB2GRAY',7),('COLOR_RGB2HLS',53),('COLOR_RGB2HLS_FULL',69),('COLOR_RGB2HSV',41),('COLOR_RGB2HSV_FULL',67),('COLOR_RGB2Lab',45),('COLOR_RGB2LAB',45),('COLOR_RGB2Luv',51),('COLOR_RGB2LUV',51),('COLOR_RGB2RGBA',0),('COLOR_RGB2XYZ',33),('COLOR_RGB2YCrCb',37),('COLOR_RGB2YCR_CB',37),('COLOR_RGB2YUV',83),('COLOR_RGB2YUV_I420',127),('COLOR_RGB2YUV_IYUV',127),('COLOR_RGB2YUV_YV12',131),('COLOR_RGBA2BGR',3),('COLOR_RGBA2BGR555',27),('COLOR_RGBA2BGR565',17),('COLOR_RGBA2BGRA',5),('COLOR_RGBA2GRAY',11),('COLOR_RGBA2RGB',1),('COLOR_RGBA2YUV_I420',129),('COLOR_RGBA2YUV_IYUV',129),('COLOR_RGBA2YUV_YV12',133),('COLOR_RGBA2mRGBA',125),('COLOR_RGBA2M_RGBA',125),('COLOR_XYZ2BGR',34),('COLOR_XYZ2RGB',35),('COLOR_YCrCb2BGR',38),('COLOR_YCR_CB2BGR',38),('COLOR_YCrCb2RGB',39),('COLOR_YCR_CB2RGB',39),('COLOR_YUV2BGR',84),('COLOR_YUV2BGRA_I420',105),('COLOR_YUV2BGRA_IYUV',105),('COLOR_YUV2BGRA_NV12',95),('COLOR_YUV2BGRA_NV21',97),('COLOR_YUV2BGRA_UYNV',112),('COLOR_YUV2BGRA_UYVY',112),('COLOR_YUV2BGRA_Y422',112),('COLOR_YUV2BGRA_YUNV',120),('COLOR_YUV2BGRA_YUY2',120),('COLOR_YUV2BGRA_YUYV',120),('COLOR_YUV2BGRA_YV12',103),('COLOR_YUV2BGRA_YVYU',122),('COLOR_YUV2BGR_I420',101),('COLOR_YUV2BGR_IYUV',101),('COLOR_YUV2BGR_NV12',91),('COLOR_YUV2BGR_NV21',93),('COLOR_YUV2BGR_UYNV',108),('COLOR_YUV2BGR_UYVY',108),('COLOR_YUV2BGR_Y422',108),('COLOR_YUV2BGR_YUNV',116),('COLOR_YUV2BGR_YUY2',116),('COLOR_YUV2BGR_YUYV',116),('COLOR_YUV2BGR_YV12',99),('COLOR_YUV2BGR_YVYU',118),('COLOR_YUV2GRAY_420',106),('COLOR_YUV2GRAY_I420',106),('COLOR_YUV2GRAY_IYUV',106),('COLOR_YUV2GRAY_NV12',106),('COLOR_YUV2GRAY_NV21',106),('COLOR_YUV2GRAY_UYNV',123),('COLOR_YUV2GRAY_UYVY',123),('COLOR_YUV2GRAY_Y422',123),('COLOR_YUV2GRAY_YUNV',124),('COLOR_YUV2GRAY_YUY2',124),('COLOR_YUV2GRAY_YUYV',124),('COLOR_YUV2GRAY_YV12',106),('COLOR_YUV2GRAY_YVYU',124),('COLOR_YUV2RGB',85),('COLOR_YUV2RGBA_I420',104),('COLOR_YUV2RGBA_IYUV',104),('COLOR_YUV2RGBA_NV12',94),('COLOR_YUV2RGBA_NV21',96),('COLOR_YUV2RGBA_UYNV',111),('COLOR_YUV2RGBA_UYVY',111),('COLOR_YUV2RGBA_Y422',111),('COLOR_YUV2RGBA_YUNV',119),('COLOR_YUV2RGBA_YUY2',119),('COLOR_YUV2RGBA_YUYV',119),('COLOR_YUV2RGBA_YV12',102),('COLOR_YUV2RGBA_YVYU',121),('COLOR_YUV2RGB_I420',100),('COLOR_YUV2RGB_IYUV',100),('COLOR_YUV2RGB_NV12',90),('COLOR_YUV2RGB_NV21',92),('COLOR_YUV2RGB_UYNV',107),('COLOR_YUV2RGB_UYVY',107),('COLOR_YUV2RGB_Y422',107),('COLOR_YUV2RGB_YUNV',115),('COLOR_YUV2RGB_YUY2',115),('COLOR_YUV2RGB_YUYV',115),('COLOR_YUV2RGB_YV12',98),('COLOR_YUV2RGB_YVYU',117),('COLOR_YUV420p2BGR',99),('COLOR_YUV420P2BGR',99),('COLOR_YUV420p2BGRA',103),('COLOR_YUV420P2BGRA',103),('COLOR_YUV420p2GRAY',106),('COLOR_YUV420P2GRAY',106),('COLOR_YUV420p2RGB',98),('COLOR_YUV420P2RGB',98),('COLOR_YUV420p2RGBA',102),('COLOR_YUV420P2RGBA',102),('COLOR_YUV420sp2BGR',93),('COLOR_YUV420SP2BGR',93),('COLOR_YUV420sp2BGRA',97),('COLOR_YUV420SP2BGRA',97),('COLOR_YUV420sp2GRAY',106),('COLOR_YUV420SP2GRAY',106),('COLOR_YUV420sp2RGB',92),('COLOR_YUV420SP2RGB',92),('COLOR_YUV420sp2RGBA',96),('COLOR_YUV420SP2RGBA',96),('COLOR_mRGBA2RGBA',126),('COLOR_M_RGBA2RGBA',126)])]
+               [ComboboxParameter('code', [('COLOR_BGR2BGRA',0),('COLOR_RGB2RGBA',0),('COLOR_BGRA2BGR',1),('COLOR_RGBA2RGB',1),('COLOR_BGR2RGBA',2),('COLOR_RGB2BGRA',2),('COLOR_BGRA2RGB',3),('COLOR_RGBA2BGR',3),('COLOR_BGR2RGB',4),('COLOR_RGB2BGR',4),('COLOR_BGRA2RGBA',5),('COLOR_RGBA2BGRA',5),('COLOR_BGR2GRAY',6),('COLOR_RGB2GRAY',7),('COLOR_GRAY2BGR',8),('COLOR_GRAY2RGB',8),('COLOR_GRAY2BGRA',9),('COLOR_GRAY2RGBA',9),('COLOR_BGRA2GRAY',10),('COLOR_RGBA2GRAY',11),('COLOR_BGR2BGR565',12),('COLOR_RGB2BGR565',13),('COLOR_BGR5652BGR',14),('COLOR_BGR5652RGB',15),('COLOR_BGRA2BGR565',16),('COLOR_RGBA2BGR565',17),('COLOR_BGR5652BGRA',18),('COLOR_BGR5652RGBA',19),('COLOR_GRAY2BGR565',20),('COLOR_BGR5652GRAY',21),('COLOR_BGR2BGR555',22),('COLOR_RGB2BGR555',23),('COLOR_BGR5552BGR',24),('COLOR_BGR5552RGB',25),('COLOR_BGRA2BGR555',26),('COLOR_RGBA2BGR555',27),('COLOR_BGR5552BGRA',28),('COLOR_BGR5552RGBA',29),('COLOR_GRAY2BGR555',30),('COLOR_BGR5552GRAY',31),('COLOR_BGR2XYZ',32),('COLOR_RGB2XYZ',33),('COLOR_XYZ2BGR',34),('COLOR_XYZ2RGB',35),('COLOR_BGR2YCrCb',36),('COLOR_BGR2YCR_CB',36),('COLOR_RGB2YCrCb',37),('COLOR_RGB2YCR_CB',37),('COLOR_YCrCb2BGR',38),('COLOR_YCR_CB2BGR',38),('COLOR_YCrCb2RGB',39),('COLOR_YCR_CB2RGB',39),('COLOR_BGR2HSV',40),('COLOR_RGB2HSV',41),('COLOR_BGR2Lab',44),('COLOR_BGR2LAB',44),('COLOR_RGB2Lab',45),('COLOR_RGB2LAB',45),('COLOR_BayerBG2BGR',46),('COLOR_BAYER_BG2BGR',46),('COLOR_BayerRG2RGB',46),('COLOR_BAYER_RG2RGB',46),('COLOR_BayerGB2BGR',47),('COLOR_BAYER_GB2BGR',47),('COLOR_BayerGR2RGB',47),('COLOR_BAYER_GR2RGB',47),('COLOR_BayerBG2RGB',48),('COLOR_BAYER_BG2RGB',48),('COLOR_BayerRG2BGR',48),('COLOR_BAYER_RG2BGR',48),('COLOR_BayerGB2RGB',49),('COLOR_BAYER_GB2RGB',49),('COLOR_BayerGR2BGR',49),('COLOR_BAYER_GR2BGR',49),('COLOR_BGR2Luv',50),('COLOR_BGR2LUV',50),('COLOR_RGB2Luv',51),('COLOR_RGB2LUV',51),('COLOR_BGR2HLS',52),('COLOR_RGB2HLS',53),('COLOR_HSV2BGR',54),('COLOR_HSV2RGB',55),('COLOR_Lab2BGR',56),('COLOR_LAB2BGR',56),('COLOR_Lab2RGB',57),('COLOR_LAB2RGB',57),('COLOR_Luv2BGR',58),('COLOR_LUV2BGR',58),('COLOR_Luv2RGB',59),('COLOR_LUV2RGB',59),('COLOR_HLS2BGR',60),('COLOR_HLS2RGB',61),('COLOR_BayerBG2BGR_VNG',62),('COLOR_BAYER_BG2BGR_VNG',62),('COLOR_BayerRG2RGB_VNG',62),('COLOR_BAYER_RG2RGB_VNG',62),('COLOR_BayerGB2BGR_VNG',63),('COLOR_BAYER_GB2BGR_VNG',63),('COLOR_BayerGR2RGB_VNG',63),('COLOR_BAYER_GR2RGB_VNG',63),('COLOR_BayerBG2RGB_VNG',64),('COLOR_BAYER_BG2RGB_VNG',64),('COLOR_BayerRG2BGR_VNG',64),('COLOR_BAYER_RG2BGR_VNG',64),('COLOR_BayerGB2RGB_VNG',65),('COLOR_BAYER_GB2RGB_VNG',65),('COLOR_BayerGR2BGR_VNG',65),('COLOR_BAYER_GR2BGR_VNG',65),('COLOR_BGR2HSV_FULL',66),('COLOR_RGB2HSV_FULL',67),('COLOR_BGR2HLS_FULL',68),('COLOR_RGB2HLS_FULL',69),('COLOR_HSV2BGR_FULL',70),('COLOR_HSV2RGB_FULL',71),('COLOR_HLS2BGR_FULL',72),('COLOR_HLS2RGB_FULL',73),('COLOR_LBGR2Lab',74),('COLOR_LBGR2LAB',74),('COLOR_LRGB2Lab',75),('COLOR_LRGB2LAB',75),('COLOR_LBGR2Luv',76),('COLOR_LBGR2LUV',76),('COLOR_LRGB2Luv',77),('COLOR_LRGB2LUV',77),('COLOR_Lab2LBGR',78),('COLOR_LAB2LBGR',78),('COLOR_Lab2LRGB',79),('COLOR_LAB2LRGB',79),('COLOR_Luv2LBGR',80),('COLOR_LUV2LBGR',80),('COLOR_Luv2LRGB',81),('COLOR_LUV2LRGB',81),('COLOR_BGR2YUV',82),('COLOR_RGB2YUV',83),('COLOR_YUV2BGR',84),('COLOR_YUV2RGB',85),('COLOR_BayerBG2GRAY',86),('COLOR_BAYER_BG2GRAY',86),('COLOR_BayerGB2GRAY',87),('COLOR_BAYER_GB2GRAY',87),('COLOR_BayerRG2GRAY',88),('COLOR_BAYER_RG2GRAY',88),('COLOR_BayerGR2GRAY',89),('COLOR_BAYER_GR2GRAY',89),('COLOR_YUV2RGB_NV12',90),('COLOR_YUV2BGR_NV12',91),('COLOR_YUV2RGB_NV21',92),('COLOR_YUV420sp2RGB',92),('COLOR_YUV420SP2RGB',92),('COLOR_YUV2BGR_NV21',93),('COLOR_YUV420sp2BGR',93),('COLOR_YUV420SP2BGR',93),('COLOR_YUV2RGBA_NV12',94),('COLOR_YUV2BGRA_NV12',95),('COLOR_YUV2RGBA_NV21',96),('COLOR_YUV420sp2RGBA',96),('COLOR_YUV420SP2RGBA',96),('COLOR_YUV2BGRA_NV21',97),('COLOR_YUV420sp2BGRA',97),('COLOR_YUV420SP2BGRA',97),('COLOR_YUV2RGB_YV12',98),('COLOR_YUV420p2RGB',98),('COLOR_YUV420P2RGB',98),('COLOR_YUV2BGR_YV12',99),('COLOR_YUV420p2BGR',99),('COLOR_YUV420P2BGR',99),('COLOR_YUV2RGB_I420',100),('COLOR_YUV2RGB_IYUV',100),('COLOR_YUV2BGR_I420',101),('COLOR_YUV2BGR_IYUV',101),('COLOR_YUV2RGBA_YV12',102),('COLOR_YUV420p2RGBA',102),('COLOR_YUV420P2RGBA',102),('COLOR_YUV2BGRA_YV12',103),('COLOR_YUV420p2BGRA',103),('COLOR_YUV420P2BGRA',103),('COLOR_YUV2RGBA_I420',104),('COLOR_YUV2RGBA_IYUV',104),('COLOR_YUV2BGRA_I420',105),('COLOR_YUV2BGRA_IYUV',105),('COLOR_YUV2GRAY_420',106),('COLOR_YUV2GRAY_I420',106),('COLOR_YUV2GRAY_IYUV',106),('COLOR_YUV2GRAY_NV12',106),('COLOR_YUV2GRAY_NV21',106),('COLOR_YUV2GRAY_YV12',106),('COLOR_YUV420p2GRAY',106),('COLOR_YUV420P2GRAY',106),('COLOR_YUV420sp2GRAY',106),('COLOR_YUV420SP2GRAY',106),('COLOR_YUV2RGB_UYNV',107),('COLOR_YUV2RGB_UYVY',107),('COLOR_YUV2RGB_Y422',107),('COLOR_YUV2BGR_UYNV',108),('COLOR_YUV2BGR_UYVY',108),('COLOR_YUV2BGR_Y422',108),('COLOR_YUV2RGBA_UYNV',111),('COLOR_YUV2RGBA_UYVY',111),('COLOR_YUV2RGBA_Y422',111),('COLOR_YUV2BGRA_UYNV',112),('COLOR_YUV2BGRA_UYVY',112),('COLOR_YUV2BGRA_Y422',112),('COLOR_YUV2RGB_YUNV',115),('COLOR_YUV2RGB_YUY2',115),('COLOR_YUV2RGB_YUYV',115),('COLOR_YUV2BGR_YUNV',116),('COLOR_YUV2BGR_YUY2',116),('COLOR_YUV2BGR_YUYV',116),('COLOR_YUV2RGB_YVYU',117),('COLOR_YUV2BGR_YVYU',118),('COLOR_YUV2RGBA_YUNV',119),('COLOR_YUV2RGBA_YUY2',119),('COLOR_YUV2RGBA_YUYV',119),('COLOR_YUV2BGRA_YUNV',120),('COLOR_YUV2BGRA_YUY2',120),('COLOR_YUV2BGRA_YUYV',120),('COLOR_YUV2RGBA_YVYU',121),('COLOR_YUV2BGRA_YVYU',122),('COLOR_YUV2GRAY_UYNV',123),('COLOR_YUV2GRAY_UYVY',123),('COLOR_YUV2GRAY_Y422',123),('COLOR_YUV2GRAY_YUNV',124),('COLOR_YUV2GRAY_YUY2',124),('COLOR_YUV2GRAY_YUYV',124),('COLOR_YUV2GRAY_YVYU',124),('COLOR_RGBA2mRGBA',125),('COLOR_RGBA2M_RGBA',125),('COLOR_mRGBA2RGBA',126),('COLOR_M_RGBA2RGBA',126),('COLOR_RGB2YUV_I420',127),('COLOR_RGB2YUV_IYUV',127),('COLOR_BGR2YUV_I420',128),('COLOR_BGR2YUV_IYUV',128),('COLOR_RGBA2YUV_I420',129),('COLOR_RGBA2YUV_IYUV',129),('COLOR_BGRA2YUV_I420',130),('COLOR_BGRA2YUV_IYUV',130),('COLOR_RGB2YUV_YV12',131),('COLOR_BGR2YUV_YV12',132),('COLOR_RGBA2YUV_YV12',133),('COLOR_BGRA2YUV_YV12',134),('COLOR_BayerBG2BGR_EA',135),('COLOR_BAYER_BG2BGR_EA',135),('COLOR_BayerRG2RGB_EA',135),('COLOR_BAYER_RG2RGB_EA',135),('COLOR_BayerGB2BGR_EA',136),('COLOR_BAYER_GB2BGR_EA',136),('COLOR_BayerGR2RGB_EA',136),('COLOR_BAYER_GR2RGB_EA',136),('COLOR_BayerBG2RGB_EA',137),('COLOR_BAYER_BG2RGB_EA',137),('COLOR_BayerRG2BGR_EA',137),('COLOR_BAYER_RG2BGR_EA',137),('COLOR_BayerGB2RGB_EA',138),('COLOR_BAYER_GB2RGB_EA',138),('COLOR_BayerGR2BGR_EA',138),('COLOR_BAYER_GR2BGR_EA',138),('COLOR_BayerBG2BGRA',139),('COLOR_BAYER_BG2BGRA',139),('COLOR_BayerRG2RGBA',139),('COLOR_BAYER_RG2RGBA',139),('COLOR_BayerGB2BGRA',140),('COLOR_BAYER_GB2BGRA',140),('COLOR_BayerGR2RGBA',140),('COLOR_BAYER_GR2RGBA',140),('COLOR_BayerBG2RGBA',141),('COLOR_BAYER_BG2RGBA',141),('COLOR_BayerRG2BGRA',141),('COLOR_BAYER_RG2BGRA',141),('COLOR_BayerGB2RGBA',142),('COLOR_BAYER_GB2RGBA',142),('COLOR_BayerGR2BGRA',142),('COLOR_BAYER_GR2BGRA',142),('COLOR_COLORCVT_MAX',143)])]
 
     def process_inputs(self, inputs, outputs, parameters):
         src1 = inputs['src1'].value
@@ -806,6 +1243,48 @@ class OpenCVAuto2_Decolor(NormalElement):
         grayscale, color_boost = cv2.decolor(src=src)
         outputs['grayscale'] = Data(grayscale)
         outputs['color_boost'] = Data(color_boost)
+
+### decomposeEssentialMat ###
+
+class OpenCVAuto2_DecomposeEssentialMat(NormalElement):
+    name = 'DecomposeEssentialMat'
+    comment = '''decomposeEssentialMat(E[, R1[, R2[, t]]]) -> R1, R2, t\n@brief Decompose an essential matrix to possible rotations and translation.\n\n@param E The input essential matrix.\n@param R1 One possible rotation matrix.\n@param R2 Another possible rotation matrix.\n@param t One possible translation.\n\nThis function decompose an essential matrix E using svd decomposition @cite HartleyZ00 . Generally 4\npossible poses exists for a given E. They are \f$[R_1, t]\f$, \f$[R_1, -t]\f$, \f$[R_2, t]\f$, \f$[R_2, -t]\f$. By\ndecomposing E, you can only get the direction of the translation, so the function returns unit t.'''
+
+    def get_attributes(self):
+        return [Input('E', 'E')], \
+               [Output('R1', 'R1'),
+                Output('R2', 'R2'),
+                Output('t', 't')], \
+               []
+
+    def process_inputs(self, inputs, outputs, parameters):
+        E = inputs['E'].value
+        R1, R2, t = cv2.decomposeEssentialMat(E=E)
+        outputs['R1'] = Data(R1)
+        outputs['R2'] = Data(R2)
+        outputs['t'] = Data(t)
+
+### decomposeHomographyMat ###
+
+class OpenCVAuto2_DecomposeHomographyMat(NormalElement):
+    name = 'DecomposeHomographyMat'
+    comment = '''decomposeHomographyMat(H, K[, rotations[, translations[, normals]]]) -> retval, rotations, translations, normals\n@brief Decompose a homography matrix to rotation(s), translation(s) and plane normal(s).\n\n@param H The input homography matrix between two images.\n@param K The input intrinsic camera calibration matrix.\n@param rotations Array of rotation matrices.\n@param translations Array of translation matrices.\n@param normals Array of plane normal matrices.\n\nThis function extracts relative camera motion between two views observing a planar object from the\nhomography H induced by the plane. The intrinsic camera matrix K must also be provided. The function\nmay return up to four mathematical solution sets. At least two of the solutions may further be\ninvalidated if point correspondences are available by applying positive depth constraint (all points\nmust be in front of the camera). The decomposition method is described in detail in @cite Malis .'''
+
+    def get_attributes(self):
+        return [Input('H', 'H'),
+                Input('K', 'K')], \
+               [Output('rotations', 'rotations'),
+                Output('translations', 'translations'),
+                Output('normals', 'normals')], \
+               []
+
+    def process_inputs(self, inputs, outputs, parameters):
+        H = inputs['H'].value
+        K = inputs['K'].value
+        retval, rotations, translations, normals = cv2.decomposeHomographyMat(H=H, K=K)
+        outputs['rotations'] = Data(rotations)
+        outputs['translations'] = Data(translations)
+        outputs['normals'] = Data(normals)
 
 ### decomposeProjectionMatrix ###
 
@@ -845,7 +1324,7 @@ class OpenCVAuto2_Demosaicing(NormalElement):
     def get_attributes(self):
         return [Input('_src', '_src')], \
                [Output('_dst', '_dst')], \
-               [ComboboxParameter('code', [('COLOR_BGR2BGR555',22),('COLOR_BGR2BGR565',12),('COLOR_BGR2BGRA',0),('COLOR_BGR2GRAY',6),('COLOR_BGR2HLS',52),('COLOR_BGR2HLS_FULL',68),('COLOR_BGR2HSV',40),('COLOR_BGR2HSV_FULL',66),('COLOR_BGR2Lab',44),('COLOR_BGR2LAB',44),('COLOR_BGR2Luv',50),('COLOR_BGR2LUV',50),('COLOR_BGR2RGB',4),('COLOR_BGR2RGBA',2),('COLOR_BGR2XYZ',32),('COLOR_BGR2YCrCb',36),('COLOR_BGR2YCR_CB',36),('COLOR_BGR2YUV',82),('COLOR_BGR2YUV_I420',128),('COLOR_BGR2YUV_IYUV',128),('COLOR_BGR2YUV_YV12',132),('COLOR_BGR5552BGR',24),('COLOR_BGR5552BGRA',28),('COLOR_BGR5552GRAY',31),('COLOR_BGR5552RGB',25),('COLOR_BGR5552RGBA',29),('COLOR_BGR5652BGR',14),('COLOR_BGR5652BGRA',18),('COLOR_BGR5652GRAY',21),('COLOR_BGR5652RGB',15),('COLOR_BGR5652RGBA',19),('COLOR_BGRA2BGR',1),('COLOR_BGRA2BGR555',26),('COLOR_BGRA2BGR565',16),('COLOR_BGRA2GRAY',10),('COLOR_BGRA2RGB',3),('COLOR_BGRA2RGBA',5),('COLOR_BGRA2YUV_I420',130),('COLOR_BGRA2YUV_IYUV',130),('COLOR_BGRA2YUV_YV12',134),('COLOR_BayerBG2BGR',46),('COLOR_BAYER_BG2BGR',46),('COLOR_BayerBG2BGRA',139),('COLOR_BAYER_BG2BGRA',139),('COLOR_BayerBG2BGR_EA',135),('COLOR_BAYER_BG2BGR_EA',135),('COLOR_BayerBG2BGR_VNG',62),('COLOR_BAYER_BG2BGR_VNG',62),('COLOR_BayerBG2GRAY',86),('COLOR_BAYER_BG2GRAY',86),('COLOR_BayerBG2RGB',48),('COLOR_BAYER_BG2RGB',48),('COLOR_BayerBG2RGBA',141),('COLOR_BAYER_BG2RGBA',141),('COLOR_BayerBG2RGB_EA',137),('COLOR_BAYER_BG2RGB_EA',137),('COLOR_BayerBG2RGB_VNG',64),('COLOR_BAYER_BG2RGB_VNG',64),('COLOR_BayerGB2BGR',47),('COLOR_BAYER_GB2BGR',47),('COLOR_BayerGB2BGRA',140),('COLOR_BAYER_GB2BGRA',140),('COLOR_BayerGB2BGR_EA',136),('COLOR_BAYER_GB2BGR_EA',136),('COLOR_BayerGB2BGR_VNG',63),('COLOR_BAYER_GB2BGR_VNG',63),('COLOR_BayerGB2GRAY',87),('COLOR_BAYER_GB2GRAY',87),('COLOR_BayerGB2RGB',49),('COLOR_BAYER_GB2RGB',49),('COLOR_BayerGB2RGBA',142),('COLOR_BAYER_GB2RGBA',142),('COLOR_BayerGB2RGB_EA',138),('COLOR_BAYER_GB2RGB_EA',138),('COLOR_BayerGB2RGB_VNG',65),('COLOR_BAYER_GB2RGB_VNG',65),('COLOR_BayerGR2BGR',49),('COLOR_BAYER_GR2BGR',49),('COLOR_BayerGR2BGRA',142),('COLOR_BAYER_GR2BGRA',142),('COLOR_BayerGR2BGR_EA',138),('COLOR_BAYER_GR2BGR_EA',138),('COLOR_BayerGR2BGR_VNG',65),('COLOR_BAYER_GR2BGR_VNG',65),('COLOR_BayerGR2GRAY',89),('COLOR_BAYER_GR2GRAY',89),('COLOR_BayerGR2RGB',47),('COLOR_BAYER_GR2RGB',47),('COLOR_BayerGR2RGBA',140),('COLOR_BAYER_GR2RGBA',140),('COLOR_BayerGR2RGB_EA',136),('COLOR_BAYER_GR2RGB_EA',136),('COLOR_BayerGR2RGB_VNG',63),('COLOR_BAYER_GR2RGB_VNG',63),('COLOR_BayerRG2BGR',48),('COLOR_BAYER_RG2BGR',48),('COLOR_BayerRG2BGRA',141),('COLOR_BAYER_RG2BGRA',141),('COLOR_BayerRG2BGR_EA',137),('COLOR_BAYER_RG2BGR_EA',137),('COLOR_BayerRG2BGR_VNG',64),('COLOR_BAYER_RG2BGR_VNG',64),('COLOR_BayerRG2GRAY',88),('COLOR_BAYER_RG2GRAY',88),('COLOR_BayerRG2RGB',46),('COLOR_BAYER_RG2RGB',46),('COLOR_BayerRG2RGBA',139),('COLOR_BAYER_RG2RGBA',139),('COLOR_BayerRG2RGB_EA',135),('COLOR_BAYER_RG2RGB_EA',135),('COLOR_BayerRG2RGB_VNG',62),('COLOR_BAYER_RG2RGB_VNG',62),('COLOR_COLORCVT_MAX',143),('COLOR_GRAY2BGR',8),('COLOR_GRAY2BGR555',30),('COLOR_GRAY2BGR565',20),('COLOR_GRAY2BGRA',9),('COLOR_GRAY2RGB',8),('COLOR_GRAY2RGBA',9),('COLOR_HLS2BGR',60),('COLOR_HLS2BGR_FULL',72),('COLOR_HLS2RGB',61),('COLOR_HLS2RGB_FULL',73),('COLOR_HSV2BGR',54),('COLOR_HSV2BGR_FULL',70),('COLOR_HSV2RGB',55),('COLOR_HSV2RGB_FULL',71),('COLOR_LBGR2Lab',74),('COLOR_LBGR2LAB',74),('COLOR_LBGR2Luv',76),('COLOR_LBGR2LUV',76),('COLOR_LRGB2Lab',75),('COLOR_LRGB2LAB',75),('COLOR_LRGB2Luv',77),('COLOR_LRGB2LUV',77),('COLOR_Lab2BGR',56),('COLOR_LAB2BGR',56),('COLOR_Lab2LBGR',78),('COLOR_LAB2LBGR',78),('COLOR_Lab2LRGB',79),('COLOR_LAB2LRGB',79),('COLOR_Lab2RGB',57),('COLOR_LAB2RGB',57),('COLOR_Luv2BGR',58),('COLOR_LUV2BGR',58),('COLOR_Luv2LBGR',80),('COLOR_LUV2LBGR',80),('COLOR_Luv2LRGB',81),('COLOR_LUV2LRGB',81),('COLOR_Luv2RGB',59),('COLOR_LUV2RGB',59),('COLOR_RGB2BGR',4),('COLOR_RGB2BGR555',23),('COLOR_RGB2BGR565',13),('COLOR_RGB2BGRA',2),('COLOR_RGB2GRAY',7),('COLOR_RGB2HLS',53),('COLOR_RGB2HLS_FULL',69),('COLOR_RGB2HSV',41),('COLOR_RGB2HSV_FULL',67),('COLOR_RGB2Lab',45),('COLOR_RGB2LAB',45),('COLOR_RGB2Luv',51),('COLOR_RGB2LUV',51),('COLOR_RGB2RGBA',0),('COLOR_RGB2XYZ',33),('COLOR_RGB2YCrCb',37),('COLOR_RGB2YCR_CB',37),('COLOR_RGB2YUV',83),('COLOR_RGB2YUV_I420',127),('COLOR_RGB2YUV_IYUV',127),('COLOR_RGB2YUV_YV12',131),('COLOR_RGBA2BGR',3),('COLOR_RGBA2BGR555',27),('COLOR_RGBA2BGR565',17),('COLOR_RGBA2BGRA',5),('COLOR_RGBA2GRAY',11),('COLOR_RGBA2RGB',1),('COLOR_RGBA2YUV_I420',129),('COLOR_RGBA2YUV_IYUV',129),('COLOR_RGBA2YUV_YV12',133),('COLOR_RGBA2mRGBA',125),('COLOR_RGBA2M_RGBA',125),('COLOR_XYZ2BGR',34),('COLOR_XYZ2RGB',35),('COLOR_YCrCb2BGR',38),('COLOR_YCR_CB2BGR',38),('COLOR_YCrCb2RGB',39),('COLOR_YCR_CB2RGB',39),('COLOR_YUV2BGR',84),('COLOR_YUV2BGRA_I420',105),('COLOR_YUV2BGRA_IYUV',105),('COLOR_YUV2BGRA_NV12',95),('COLOR_YUV2BGRA_NV21',97),('COLOR_YUV2BGRA_UYNV',112),('COLOR_YUV2BGRA_UYVY',112),('COLOR_YUV2BGRA_Y422',112),('COLOR_YUV2BGRA_YUNV',120),('COLOR_YUV2BGRA_YUY2',120),('COLOR_YUV2BGRA_YUYV',120),('COLOR_YUV2BGRA_YV12',103),('COLOR_YUV2BGRA_YVYU',122),('COLOR_YUV2BGR_I420',101),('COLOR_YUV2BGR_IYUV',101),('COLOR_YUV2BGR_NV12',91),('COLOR_YUV2BGR_NV21',93),('COLOR_YUV2BGR_UYNV',108),('COLOR_YUV2BGR_UYVY',108),('COLOR_YUV2BGR_Y422',108),('COLOR_YUV2BGR_YUNV',116),('COLOR_YUV2BGR_YUY2',116),('COLOR_YUV2BGR_YUYV',116),('COLOR_YUV2BGR_YV12',99),('COLOR_YUV2BGR_YVYU',118),('COLOR_YUV2GRAY_420',106),('COLOR_YUV2GRAY_I420',106),('COLOR_YUV2GRAY_IYUV',106),('COLOR_YUV2GRAY_NV12',106),('COLOR_YUV2GRAY_NV21',106),('COLOR_YUV2GRAY_UYNV',123),('COLOR_YUV2GRAY_UYVY',123),('COLOR_YUV2GRAY_Y422',123),('COLOR_YUV2GRAY_YUNV',124),('COLOR_YUV2GRAY_YUY2',124),('COLOR_YUV2GRAY_YUYV',124),('COLOR_YUV2GRAY_YV12',106),('COLOR_YUV2GRAY_YVYU',124),('COLOR_YUV2RGB',85),('COLOR_YUV2RGBA_I420',104),('COLOR_YUV2RGBA_IYUV',104),('COLOR_YUV2RGBA_NV12',94),('COLOR_YUV2RGBA_NV21',96),('COLOR_YUV2RGBA_UYNV',111),('COLOR_YUV2RGBA_UYVY',111),('COLOR_YUV2RGBA_Y422',111),('COLOR_YUV2RGBA_YUNV',119),('COLOR_YUV2RGBA_YUY2',119),('COLOR_YUV2RGBA_YUYV',119),('COLOR_YUV2RGBA_YV12',102),('COLOR_YUV2RGBA_YVYU',121),('COLOR_YUV2RGB_I420',100),('COLOR_YUV2RGB_IYUV',100),('COLOR_YUV2RGB_NV12',90),('COLOR_YUV2RGB_NV21',92),('COLOR_YUV2RGB_UYNV',107),('COLOR_YUV2RGB_UYVY',107),('COLOR_YUV2RGB_Y422',107),('COLOR_YUV2RGB_YUNV',115),('COLOR_YUV2RGB_YUY2',115),('COLOR_YUV2RGB_YUYV',115),('COLOR_YUV2RGB_YV12',98),('COLOR_YUV2RGB_YVYU',117),('COLOR_YUV420p2BGR',99),('COLOR_YUV420P2BGR',99),('COLOR_YUV420p2BGRA',103),('COLOR_YUV420P2BGRA',103),('COLOR_YUV420p2GRAY',106),('COLOR_YUV420P2GRAY',106),('COLOR_YUV420p2RGB',98),('COLOR_YUV420P2RGB',98),('COLOR_YUV420p2RGBA',102),('COLOR_YUV420P2RGBA',102),('COLOR_YUV420sp2BGR',93),('COLOR_YUV420SP2BGR',93),('COLOR_YUV420sp2BGRA',97),('COLOR_YUV420SP2BGRA',97),('COLOR_YUV420sp2GRAY',106),('COLOR_YUV420SP2GRAY',106),('COLOR_YUV420sp2RGB',92),('COLOR_YUV420SP2RGB',92),('COLOR_YUV420sp2RGBA',96),('COLOR_YUV420SP2RGBA',96),('COLOR_mRGBA2RGBA',126),('COLOR_M_RGBA2RGBA',126)])]
+               [ComboboxParameter('code', [('COLOR_BGR2BGRA',0),('COLOR_RGB2RGBA',0),('COLOR_BGRA2BGR',1),('COLOR_RGBA2RGB',1),('COLOR_BGR2RGBA',2),('COLOR_RGB2BGRA',2),('COLOR_BGRA2RGB',3),('COLOR_RGBA2BGR',3),('COLOR_BGR2RGB',4),('COLOR_RGB2BGR',4),('COLOR_BGRA2RGBA',5),('COLOR_RGBA2BGRA',5),('COLOR_BGR2GRAY',6),('COLOR_RGB2GRAY',7),('COLOR_GRAY2BGR',8),('COLOR_GRAY2RGB',8),('COLOR_GRAY2BGRA',9),('COLOR_GRAY2RGBA',9),('COLOR_BGRA2GRAY',10),('COLOR_RGBA2GRAY',11),('COLOR_BGR2BGR565',12),('COLOR_RGB2BGR565',13),('COLOR_BGR5652BGR',14),('COLOR_BGR5652RGB',15),('COLOR_BGRA2BGR565',16),('COLOR_RGBA2BGR565',17),('COLOR_BGR5652BGRA',18),('COLOR_BGR5652RGBA',19),('COLOR_GRAY2BGR565',20),('COLOR_BGR5652GRAY',21),('COLOR_BGR2BGR555',22),('COLOR_RGB2BGR555',23),('COLOR_BGR5552BGR',24),('COLOR_BGR5552RGB',25),('COLOR_BGRA2BGR555',26),('COLOR_RGBA2BGR555',27),('COLOR_BGR5552BGRA',28),('COLOR_BGR5552RGBA',29),('COLOR_GRAY2BGR555',30),('COLOR_BGR5552GRAY',31),('COLOR_BGR2XYZ',32),('COLOR_RGB2XYZ',33),('COLOR_XYZ2BGR',34),('COLOR_XYZ2RGB',35),('COLOR_BGR2YCrCb',36),('COLOR_BGR2YCR_CB',36),('COLOR_RGB2YCrCb',37),('COLOR_RGB2YCR_CB',37),('COLOR_YCrCb2BGR',38),('COLOR_YCR_CB2BGR',38),('COLOR_YCrCb2RGB',39),('COLOR_YCR_CB2RGB',39),('COLOR_BGR2HSV',40),('COLOR_RGB2HSV',41),('COLOR_BGR2Lab',44),('COLOR_BGR2LAB',44),('COLOR_RGB2Lab',45),('COLOR_RGB2LAB',45),('COLOR_BayerBG2BGR',46),('COLOR_BAYER_BG2BGR',46),('COLOR_BayerRG2RGB',46),('COLOR_BAYER_RG2RGB',46),('COLOR_BayerGB2BGR',47),('COLOR_BAYER_GB2BGR',47),('COLOR_BayerGR2RGB',47),('COLOR_BAYER_GR2RGB',47),('COLOR_BayerBG2RGB',48),('COLOR_BAYER_BG2RGB',48),('COLOR_BayerRG2BGR',48),('COLOR_BAYER_RG2BGR',48),('COLOR_BayerGB2RGB',49),('COLOR_BAYER_GB2RGB',49),('COLOR_BayerGR2BGR',49),('COLOR_BAYER_GR2BGR',49),('COLOR_BGR2Luv',50),('COLOR_BGR2LUV',50),('COLOR_RGB2Luv',51),('COLOR_RGB2LUV',51),('COLOR_BGR2HLS',52),('COLOR_RGB2HLS',53),('COLOR_HSV2BGR',54),('COLOR_HSV2RGB',55),('COLOR_Lab2BGR',56),('COLOR_LAB2BGR',56),('COLOR_Lab2RGB',57),('COLOR_LAB2RGB',57),('COLOR_Luv2BGR',58),('COLOR_LUV2BGR',58),('COLOR_Luv2RGB',59),('COLOR_LUV2RGB',59),('COLOR_HLS2BGR',60),('COLOR_HLS2RGB',61),('COLOR_BayerBG2BGR_VNG',62),('COLOR_BAYER_BG2BGR_VNG',62),('COLOR_BayerRG2RGB_VNG',62),('COLOR_BAYER_RG2RGB_VNG',62),('COLOR_BayerGB2BGR_VNG',63),('COLOR_BAYER_GB2BGR_VNG',63),('COLOR_BayerGR2RGB_VNG',63),('COLOR_BAYER_GR2RGB_VNG',63),('COLOR_BayerBG2RGB_VNG',64),('COLOR_BAYER_BG2RGB_VNG',64),('COLOR_BayerRG2BGR_VNG',64),('COLOR_BAYER_RG2BGR_VNG',64),('COLOR_BayerGB2RGB_VNG',65),('COLOR_BAYER_GB2RGB_VNG',65),('COLOR_BayerGR2BGR_VNG',65),('COLOR_BAYER_GR2BGR_VNG',65),('COLOR_BGR2HSV_FULL',66),('COLOR_RGB2HSV_FULL',67),('COLOR_BGR2HLS_FULL',68),('COLOR_RGB2HLS_FULL',69),('COLOR_HSV2BGR_FULL',70),('COLOR_HSV2RGB_FULL',71),('COLOR_HLS2BGR_FULL',72),('COLOR_HLS2RGB_FULL',73),('COLOR_LBGR2Lab',74),('COLOR_LBGR2LAB',74),('COLOR_LRGB2Lab',75),('COLOR_LRGB2LAB',75),('COLOR_LBGR2Luv',76),('COLOR_LBGR2LUV',76),('COLOR_LRGB2Luv',77),('COLOR_LRGB2LUV',77),('COLOR_Lab2LBGR',78),('COLOR_LAB2LBGR',78),('COLOR_Lab2LRGB',79),('COLOR_LAB2LRGB',79),('COLOR_Luv2LBGR',80),('COLOR_LUV2LBGR',80),('COLOR_Luv2LRGB',81),('COLOR_LUV2LRGB',81),('COLOR_BGR2YUV',82),('COLOR_RGB2YUV',83),('COLOR_YUV2BGR',84),('COLOR_YUV2RGB',85),('COLOR_BayerBG2GRAY',86),('COLOR_BAYER_BG2GRAY',86),('COLOR_BayerGB2GRAY',87),('COLOR_BAYER_GB2GRAY',87),('COLOR_BayerRG2GRAY',88),('COLOR_BAYER_RG2GRAY',88),('COLOR_BayerGR2GRAY',89),('COLOR_BAYER_GR2GRAY',89),('COLOR_YUV2RGB_NV12',90),('COLOR_YUV2BGR_NV12',91),('COLOR_YUV2RGB_NV21',92),('COLOR_YUV420sp2RGB',92),('COLOR_YUV420SP2RGB',92),('COLOR_YUV2BGR_NV21',93),('COLOR_YUV420sp2BGR',93),('COLOR_YUV420SP2BGR',93),('COLOR_YUV2RGBA_NV12',94),('COLOR_YUV2BGRA_NV12',95),('COLOR_YUV2RGBA_NV21',96),('COLOR_YUV420sp2RGBA',96),('COLOR_YUV420SP2RGBA',96),('COLOR_YUV2BGRA_NV21',97),('COLOR_YUV420sp2BGRA',97),('COLOR_YUV420SP2BGRA',97),('COLOR_YUV2RGB_YV12',98),('COLOR_YUV420p2RGB',98),('COLOR_YUV420P2RGB',98),('COLOR_YUV2BGR_YV12',99),('COLOR_YUV420p2BGR',99),('COLOR_YUV420P2BGR',99),('COLOR_YUV2RGB_I420',100),('COLOR_YUV2RGB_IYUV',100),('COLOR_YUV2BGR_I420',101),('COLOR_YUV2BGR_IYUV',101),('COLOR_YUV2RGBA_YV12',102),('COLOR_YUV420p2RGBA',102),('COLOR_YUV420P2RGBA',102),('COLOR_YUV2BGRA_YV12',103),('COLOR_YUV420p2BGRA',103),('COLOR_YUV420P2BGRA',103),('COLOR_YUV2RGBA_I420',104),('COLOR_YUV2RGBA_IYUV',104),('COLOR_YUV2BGRA_I420',105),('COLOR_YUV2BGRA_IYUV',105),('COLOR_YUV2GRAY_420',106),('COLOR_YUV2GRAY_I420',106),('COLOR_YUV2GRAY_IYUV',106),('COLOR_YUV2GRAY_NV12',106),('COLOR_YUV2GRAY_NV21',106),('COLOR_YUV2GRAY_YV12',106),('COLOR_YUV420p2GRAY',106),('COLOR_YUV420P2GRAY',106),('COLOR_YUV420sp2GRAY',106),('COLOR_YUV420SP2GRAY',106),('COLOR_YUV2RGB_UYNV',107),('COLOR_YUV2RGB_UYVY',107),('COLOR_YUV2RGB_Y422',107),('COLOR_YUV2BGR_UYNV',108),('COLOR_YUV2BGR_UYVY',108),('COLOR_YUV2BGR_Y422',108),('COLOR_YUV2RGBA_UYNV',111),('COLOR_YUV2RGBA_UYVY',111),('COLOR_YUV2RGBA_Y422',111),('COLOR_YUV2BGRA_UYNV',112),('COLOR_YUV2BGRA_UYVY',112),('COLOR_YUV2BGRA_Y422',112),('COLOR_YUV2RGB_YUNV',115),('COLOR_YUV2RGB_YUY2',115),('COLOR_YUV2RGB_YUYV',115),('COLOR_YUV2BGR_YUNV',116),('COLOR_YUV2BGR_YUY2',116),('COLOR_YUV2BGR_YUYV',116),('COLOR_YUV2RGB_YVYU',117),('COLOR_YUV2BGR_YVYU',118),('COLOR_YUV2RGBA_YUNV',119),('COLOR_YUV2RGBA_YUY2',119),('COLOR_YUV2RGBA_YUYV',119),('COLOR_YUV2BGRA_YUNV',120),('COLOR_YUV2BGRA_YUY2',120),('COLOR_YUV2BGRA_YUYV',120),('COLOR_YUV2RGBA_YVYU',121),('COLOR_YUV2BGRA_YVYU',122),('COLOR_YUV2GRAY_UYNV',123),('COLOR_YUV2GRAY_UYVY',123),('COLOR_YUV2GRAY_Y422',123),('COLOR_YUV2GRAY_YUNV',124),('COLOR_YUV2GRAY_YUY2',124),('COLOR_YUV2GRAY_YUYV',124),('COLOR_YUV2GRAY_YVYU',124),('COLOR_RGBA2mRGBA',125),('COLOR_RGBA2M_RGBA',125),('COLOR_mRGBA2RGBA',126),('COLOR_M_RGBA2RGBA',126),('COLOR_RGB2YUV_I420',127),('COLOR_RGB2YUV_IYUV',127),('COLOR_BGR2YUV_I420',128),('COLOR_BGR2YUV_IYUV',128),('COLOR_RGBA2YUV_I420',129),('COLOR_RGBA2YUV_IYUV',129),('COLOR_BGRA2YUV_I420',130),('COLOR_BGRA2YUV_IYUV',130),('COLOR_RGB2YUV_YV12',131),('COLOR_BGR2YUV_YV12',132),('COLOR_RGBA2YUV_YV12',133),('COLOR_BGRA2YUV_YV12',134),('COLOR_BayerBG2BGR_EA',135),('COLOR_BAYER_BG2BGR_EA',135),('COLOR_BayerRG2RGB_EA',135),('COLOR_BAYER_RG2RGB_EA',135),('COLOR_BayerGB2BGR_EA',136),('COLOR_BAYER_GB2BGR_EA',136),('COLOR_BayerGR2RGB_EA',136),('COLOR_BAYER_GR2RGB_EA',136),('COLOR_BayerBG2RGB_EA',137),('COLOR_BAYER_BG2RGB_EA',137),('COLOR_BayerRG2BGR_EA',137),('COLOR_BAYER_RG2BGR_EA',137),('COLOR_BayerGB2RGB_EA',138),('COLOR_BAYER_GB2RGB_EA',138),('COLOR_BayerGR2BGR_EA',138),('COLOR_BAYER_GR2BGR_EA',138),('COLOR_BayerBG2BGRA',139),('COLOR_BAYER_BG2BGRA',139),('COLOR_BayerRG2RGBA',139),('COLOR_BAYER_RG2RGBA',139),('COLOR_BayerGB2BGRA',140),('COLOR_BAYER_GB2BGRA',140),('COLOR_BayerGR2RGBA',140),('COLOR_BAYER_GR2RGBA',140),('COLOR_BayerBG2RGBA',141),('COLOR_BAYER_BG2RGBA',141),('COLOR_BayerRG2BGRA',141),('COLOR_BAYER_RG2BGRA',141),('COLOR_BayerGB2RGBA',142),('COLOR_BAYER_GB2RGBA',142),('COLOR_BayerGR2BGRA',142),('COLOR_BAYER_GR2BGRA',142),('COLOR_COLORCVT_MAX',143)])]
 
     def process_inputs(self, inputs, outputs, parameters):
         _src = inputs['_src'].value
@@ -872,6 +1351,52 @@ class OpenCVAuto2_DetailEnhance(NormalElement):
         dst = cv2.detailEnhance(src=src, sigma_s=sigma_s, sigma_r=sigma_r)
         outputs['dst'] = Data(dst)
 
+### dilate ###
+
+class OpenCVAuto2_Dilate(NormalElement):
+    name = 'Dilate'
+    comment = '''dilate(src, kernel[, dst[, anchor[, iterations[, borderType[, borderValue]]]]]) -> dst\n@brief Dilates an image by using a specific structuring element.\n\nThe function dilates the source image using the specified structuring element that determines the\nshape of a pixel neighborhood over which the maximum is taken:\n\f[\texttt{dst} (x,y) =  \max _{(x',y'):  \, \texttt{element} (x',y') \ne0 } \texttt{src} (x+x',y+y')\f]\n\nThe function supports the in-place mode. Dilation can be applied several ( iterations ) times. In\ncase of multi-channel images, each channel is processed independently.\n\n@param src input image; the number of channels can be arbitrary, but the depth should be one of\nCV_8U, CV_16U, CV_16S, CV_32F or CV_64F.\n@param dst output image of the same size and type as src.\n@param kernel structuring element used for dilation; if elemenat=Mat(), a 3 x 3 rectangular\nstructuring element is used. Kernel can be created using #getStructuringElement\n@param anchor position of the anchor within the element; default value (-1, -1) means that the\nanchor is at the element center.\n@param iterations number of times dilation is applied.\n@param borderType pixel extrapolation method, see #BorderTypes\n@param borderValue border value in case of a constant border\n@sa  erode, morphologyEx, getStructuringElement'''
+
+    def get_attributes(self):
+        return [Input('src', 'src'),
+                Input('kernel', 'kernel')], \
+               [Output('dst', 'dst')], \
+               [PointParameter('anchor', 'anchor'),
+                IntParameter('iterations', 'iterations', min_=0),
+                ComboboxParameter('borderType', [('BORDER_CONSTANT',0),('BORDER_REPLICATE',1),('BORDER_REFLECT',2),('BORDER_WRAP',3),('BORDER_DEFAULT',4),('BORDER_REFLECT101',4),('BORDER_REFLECT_101',4),('BORDER_TRANSPARENT',5),('BORDER_ISOLATED',16)]),
+                ScalarParameter('borderValue', 'borderValue')]
+
+    def process_inputs(self, inputs, outputs, parameters):
+        src = inputs['src'].value
+        kernel = inputs['kernel'].value
+        anchor = parameters['anchor']
+        iterations = parameters['iterations']
+        borderType = parameters['borderType']
+        borderValue = parameters['borderValue']
+        dst = cv2.dilate(src=src, kernel=kernel, anchor=anchor, iterations=iterations, borderType=borderType, borderValue=borderValue)
+        outputs['dst'] = Data(dst)
+
+### distanceTransform ###
+
+class OpenCVAuto2_DistanceTransform(NormalElement):
+    name = 'DistanceTransform'
+    comment = '''distanceTransform(src, distanceType, maskSize[, dst[, dstType]]) -> dst\n@overload\n@param src 8-bit, single-channel (binary) source image.\n@param dst Output image with calculated distances. It is a 8-bit or 32-bit floating-point,\nsingle-channel image of the same size as src .\n@param distanceType Type of distance, see #DistanceTypes\n@param maskSize Size of the distance transform mask, see #DistanceTransformMasks. In case of the\n#DIST_L1 or #DIST_C distance type, the parameter is forced to 3 because a \f$3\times 3\f$ mask gives\nthe same result as \f$5\times 5\f$ or any larger aperture.\n@param dstType Type of output image. It can be CV_8U or CV_32F. Type CV_8U can be used only for\nthe first variant of the function and distanceType == #DIST_L1.'''
+
+    def get_attributes(self):
+        return [Input('src', 'src')], \
+               [Output('dst', 'dst')], \
+               [IntParameter('distanceType', 'distanceType'),
+                SizeParameter('maskSize', 'maskSize'),
+                IntParameter('dstType', 'dstType')]
+
+    def process_inputs(self, inputs, outputs, parameters):
+        src = inputs['src'].value
+        distanceType = parameters['distanceType']
+        maskSize = parameters['maskSize']
+        dstType = parameters['dstType']
+        dst = cv2.distanceTransform(src=src, distanceType=distanceType, maskSize=maskSize, dstType=dstType)
+        outputs['dst'] = Data(dst)
+
 ### divide ###
 
 class OpenCVAuto2_Divide(NormalElement):
@@ -887,7 +1412,7 @@ divide(scale, src2[, dst[, dtype]]) -> dst\n@overload'''
                 Input('src2', 'src2')], \
                [Output('dst', 'dst')], \
                [FloatParameter('scale', 'scale'),
-                ComboboxParameter('dtype', [('NONE',0),('CV_8U',0),('CV_8UC1',0),('CV_8UC2',8),('CV_8UC3',16),('CV_8UC4',24),('CV_8S',1),('CV_8SC1',1),('CV_8SC2',9),('CV_8SC3',17),('CV_8SC4',25),('CV_16U',2),('CV_16UC1',2),('CV_16UC2',10),('CV_16UC3',18),('CV_16UC4',26),('CV_16S',3),('CV_16SC1',3),('CV_16SC2',11),('CV_16SC3',19),('CV_16SC4',27),('CV_32S',4),('CV_32SC1',4),('CV_32SC2',12),('CV_32SC3',20),('CV_32SC4',28),('CV_32F',5),('CV_32FC1',5),('CV_32FC2',13),('CV_32FC3',21),('CV_32FC4',29),('CV_64F',6),('CV_64FC1',6),('CV_64FC2',14),('CV_64FC3',22),('CV_64FC4',30)])]
+                ComboboxParameter('dtype', [('NONE',-1),('CV_8U',0),('CV_8UC1',0),('CV_8S',1),('CV_8SC1',1),('CV_16U',2),('CV_16UC1',2),('CV_16S',3),('CV_16SC1',3),('CV_32S',4),('CV_32SC1',4),('CV_32F',5),('CV_32FC1',5),('CV_64F',6),('CV_64FC1',6),('CV_8UC2',8),('CV_8SC2',9),('CV_16UC2',10),('CV_16SC2',11),('CV_32SC2',12),('CV_32FC2',13),('CV_64FC2',14),('CV_8UC3',16),('CV_8SC3',17),('CV_16UC3',18),('CV_16SC3',19),('CV_32SC3',20),('CV_32FC3',21),('CV_64FC3',22),('CV_8UC4',24),('CV_8SC4',25),('CV_16UC4',26),('CV_16SC4',27),('CV_32SC4',28),('CV_32FC4',29),('CV_64FC4',30)])]
 
     def process_inputs(self, inputs, outputs, parameters):
         src1 = inputs['src1'].value
@@ -896,6 +1421,64 @@ divide(scale, src2[, dst[, dtype]]) -> dst\n@overload'''
         dtype = parameters['dtype']
         dst = cv2.divide(src1=src1, src2=src2, scale=scale, dtype=dtype)
         outputs['dst'] = Data(dst)
+
+### drawContours ###
+
+class OpenCVAuto2_DrawContours(NormalElement):
+    name = 'DrawContours'
+    comment = '''drawContours(image, contours, contourIdx, color[, thickness[, lineType[, hierarchy[, maxLevel[, offset]]]]]) -> image\n@brief Draws contours outlines or filled contours.\n\nThe function draws contour outlines in the image if \f$\texttt{thickness} \ge 0\f$ or fills the area\nbounded by the contours if \f$\texttt{thickness}<0\f$ . The example below shows how to retrieve\nconnected components from the binary image and label them: :\n@include snippets/imgproc_drawContours.cpp\n\n@param image Destination image.\n@param contours All the input contours. Each contour is stored as a point vector.\n@param contourIdx Parameter indicating a contour to draw. If it is negative, all the contours are drawn.\n@param color Color of the contours.\n@param thickness Thickness of lines the contours are drawn with. If it is negative (for example,\nthickness=#FILLED ), the contour interiors are drawn.\n@param lineType Line connectivity. See #LineTypes\n@param hierarchy Optional information about hierarchy. It is only needed if you want to draw only\nsome of the contours (see maxLevel ).\n@param maxLevel Maximal level for drawn contours. If it is 0, only the specified contour is drawn.\nIf it is 1, the function draws the contour(s) and all the nested contours. If it is 2, the function\ndraws the contours, all the nested contours, all the nested-to-nested contours, and so on. This\nparameter is only taken into account when there is hierarchy available.\n@param offset Optional contour shift parameter. Shift all the drawn contours by the specified\n\f$\texttt{offset}=(dx,dy)\f$ .\n@note When thickness=#FILLED, the function is designed to handle connected components with holes correctly\neven when no hierarchy date is provided. This is done by analyzing all the outlines together\nusing even-odd rule. This may give incorrect results if you have a joint collection of separately retrieved\ncontours. In order to solve this problem, you need to call #drawContours separately for each sub-group\nof contours, or iterate over the collection using contourIdx parameter.'''
+
+    def get_attributes(self):
+        return [Input('image', 'image'),
+                Input('contours', 'contours'),
+                Input('hierarchy', 'hierarchy', optional=True)], \
+               [Output('image', 'image')], \
+               [IntParameter('contourIdx', 'contourIdx'),
+                ScalarParameter('color', 'color'),
+                IntParameter('thickness', 'thickness', min_=-1, max_=100),
+                ComboboxParameter('lineType', [('LINE_4',4),('LINE_8',8),('LINE_AA',16)]),
+                IntParameter('maxLevel', 'maxLevel'),
+                PointParameter('offset', 'offset')]
+
+    def process_inputs(self, inputs, outputs, parameters):
+        image = inputs['image'].value.copy()
+        contours = inputs['contours'].value
+        hierarchy = inputs['hierarchy'].value
+        contourIdx = parameters['contourIdx']
+        color = parameters['color']
+        thickness = parameters['thickness']
+        lineType = parameters['lineType']
+        maxLevel = parameters['maxLevel']
+        offset = parameters['offset']
+        image = cv2.drawContours(image=image, contours=contours, hierarchy=hierarchy, contourIdx=contourIdx, color=color, thickness=thickness, lineType=lineType, maxLevel=maxLevel, offset=offset)
+        outputs['image'] = Data(image)
+
+### drawMarker ###
+
+class OpenCVAuto2_DrawMarker(NormalElement):
+    name = 'DrawMarker'
+    comment = '''drawMarker(img, position, color[, markerType[, markerSize[, thickness[, line_type]]]]) -> img\n@brief Draws a marker on a predefined position in an image.\n\nThe function cv::drawMarker draws a marker on a given position in the image. For the moment several\nmarker types are supported, see #MarkerTypes for more information.\n\n@param img Image.\n@param position The point where the crosshair is positioned.\n@param color Line color.\n@param markerType The specific type of marker you want to use, see #MarkerTypes\n@param thickness Line thickness.\n@param line_type Type of the line, See #LineTypes\n@param markerSize The length of the marker axis [default = 20 pixels]'''
+
+    def get_attributes(self):
+        return [Input('img', 'img')], \
+               [Output('img', 'img')], \
+               [PointParameter('position', 'position'),
+                ScalarParameter('color', 'color'),
+                IntParameter('markerType', 'markerType'),
+                SizeParameter('markerSize', 'markerSize'),
+                IntParameter('thickness', 'thickness', min_=-1, max_=100),
+                IntParameter('line_type', 'line_type')]
+
+    def process_inputs(self, inputs, outputs, parameters):
+        img = inputs['img'].value.copy()
+        position = parameters['position']
+        color = parameters['color']
+        markerType = parameters['markerType']
+        markerSize = parameters['markerSize']
+        thickness = parameters['thickness']
+        line_type = parameters['line_type']
+        img = cv2.drawMarker(img=img, position=position, color=color, markerType=markerType, markerSize=markerSize, thickness=thickness, line_type=line_type)
+        outputs['img'] = Data(img)
 
 ### edgePreservingFilter ###
 
@@ -954,6 +1537,69 @@ class OpenCVAuto2_EigenNonSymmetric(NormalElement):
         outputs['eigenvalues'] = Data(eigenvalues)
         outputs['eigenvectors'] = Data(eigenvectors)
 
+### ellipse ###
+
+class OpenCVAuto2_Ellipse(NormalElement):
+    name = 'Ellipse'
+    comment = '''ellipse(img, center, axes, angle, startAngle, endAngle, color[, thickness[, lineType[, shift]]]) -> img\n@brief Draws a simple or thick elliptic arc or fills an ellipse sector.\n\nThe function cv::ellipse with more parameters draws an ellipse outline, a filled ellipse, an elliptic\narc, or a filled ellipse sector. The drawing code uses general parametric form.\nA piecewise-linear curve is used to approximate the elliptic arc\nboundary. If you need more control of the ellipse rendering, you can retrieve the curve using\n#ellipse2Poly and then render it with #polylines or fill it with #fillPoly. If you use the first\nvariant of the function and want to draw the whole ellipse, not an arc, pass `startAngle=0` and\n`endAngle=360`. If `startAngle` is greater than `endAngle`, they are swapped. The figure below explains\nthe meaning of the parameters to draw the blue arc.\n\n![Parameters of Elliptic Arc](pics/ellipse.svg)\n\n@param img Image.\n@param center Center of the ellipse.\n@param axes Half of the size of the ellipse main axes.\n@param angle Ellipse rotation angle in degrees.\n@param startAngle Starting angle of the elliptic arc in degrees.\n@param endAngle Ending angle of the elliptic arc in degrees.\n@param color Ellipse color.\n@param thickness Thickness of the ellipse arc outline, if positive. Otherwise, this indicates that\na filled ellipse sector is to be drawn.\n@param lineType Type of the ellipse boundary. See #LineTypes\n@param shift Number of fractional bits in the coordinates of the center and values of axes.
+
+
+
+ellipse(img, box, color[, thickness[, lineType]]) -> img\n@overload\n@param img Image.\n@param box Alternative ellipse representation via RotatedRect. This means that the function draws\nan ellipse inscribed in the rotated rectangle.\n@param color Ellipse color.\n@param thickness Thickness of the ellipse arc outline, if positive. Otherwise, this indicates that\na filled ellipse sector is to be drawn.\n@param lineType Type of the ellipse boundary. See #LineTypes'''
+
+    def get_attributes(self):
+        return [Input('img', 'img')], \
+               [Output('img', 'img')], \
+               [PointParameter('center', 'center'),
+                SizeParameter('axes', 'axes'),
+                FloatParameter('angle', 'angle'),
+                FloatParameter('startAngle', 'startAngle'),
+                FloatParameter('endAngle', 'endAngle'),
+                ScalarParameter('color', 'color'),
+                IntParameter('thickness', 'thickness', min_=-1, max_=100),
+                ComboboxParameter('lineType', [('LINE_4',4),('LINE_8',8),('LINE_AA',16)]),
+                IntParameter('shift', 'shift')]
+
+    def process_inputs(self, inputs, outputs, parameters):
+        img = inputs['img'].value.copy()
+        center = parameters['center']
+        axes = parameters['axes']
+        angle = parameters['angle']
+        startAngle = parameters['startAngle']
+        endAngle = parameters['endAngle']
+        color = parameters['color']
+        thickness = parameters['thickness']
+        lineType = parameters['lineType']
+        shift = parameters['shift']
+        img = cv2.ellipse(img=img, center=center, axes=axes, angle=angle, startAngle=startAngle, endAngle=endAngle, color=color, thickness=thickness, lineType=lineType, shift=shift)
+        outputs['img'] = Data(img)
+
+### ellipse2Poly ###
+
+class OpenCVAuto2_Ellipse2Poly(NormalElement):
+    name = 'Ellipse2Poly'
+    comment = '''ellipse2Poly(center, axes, angle, arcStart, arcEnd, delta) -> pts\n@brief Approximates an elliptic arc with a polyline.\n\nThe function ellipse2Poly computes the vertices of a polyline that approximates the specified\nelliptic arc. It is used by #ellipse. If `arcStart` is greater than `arcEnd`, they are swapped.\n\n@param center Center of the arc.\n@param axes Half of the size of the ellipse main axes. See #ellipse for details.\n@param angle Rotation angle of the ellipse in degrees. See #ellipse for details.\n@param arcStart Starting angle of the elliptic arc in degrees.\n@param arcEnd Ending angle of the elliptic arc in degrees.\n@param delta Angle between the subsequent polyline vertices. It defines the approximation\naccuracy.\n@param pts Output vector of polyline vertices.'''
+
+    def get_attributes(self):
+        return [], \
+               [Output('pts', 'pts')], \
+               [PointParameter('center', 'center'),
+                SizeParameter('axes', 'axes'),
+                FloatParameter('angle', 'angle'),
+                IntParameter('arcStart', 'arcStart'),
+                IntParameter('arcEnd', 'arcEnd'),
+                IntParameter('delta', 'delta')]
+
+    def process_inputs(self, inputs, outputs, parameters):
+        center = parameters['center']
+        axes = parameters['axes']
+        angle = parameters['angle']
+        arcStart = parameters['arcStart']
+        arcEnd = parameters['arcEnd']
+        delta = parameters['delta']
+        pts = cv2.ellipse2Poly(center=center, axes=axes, angle=angle, arcStart=arcStart, arcEnd=arcEnd, delta=delta)
+        outputs['pts'] = Data(pts)
+
 ### equalizeHist ###
 
 class OpenCVAuto2_EqualizeHist(NormalElement):
@@ -970,6 +1616,31 @@ class OpenCVAuto2_EqualizeHist(NormalElement):
         dst = cv2.equalizeHist(src=src)
         outputs['dst'] = Data(dst)
 
+### erode ###
+
+class OpenCVAuto2_Erode(NormalElement):
+    name = 'Erode'
+    comment = '''erode(src, kernel[, dst[, anchor[, iterations[, borderType[, borderValue]]]]]) -> dst\n@brief Erodes an image by using a specific structuring element.\n\nThe function erodes the source image using the specified structuring element that determines the\nshape of a pixel neighborhood over which the minimum is taken:\n\n\f[\texttt{dst} (x,y) =  \min _{(x',y'):  \, \texttt{element} (x',y') \ne0 } \texttt{src} (x+x',y+y')\f]\n\nThe function supports the in-place mode. Erosion can be applied several ( iterations ) times. In\ncase of multi-channel images, each channel is processed independently.\n\n@param src input image; the number of channels can be arbitrary, but the depth should be one of\nCV_8U, CV_16U, CV_16S, CV_32F or CV_64F.\n@param dst output image of the same size and type as src.\n@param kernel structuring element used for erosion; if `element=Mat()`, a `3 x 3` rectangular\nstructuring element is used. Kernel can be created using #getStructuringElement.\n@param anchor position of the anchor within the element; default value (-1, -1) means that the\nanchor is at the element center.\n@param iterations number of times erosion is applied.\n@param borderType pixel extrapolation method, see #BorderTypes\n@param borderValue border value in case of a constant border\n@sa  dilate, morphologyEx, getStructuringElement'''
+
+    def get_attributes(self):
+        return [Input('src', 'src'),
+                Input('kernel', 'kernel')], \
+               [Output('dst', 'dst')], \
+               [PointParameter('anchor', 'anchor'),
+                IntParameter('iterations', 'iterations', min_=0),
+                ComboboxParameter('borderType', [('BORDER_CONSTANT',0),('BORDER_REPLICATE',1),('BORDER_REFLECT',2),('BORDER_WRAP',3),('BORDER_DEFAULT',4),('BORDER_REFLECT101',4),('BORDER_REFLECT_101',4),('BORDER_TRANSPARENT',5),('BORDER_ISOLATED',16)]),
+                ScalarParameter('borderValue', 'borderValue')]
+
+    def process_inputs(self, inputs, outputs, parameters):
+        src = inputs['src'].value
+        kernel = inputs['kernel'].value
+        anchor = parameters['anchor']
+        iterations = parameters['iterations']
+        borderType = parameters['borderType']
+        borderValue = parameters['borderValue']
+        dst = cv2.erode(src=src, kernel=kernel, anchor=anchor, iterations=iterations, borderType=borderType, borderValue=borderValue)
+        outputs['dst'] = Data(dst)
+
 ### estimateAffine3D ###
 
 class OpenCVAuto2_EstimateAffine3D(NormalElement):
@@ -981,13 +1652,15 @@ class OpenCVAuto2_EstimateAffine3D(NormalElement):
                 Input('dst', 'dst')], \
                [Output('out', 'out'),
                 Output('inliers', 'inliers')], \
-               [FloatParameter('ransacThreshold', 'ransacThreshold')]
+               [FloatParameter('ransacThreshold', 'ransacThreshold'),
+                FloatParameter('confidence', 'confidence')]
 
     def process_inputs(self, inputs, outputs, parameters):
         src = inputs['src'].value
         dst = inputs['dst'].value
         ransacThreshold = parameters['ransacThreshold']
-        retval, out, inliers = cv2.estimateAffine3D(src=src, dst=dst, ransacThreshold=ransacThreshold)
+        confidence = parameters['confidence']
+        retval, out, inliers = cv2.estimateAffine3D(src=src, dst=dst, ransacThreshold=ransacThreshold, confidence=confidence)
         outputs['out'] = Data(out)
         outputs['inliers'] = Data(inliers)
 
@@ -1005,6 +1678,23 @@ class OpenCVAuto2_Exp(NormalElement):
     def process_inputs(self, inputs, outputs, parameters):
         src = inputs['src'].value
         dst = cv2.exp(src=src)
+        outputs['dst'] = Data(dst)
+
+### extractChannel ###
+
+class OpenCVAuto2_ExtractChannel(NormalElement):
+    name = 'ExtractChannel'
+    comment = '''extractChannel(src, coi[, dst]) -> dst\n@brief Extracts a single channel from src (coi is 0-based index)\n@param src input array\n@param dst output array\n@param coi index of channel to extract\n@sa mixChannels, split'''
+
+    def get_attributes(self):
+        return [Input('src', 'src')], \
+               [Output('dst', 'dst')], \
+               [IntParameter('coi', 'coi')]
+
+    def process_inputs(self, inputs, outputs, parameters):
+        src = inputs['src'].value
+        coi = parameters['coi']
+        dst = cv2.extractChannel(src=src, coi=coi)
         outputs['dst'] = Data(dst)
 
 ### fastNlMeansDenoising ###
@@ -1059,14 +1749,115 @@ class OpenCVAuto2_FillConvexPoly(NormalElement):
         return [Input('img', 'img'),
                 Input('points', 'points')], \
                [Output('img', 'img')], \
-               [ScalarParameter('color', 'color')]
+               [ScalarParameter('color', 'color'),
+                ComboboxParameter('lineType', [('LINE_4',4),('LINE_8',8),('LINE_AA',16)]),
+                IntParameter('shift', 'shift')]
 
     def process_inputs(self, inputs, outputs, parameters):
-        img = inputs['img'].value
+        img = inputs['img'].value.copy()
         points = inputs['points'].value
         color = parameters['color']
-        img = cv2.fillConvexPoly(img=img, points=points, color=color)
+        lineType = parameters['lineType']
+        shift = parameters['shift']
+        img = cv2.fillConvexPoly(img=img, points=points, color=color, lineType=lineType, shift=shift)
         outputs['img'] = Data(img)
+
+### fillPoly ###
+
+class OpenCVAuto2_FillPoly(NormalElement):
+    name = 'FillPoly'
+    comment = '''fillPoly(img, pts, color[, lineType[, shift[, offset]]]) -> img\n@brief Fills the area bounded by one or more polygons.\n\nThe function cv::fillPoly fills an area bounded by several polygonal contours. The function can fill\ncomplex areas, for example, areas with holes, contours with self-intersections (some of their\nparts), and so forth.\n\n@param img Image.\n@param pts Array of polygons where each polygon is represented as an array of points.\n@param color Polygon color.\n@param lineType Type of the polygon boundaries. See #LineTypes\n@param shift Number of fractional bits in the vertex coordinates.\n@param offset Optional offset of all points of the contours.'''
+
+    def get_attributes(self):
+        return [Input('img', 'img'),
+                Input('pts', 'pts')], \
+               [Output('img', 'img')], \
+               [ScalarParameter('color', 'color'),
+                ComboboxParameter('lineType', [('LINE_4',4),('LINE_8',8),('LINE_AA',16)]),
+                IntParameter('shift', 'shift'),
+                PointParameter('offset', 'offset')]
+
+    def process_inputs(self, inputs, outputs, parameters):
+        img = inputs['img'].value.copy()
+        pts = inputs['pts'].value
+        color = parameters['color']
+        lineType = parameters['lineType']
+        shift = parameters['shift']
+        offset = parameters['offset']
+        img = cv2.fillPoly(img=img, pts=pts, color=color, lineType=lineType, shift=shift, offset=offset)
+        outputs['img'] = Data(img)
+
+### filter2D ###
+
+class OpenCVAuto2_Filter2D(NormalElement):
+    name = 'Filter2D'
+    comment = '''filter2D(src, ddepth, kernel[, dst[, anchor[, delta[, borderType]]]]) -> dst\n@brief Convolves an image with the kernel.\n\nThe function applies an arbitrary linear filter to an image. In-place operation is supported. When\nthe aperture is partially outside the image, the function interpolates outlier pixel values\naccording to the specified border mode.\n\nThe function does actually compute correlation, not the convolution:\n\n\f[\texttt{dst} (x,y) =  \sum _{ \stackrel{0\leq x' < \texttt{kernel.cols},}{0\leq y' < \texttt{kernel.rows}} }  \texttt{kernel} (x',y')* \texttt{src} (x+x'- \texttt{anchor.x} ,y+y'- \texttt{anchor.y} )\f]\n\nThat is, the kernel is not mirrored around the anchor point. If you need a real convolution, flip\nthe kernel using #flip and set the new anchor to `(kernel.cols - anchor.x - 1, kernel.rows -\nanchor.y - 1)`.\n\nThe function uses the DFT-based algorithm in case of sufficiently large kernels (~`11 x 11` or\nlarger) and the direct algorithm for small kernels.\n\n@param src input image.\n@param dst output image of the same size and the same number of channels as src.\n@param ddepth desired depth of the destination image, see @ref filter_depths "combinations"\n@param kernel convolution kernel (or rather a correlation kernel), a single-channel floating point\nmatrix; if you want to apply different kernels to different channels, split the image into\nseparate color planes using split and process them individually.\n@param anchor anchor of the kernel that indicates the relative position of a filtered point within\nthe kernel; the anchor should lie within the kernel; default value (-1,-1) means that the anchor\nis at the kernel center.\n@param delta optional value added to the filtered pixels before storing them in dst.\n@param borderType pixel extrapolation method, see #BorderTypes\n@sa  sepFilter2D, dft, matchTemplate'''
+
+    def get_attributes(self):
+        return [Input('src', 'src'),
+                Input('kernel', 'kernel')], \
+               [Output('dst', 'dst')], \
+               [ComboboxParameter('ddepth', [('NONE',-1),('CV_8U',0),('CV_8UC1',0),('CV_8S',1),('CV_8SC1',1),('CV_16U',2),('CV_16UC1',2),('CV_16S',3),('CV_16SC1',3),('CV_32S',4),('CV_32SC1',4),('CV_32F',5),('CV_32FC1',5),('CV_64F',6),('CV_64FC1',6),('CV_8UC2',8),('CV_8SC2',9),('CV_16UC2',10),('CV_16SC2',11),('CV_32SC2',12),('CV_32FC2',13),('CV_64FC2',14),('CV_8UC3',16),('CV_8SC3',17),('CV_16UC3',18),('CV_16SC3',19),('CV_32SC3',20),('CV_32FC3',21),('CV_64FC3',22),('CV_8UC4',24),('CV_8SC4',25),('CV_16UC4',26),('CV_16SC4',27),('CV_32SC4',28),('CV_32FC4',29),('CV_64FC4',30)]),
+                PointParameter('anchor', 'anchor'),
+                FloatParameter('delta', 'delta'),
+                ComboboxParameter('borderType', [('BORDER_CONSTANT',0),('BORDER_REPLICATE',1),('BORDER_REFLECT',2),('BORDER_WRAP',3),('BORDER_DEFAULT',4),('BORDER_REFLECT101',4),('BORDER_REFLECT_101',4),('BORDER_TRANSPARENT',5),('BORDER_ISOLATED',16)])]
+
+    def process_inputs(self, inputs, outputs, parameters):
+        src = inputs['src'].value
+        kernel = inputs['kernel'].value
+        ddepth = parameters['ddepth']
+        anchor = parameters['anchor']
+        delta = parameters['delta']
+        borderType = parameters['borderType']
+        dst = cv2.filter2D(src=src, kernel=kernel, ddepth=ddepth, anchor=anchor, delta=delta, borderType=borderType)
+        outputs['dst'] = Data(dst)
+
+### filterHomographyDecompByVisibleRefpoints ###
+
+class OpenCVAuto2_FilterHomographyDecompByVisibleRefpoints(NormalElement):
+    name = 'FilterHomographyDecompByVisibleRefpoints'
+    comment = '''filterHomographyDecompByVisibleRefpoints(rotations, normals, beforePoints, afterPoints[, possibleSolutions[, pointsMask]]) -> possibleSolutions\n@brief Filters homography decompositions based on additional information.\n\n@param rotations Vector of rotation matrices.\n@param normals Vector of plane normal matrices.\n@param beforePoints Vector of (rectified) visible reference points before the homography is applied\n@param afterPoints Vector of (rectified) visible reference points after the homography is applied\n@param possibleSolutions Vector of int indices representing the viable solution set after filtering\n@param pointsMask optional Mat/Vector of 8u type representing the mask for the inliers as given by the findHomography function\n\nThis function is intended to filter the output of the decomposeHomographyMat based on additional\ninformation as described in @cite Malis . The summary of the method: the decomposeHomographyMat function\nreturns 2 unique solutions and their "opposites" for a total of 4 solutions. If we have access to the\nsets of points visible in the camera frame before and after the homography transformation is applied,\nwe can determine which are the true potential solutions and which are the opposites by verifying which\nhomographies are consistent with all visible reference points being in front of the camera. The inputs\nare left unchanged; the filtered solution set is returned as indices into the existing one.'''
+
+    def get_attributes(self):
+        return [Input('rotations', 'rotations'),
+                Input('normals', 'normals'),
+                Input('beforePoints', 'beforePoints'),
+                Input('afterPoints', 'afterPoints'),
+                Input('pointsMask', 'pointsMask', optional=True)], \
+               [Output('possibleSolutions', 'possibleSolutions')], \
+               []
+
+    def process_inputs(self, inputs, outputs, parameters):
+        rotations = inputs['rotations'].value
+        normals = inputs['normals'].value
+        beforePoints = inputs['beforePoints'].value
+        afterPoints = inputs['afterPoints'].value
+        pointsMask = inputs['pointsMask'].value
+        possibleSolutions = cv2.filterHomographyDecompByVisibleRefpoints(rotations=rotations, normals=normals, beforePoints=beforePoints, afterPoints=afterPoints, pointsMask=pointsMask)
+        outputs['possibleSolutions'] = Data(possibleSolutions)
+
+### filterSpeckles ###
+
+class OpenCVAuto2_FilterSpeckles(NormalElement):
+    name = 'FilterSpeckles'
+    comment = '''filterSpeckles(img, newVal, maxSpeckleSize, maxDiff[, buf]) -> img, buf\n@brief Filters off small noise blobs (speckles) in the disparity map\n\n@param img The input 16-bit signed disparity image\n@param newVal The disparity value used to paint-off the speckles\n@param maxSpeckleSize The maximum speckle size to consider it a speckle. Larger blobs are not\naffected by the algorithm\n@param maxDiff Maximum difference between neighbor disparity pixels to put them into the same\nblob. Note that since StereoBM, StereoSGBM and may be other algorithms return a fixed-point\ndisparity map, where disparity values are multiplied by 16, this scale factor should be taken into\naccount when specifying this parameter value.\n@param buf The optional temporary buffer to avoid memory allocation within the function.'''
+
+    def get_attributes(self):
+        return [Input('img', 'img')], \
+               [Output('img', 'img'),
+                Output('buf', 'buf')], \
+               [FloatParameter('newVal', 'newVal'),
+                SizeParameter('maxSpeckleSize', 'maxSpeckleSize'),
+                FloatParameter('maxDiff', 'maxDiff')]
+
+    def process_inputs(self, inputs, outputs, parameters):
+        img = inputs['img'].value.copy()
+        newVal = parameters['newVal']
+        maxSpeckleSize = parameters['maxSpeckleSize']
+        maxDiff = parameters['maxDiff']
+        img, buf = cv2.filterSpeckles(img=img, newVal=newVal, maxSpeckleSize=maxSpeckleSize, maxDiff=maxDiff)
+        outputs['img'] = Data(img)
+        outputs['buf'] = Data(buf)
 
 ### findChessboardCorners ###
 
@@ -1078,7 +1869,7 @@ class OpenCVAuto2_FindChessboardCorners(NormalElement):
         return [Input('image', 'image')], \
                [Output('corners', 'corners')], \
                [SizeParameter('patternSize', 'patternSize'),
-                ComboboxParameter('flags', [('CALIB_CB_ADAPTIVE_THRESH',1),('CALIB_CB_NORMALIZE_IMAGE',2),('CALIB_CB_FILTER_QUADS',4),('CALIB_CB_FAST_CHECK',8)])]
+                ComboboxParameter('flags', [('CALIB_CB_ADAPTIVE_THRESH',1),('CALIB_CB_SYMMETRIC_GRID',1),('CALIB_USE_INTRINSIC_GUESS',1),('CALIB_CB_NORMALIZE_IMAGE',2),('CALIB_CB_ASYMMETRIC_GRID',2),('CALIB_FIX_ASPECT_RATIO',2),('CALIB_CB_FILTER_QUADS',4),('CALIB_CB_CLUSTERING',4),('CALIB_FIX_PRINCIPAL_POINT',4),('CALIB_CB_FAST_CHECK',8),('CALIB_ZERO_TANGENT_DIST',8),('CALIB_FIX_FOCAL_LENGTH',16),('CALIB_FIX_K1',32),('CALIB_FIX_K2',64),('CALIB_FIX_K3',128),('CALIB_FIX_INTRINSIC',256),('CALIB_SAME_FOCAL_LENGTH',512),('CALIB_ZERO_DISPARITY',1024),('CALIB_FIX_K4',2048),('CALIB_FIX_K5',4096),('CALIB_FIX_K6',8192),('CALIB_RATIONAL_MODEL',16384),('CALIB_THIN_PRISM_MODEL',32768),('CALIB_FIX_S1_S2_S3_S4',65536),('CALIB_USE_LU',131072),('CALIB_TILTED_MODEL',262144),('CALIB_FIX_TAUX_TAUY',524288),('CALIB_USE_QR',1048576),('CALIB_FIX_TANGENT_DIST',2097152),('CALIB_USE_EXTRINSIC_GUESS',4194304)])]
 
     def process_inputs(self, inputs, outputs, parameters):
         image = inputs['image'].value
@@ -1086,6 +1877,31 @@ class OpenCVAuto2_FindChessboardCorners(NormalElement):
         flags = parameters['flags']
         retval, corners = cv2.findChessboardCorners(image=image, patternSize=patternSize, flags=flags)
         outputs['corners'] = Data(corners)
+
+### findContours ###
+
+class OpenCVAuto2_FindContours(NormalElement):
+    name = 'FindContours'
+    comment = '''findContours(image, mode, method[, contours[, hierarchy[, offset]]]) -> image, contours, hierarchy\n@brief Finds contours in a binary image.\n\nThe function retrieves contours from the binary image using the algorithm @cite Suzuki85 . The contours\nare a useful tool for shape analysis and object detection and recognition. See squares.cpp in the\nOpenCV sample directory.\n@note Since opencv 3.2 source image is not modified by this function.\n\n@param image Source, an 8-bit single-channel image. Non-zero pixels are treated as 1's. Zero\npixels remain 0's, so the image is treated as binary . You can use #compare, #inRange, #threshold ,\n#adaptiveThreshold, #Canny, and others to create a binary image out of a grayscale or color one.\nIf mode equals to #RETR_CCOMP or #RETR_FLOODFILL, the input can also be a 32-bit integer image of labels (CV_32SC1).\n@param contours Detected contours. Each contour is stored as a vector of points (e.g.\nstd::vector<std::vector<cv::Point> >).\n@param hierarchy Optional output vector (e.g. std::vector<cv::Vec4i>), containing information about the image topology. It has\nas many elements as the number of contours. For each i-th contour contours[i], the elements\nhierarchy[i][0] , hierarchy[i][1] , hierarchy[i][2] , and hierarchy[i][3] are set to 0-based indices\nin contours of the next and previous contours at the same hierarchical level, the first child\ncontour and the parent contour, respectively. If for the contour i there are no next, previous,\nparent, or nested contours, the corresponding elements of hierarchy[i] will be negative.\n@param mode Contour retrieval mode, see #RetrievalModes\n@param method Contour approximation method, see #ContourApproximationModes\n@param offset Optional offset by which every contour point is shifted. This is useful if the\ncontours are extracted from the image ROI and then they should be analyzed in the whole image\ncontext.'''
+
+    def get_attributes(self):
+        return [Input('image', 'image')], \
+               [Output('image', 'image'),
+                Output('contours', 'contours'),
+                Output('hierarchy', 'hierarchy')], \
+               [IntParameter('mode', 'mode'),
+                IntParameter('method', 'method'),
+                PointParameter('offset', 'offset')]
+
+    def process_inputs(self, inputs, outputs, parameters):
+        image = inputs['image'].value.copy()
+        mode = parameters['mode']
+        method = parameters['method']
+        offset = parameters['offset']
+        image, contours, hierarchy = cv2.findContours(image=image, mode=mode, method=method, offset=offset)
+        outputs['image'] = Data(image)
+        outputs['contours'] = Data(contours)
+        outputs['hierarchy'] = Data(hierarchy)
 
 ### findEssentialMat ###
 
@@ -1102,14 +1918,18 @@ findEssentialMat(points1, points2[, focal[, pp[, method[, prob[, threshold[, mas
                 Input('points2', 'points2'),
                 Input('cameraMatrix', 'cameraMatrix')], \
                [Output('mask', 'mask')], \
-               [FloatParameter('threshold', 'threshold')]
+               [IntParameter('method', 'method'),
+                FloatParameter('prob', 'prob'),
+                FloatParameter('threshold', 'threshold')]
 
     def process_inputs(self, inputs, outputs, parameters):
         points1 = inputs['points1'].value
         points2 = inputs['points2'].value
         cameraMatrix = inputs['cameraMatrix'].value
+        method = parameters['method']
+        prob = parameters['prob']
         threshold = parameters['threshold']
-        retval, mask = cv2.findEssentialMat(points1=points1, points2=points2, cameraMatrix=cameraMatrix, threshold=threshold)
+        retval, mask = cv2.findEssentialMat(points1=points1, points2=points2, cameraMatrix=cameraMatrix, method=method, prob=prob, threshold=threshold)
         outputs['mask'] = Data(mask)
 
 ### findHomography ###
@@ -1122,15 +1942,19 @@ class OpenCVAuto2_FindHomography(NormalElement):
         return [Input('srcPoints', 'srcPoints'),
                 Input('dstPoints', 'dstPoints')], \
                [Output('mask', 'mask')], \
-               [FloatParameter('ransacReprojThreshold', 'ransacReprojThreshold'),
-                IntParameter('maxIters', 'maxIters')]
+               [IntParameter('method', 'method'),
+                FloatParameter('ransacReprojThreshold', 'ransacReprojThreshold'),
+                IntParameter('maxIters', 'maxIters', min_=0),
+                FloatParameter('confidence', 'confidence')]
 
     def process_inputs(self, inputs, outputs, parameters):
         srcPoints = inputs['srcPoints'].value
         dstPoints = inputs['dstPoints'].value
+        method = parameters['method']
         ransacReprojThreshold = parameters['ransacReprojThreshold']
         maxIters = parameters['maxIters']
-        retval, mask = cv2.findHomography(srcPoints=srcPoints, dstPoints=dstPoints, ransacReprojThreshold=ransacReprojThreshold, maxIters=maxIters)
+        confidence = parameters['confidence']
+        retval, mask = cv2.findHomography(srcPoints=srcPoints, dstPoints=dstPoints, method=method, ransacReprojThreshold=ransacReprojThreshold, maxIters=maxIters, confidence=confidence)
         outputs['mask'] = Data(mask)
 
 ### findNonZero ###
@@ -1149,70 +1973,45 @@ class OpenCVAuto2_FindNonZero(NormalElement):
         idx = cv2.findNonZero(src=src)
         outputs['idx'] = Data(idx)
 
-### findTransformECC ###
+### fitLine ###
 
-class OpenCVAuto2_FindTransformECC(NormalElement):
-    name = 'FindTransformECC'
-    comment = '''findTransformECC(templateImage, inputImage, warpMatrix[, motionType[, criteria[, inputMask]]]) -> retval, warpMatrix\n@brief Finds the geometric transform (warp) between two images in terms of the ECC criterion @cite EP08 .\n\n@param templateImage single-channel template image; CV_8U or CV_32F array.\n@param inputImage single-channel input image which should be warped with the final warpMatrix in\norder to provide an image similar to templateImage, same type as temlateImage.\n@param warpMatrix floating-point \f$2\times 3\f$ or \f$3\times 3\f$ mapping matrix (warp).\n@param motionType parameter, specifying the type of motion:\n-   **MOTION_TRANSLATION** sets a translational motion model; warpMatrix is \f$2\times 3\f$ with\nthe first \f$2\times 2\f$ part being the unity matrix and the rest two parameters being\nestimated.\n-   **MOTION_EUCLIDEAN** sets a Euclidean (rigid) transformation as motion model; three\nparameters are estimated; warpMatrix is \f$2\times 3\f$.\n-   **MOTION_AFFINE** sets an affine motion model (DEFAULT); six parameters are estimated;\nwarpMatrix is \f$2\times 3\f$.\n-   **MOTION_HOMOGRAPHY** sets a homography as a motion model; eight parameters are\nestimated;\`warpMatrix\` is \f$3\times 3\f$.\n@param criteria parameter, specifying the termination criteria of the ECC algorithm;\ncriteria.epsilon defines the threshold of the increment in the correlation coefficient between two\niterations (a negative criteria.epsilon makes criteria.maxcount the only termination criterion).\nDefault values are shown in the declaration above.\n@param inputMask An optional mask to indicate valid values of inputImage.\n\nThe function estimates the optimum transformation (warpMatrix) with respect to ECC criterion\n(@cite EP08), that is\n\n\f[\texttt{warpMatrix} = \texttt{warpMatrix} = \arg\max_{W} \texttt{ECC}(\texttt{templateImage}(x,y),\texttt{inputImage}(x',y'))\f]\n\nwhere\n\n\f[\begin{bmatrix} x' \\ y' \end{bmatrix} = W \cdot \begin{bmatrix} x \\ y \\ 1 \end{bmatrix}\f]\n\n(the equation holds with homogeneous coordinates for homography). It returns the final enhanced\ncorrelation coefficient, that is the correlation coefficient between the template image and the\nfinal warped input image. When a \f$3\times 3\f$ matrix is given with motionType =0, 1 or 2, the third\nrow is ignored.\n\nUnlike findHomography and estimateRigidTransform, the function findTransformECC implements an\narea-based alignment that builds on intensity similarities. In essence, the function updates the\ninitial transformation that roughly aligns the images. If this information is missing, the identity\nwarp (unity matrix) is used as an initialization. Note that if images undergo strong\ndisplacements/rotations, an initial transformation that roughly aligns the images is necessary\n(e.g., a simple euclidean/similarity transform that allows for the images showing the same image\ncontent approximately). Use inverse warping in the second image to take an image close to the first\none, i.e. use the flag WARP_INVERSE_MAP with warpAffine or warpPerspective. See also the OpenCV\nsample image_alignment.cpp that demonstrates the use of the function. Note that the function throws\nan exception if algorithm does not converges.\n\n@sa\nestimateAffine2D, estimateAffinePartial2D, findHomography'''
-
-    def get_attributes(self):
-        return [Input('templateImage', 'templateImage'),
-                Input('inputImage', 'inputImage'),
-                Input('warpMatrix', 'warpMatrix')], \
-               [Output('warpMatrix', 'warpMatrix')], \
-               []
-
-    def process_inputs(self, inputs, outputs, parameters):
-        templateImage = inputs['templateImage'].value
-        inputImage = inputs['inputImage'].value
-        warpMatrix = inputs['warpMatrix'].value
-        retval, warpMatrix = cv2.findTransformECC(templateImage=templateImage, inputImage=inputImage, warpMatrix=warpMatrix)
-        outputs['warpMatrix'] = Data(warpMatrix)
-
-### getDerivKernels ###
-
-class OpenCVAuto2_GetDerivKernels(NormalElement):
-    name = 'GetDerivKernels'
-    comment = '''getDerivKernels(dx, dy, ksize[, kx[, ky[, normalize[, ktype]]]]) -> kx, ky\n@brief Returns filter coefficients for computing spatial image derivatives.\n\nThe function computes and returns the filter coefficients for spatial image derivatives. When\n`ksize=CV_SCHARR`, the Scharr \f$3 \times 3\f$ kernels are generated (see #Scharr). Otherwise, Sobel\nkernels are generated (see #Sobel). The filters are normally passed to #sepFilter2D or to\n\n@param kx Output matrix of row filter coefficients. It has the type ktype .\n@param ky Output matrix of column filter coefficients. It has the type ktype .\n@param dx Derivative order in respect of x.\n@param dy Derivative order in respect of y.\n@param ksize Aperture size. It can be CV_SCHARR, 1, 3, 5, or 7.\n@param normalize Flag indicating whether to normalize (scale down) the filter coefficients or not.\nTheoretically, the coefficients should have the denominator \f$=2^{ksize*2-dx-dy-2}\f$. If you are\ngoing to filter floating-point images, you are likely to use the normalized kernels. But if you\ncompute derivatives of an 8-bit image, store the results in a 16-bit image, and wish to preserve\nall the fractional bits, you may want to set normalize=false .\n@param ktype Type of filter coefficients. It can be CV_32f or CV_64F .'''
+class OpenCVAuto2_FitLine(NormalElement):
+    name = 'FitLine'
+    comment = '''fitLine(points, distType, param, reps, aeps[, line]) -> line\n@brief Fits a line to a 2D or 3D point set.\n\nThe function fitLine fits a line to a 2D or 3D point set by minimizing \f$\sum_i \rho(r_i)\f$ where\n\f$r_i\f$ is a distance between the \f$i^{th}\f$ point, the line and \f$\rho(r)\f$ is a distance function, one\nof the following:\n-  DIST_L2\n\f[\rho (r) = r^2/2  \quad \text{(the simplest and the fastest least-squares method)}\f]\n- DIST_L1\n\f[\rho (r) = r\f]\n- DIST_L12\n\f[\rho (r) = 2  \cdot ( \sqrt{1 + \frac{r^2}{2}} - 1)\f]\n- DIST_FAIR\n\f[\rho \left (r \right ) = C^2  \cdot \left (  \frac{r}{C} -  \log{\left(1 + \frac{r}{C}\right)} \right )  \quad \text{where} \quad C=1.3998\f]\n- DIST_WELSCH\n\f[\rho \left (r \right ) =  \frac{C^2}{2} \cdot \left ( 1 -  \exp{\left(-\left(\frac{r}{C}\right)^2\right)} \right )  \quad \text{where} \quad C=2.9846\f]\n- DIST_HUBER\n\f[\rho (r) =  \fork{r^2/2}{if \(r < C\)}{C \cdot (r-C/2)}{otherwise} \quad \text{where} \quad C=1.345\f]\n\nThe algorithm is based on the M-estimator ( <http://en.wikipedia.org/wiki/M-estimator> ) technique\nthat iteratively fits the line using the weighted least-squares algorithm. After each iteration the\nweights \f$w_i\f$ are adjusted to be inversely proportional to \f$\rho(r_i)\f$ .\n\n@param points Input vector of 2D or 3D points, stored in std::vector\<\> or Mat.\n@param line Output line parameters. In case of 2D fitting, it should be a vector of 4 elements\n(like Vec4f) - (vx, vy, x0, y0), where (vx, vy) is a normalized vector collinear to the line and\n(x0, y0) is a point on the line. In case of 3D fitting, it should be a vector of 6 elements (like\nVec6f) - (vx, vy, vz, x0, y0, z0), where (vx, vy, vz) is a normalized vector collinear to the line\nand (x0, y0, z0) is a point on the line.\n@param distType Distance used by the M-estimator, see #DistanceTypes\n@param param Numerical parameter ( C ) for some types of distances. If it is 0, an optimal value\nis chosen.\n@param reps Sufficient accuracy for the radius (distance between the coordinate origin and the line).\n@param aeps Sufficient accuracy for the angle. 0.01 would be a good default value for reps and aeps.'''
 
     def get_attributes(self):
-        return [], \
-               [Output('kx', 'kx'),
-                Output('ky', 'ky')], \
-               [IntParameter('dx', 'dx'),
-                IntParameter('dy', 'dy'),
-                SizeParameter('ksize', 'ksize')]
+        return [Input('points', 'points')], \
+               [Output('line', 'line')], \
+               [IntParameter('distType', 'distType'),
+                FloatParameter('param', 'param'),
+                FloatParameter('reps', 'reps'),
+                FloatParameter('aeps', 'aeps')]
 
     def process_inputs(self, inputs, outputs, parameters):
-        dx = parameters['dx']
-        dy = parameters['dy']
-        ksize = parameters['ksize']
-        kx, ky = cv2.getDerivKernels(dx=dx, dy=dy, ksize=ksize)
-        outputs['kx'] = Data(kx)
-        outputs['ky'] = Data(ky)
+        points = inputs['points'].value
+        distType = parameters['distType']
+        param = parameters['param']
+        reps = parameters['reps']
+        aeps = parameters['aeps']
+        line = cv2.fitLine(points=points, distType=distType, param=param, reps=reps, aeps=aeps)
+        outputs['line'] = Data(line)
 
-### getOptimalNewCameraMatrix ###
+### flip ###
 
-class OpenCVAuto2_GetOptimalNewCameraMatrix(NormalElement):
-    name = 'GetOptimalNewCameraMatrix'
-    comment = '''getOptimalNewCameraMatrix(cameraMatrix, distCoeffs, imageSize, alpha[, newImgSize[, centerPrincipalPoint]]) -> retval, validPixROI\n@brief Returns the new camera matrix based on the free scaling parameter.\n\n@param cameraMatrix Input camera matrix.\n@param distCoeffs Input vector of distortion coefficients\n\f$(k_1, k_2, p_1, p_2[, k_3[, k_4, k_5, k_6 [, s_1, s_2, s_3, s_4[, \tau_x, \tau_y]]]])\f$ of\n4, 5, 8, 12 or 14 elements. If the vector is NULL/empty, the zero distortion coefficients are\nassumed.\n@param imageSize Original image size.\n@param alpha Free scaling parameter between 0 (when all the pixels in the undistorted image are\nvalid) and 1 (when all the source image pixels are retained in the undistorted image). See\nstereoRectify for details.\n@param newImgSize Image size after rectification. By default, it is set to imageSize .\n@param validPixROI Optional output rectangle that outlines all-good-pixels region in the\nundistorted image. See roi1, roi2 description in stereoRectify .\n@param centerPrincipalPoint Optional flag that indicates whether in the new camera matrix the\nprincipal point should be at the image center or not. By default, the principal point is chosen to\nbest fit a subset of the source image (determined by alpha) to the corrected image.\n@return new_camera_matrix Output new camera matrix.\n\nThe function computes and returns the optimal new camera matrix based on the free scaling parameter.\nBy varying this parameter, you may retrieve only sensible pixels alpha=0 , keep all the original\nimage pixels if there is valuable information in the corners alpha=1 , or get something in between.\nWhen alpha\>0 , the undistorted result is likely to have some black pixels corresponding to\n"virtual" pixels outside of the captured distorted image. The original camera matrix, distortion\ncoefficients, the computed new camera matrix, and newImageSize should be passed to\ninitUndistortRectifyMap to produce the maps for remap .'''
+class OpenCVAuto2_Flip(NormalElement):
+    name = 'Flip'
+    comment = '''flip(src, flipCode[, dst]) -> dst\n@brief Flips a 2D array around vertical, horizontal, or both axes.\n\nThe function cv::flip flips the array in one of three different ways (row\nand column indices are 0-based):\n\f[\texttt{dst} _{ij} =\n\left\{\n\begin{array}{l l}\n\texttt{src} _{\texttt{src.rows}-i-1,j} & if\;  \texttt{flipCode} = 0 \\\n\texttt{src} _{i, \texttt{src.cols} -j-1} & if\;  \texttt{flipCode} > 0 \\\n\texttt{src} _{ \texttt{src.rows} -i-1, \texttt{src.cols} -j-1} & if\; \texttt{flipCode} < 0 \\\n\end{array}\n\right.\f]\nThe example scenarios of using the function are the following:\n*   Vertical flipping of the image (flipCode == 0) to switch between\ntop-left and bottom-left image origin. This is a typical operation\nin video processing on Microsoft Windows\* OS.\n*   Horizontal flipping of the image with the subsequent horizontal\nshift and absolute difference calculation to check for a\nvertical-axis symmetry (flipCode \> 0).\n*   Simultaneous horizontal and vertical flipping of the image with\nthe subsequent shift and absolute difference calculation to check\nfor a central symmetry (flipCode \< 0).\n*   Reversing the order of point arrays (flipCode \> 0 or\nflipCode == 0).\n@param src input array.\n@param dst output array of the same size and type as src.\n@param flipCode a flag to specify how to flip the array; 0 means\nflipping around the x-axis and positive value (for example, 1) means\nflipping around y-axis. Negative value (for example, -1) means flipping\naround both axes.\n@sa transpose , repeat , completeSymm'''
 
     def get_attributes(self):
-        return [Input('cameraMatrix', 'cameraMatrix'),
-                Input('distCoeffs', 'distCoeffs'),
-                Input('imageSize', 'imageSize')], \
-               [Output('validPixROI', 'validPixROI')], \
-               [FloatParameter('alpha', 'alpha'),
-                SizeParameter('newImgSize', 'newImgSize')]
+        return [Input('src', 'src')], \
+               [Output('dst', 'dst')], \
+               [IntParameter('flipCode', 'flipCode')]
 
     def process_inputs(self, inputs, outputs, parameters):
-        cameraMatrix = inputs['cameraMatrix'].value
-        distCoeffs = inputs['distCoeffs'].value
-        imageSize = inputs['imageSize'].value
-        alpha = parameters['alpha']
-        newImgSize = parameters['newImgSize']
-        retval, validPixROI = cv2.getOptimalNewCameraMatrix(cameraMatrix=cameraMatrix, distCoeffs=distCoeffs, imageSize=imageSize, alpha=alpha, newImgSize=newImgSize)
-        outputs['validPixROI'] = Data(validPixROI)
+        src = inputs['src'].value
+        flipCode = parameters['flipCode']
+        dst = cv2.flip(src=src, flipCode=flipCode)
+        outputs['dst'] = Data(dst)
 
 ### getRectSubPix ###
 
@@ -1224,14 +2023,37 @@ class OpenCVAuto2_GetRectSubPix(NormalElement):
         return [Input('image', 'image')], \
                [Output('patch', 'patch')], \
                [SizeParameter('patchSize', 'patchSize'),
-                PointParameter('center', 'center')]
+                PointParameter('center', 'center'),
+                IntParameter('patchType', 'patchType')]
 
     def process_inputs(self, inputs, outputs, parameters):
         image = inputs['image'].value
         patchSize = parameters['patchSize']
         center = parameters['center']
-        patch = cv2.getRectSubPix(image=image, patchSize=patchSize, center=center)
+        patchType = parameters['patchType']
+        patch = cv2.getRectSubPix(image=image, patchSize=patchSize, center=center, patchType=patchType)
         outputs['patch'] = Data(patch)
+
+### groupRectangles ###
+
+class OpenCVAuto2_GroupRectangles(NormalElement):
+    name = 'GroupRectangles'
+    comment = '''groupRectangles(rectList, groupThreshold[, eps]) -> rectList, weights\n@overload'''
+
+    def get_attributes(self):
+        return [Input('rectList', 'rectList')], \
+               [Output('rectList', 'rectList'),
+                Output('weights', 'weights')], \
+               [FloatParameter('groupThreshold', 'groupThreshold'),
+                FloatParameter('eps', 'eps')]
+
+    def process_inputs(self, inputs, outputs, parameters):
+        rectList = inputs['rectList'].value.copy()
+        groupThreshold = parameters['groupThreshold']
+        eps = parameters['eps']
+        rectList, weights = cv2.groupRectangles(rectList=rectList, groupThreshold=groupThreshold, eps=eps)
+        outputs['rectList'] = Data(rectList)
+        outputs['weights'] = Data(weights)
 
 ### hconcat ###
 
@@ -1270,6 +2092,25 @@ class OpenCVAuto2_IlluminationChange(NormalElement):
         dst = cv2.illuminationChange(src=src, mask=mask, alpha=alpha, beta=beta)
         outputs['dst'] = Data(dst)
 
+### imencode ###
+
+class OpenCVAuto2_Imencode(NormalElement):
+    name = 'Imencode'
+    comment = '''imencode(ext, img[, params]) -> retval, buf\n@brief Encodes an image into a memory buffer.\n\nThe function imencode compresses the image and stores it in the memory buffer that is resized to fit the\nresult. See cv::imwrite for the list of supported formats and flags description.\n\n@param ext File extension that defines the output format.\n@param img Image to be written.\n@param buf Output buffer resized to fit the compressed image.\n@param params Format-specific parameters. See cv::imwrite and cv::ImwriteFlags.'''
+
+    def get_attributes(self):
+        return [Input('img', 'img'),
+                Input('params', 'params', optional=True)], \
+               [Output('buf', 'buf')], \
+               [TextParameter('ext', 'ext')]
+
+    def process_inputs(self, inputs, outputs, parameters):
+        img = inputs['img'].value
+        params = inputs['params'].value
+        ext = parameters['ext']
+        retval, buf = cv2.imencode(img=img, params=params, ext=ext)
+        outputs['buf'] = Data(buf)
+
 ### imreadmulti ###
 
 class OpenCVAuto2_Imreadmulti(NormalElement):
@@ -1280,13 +2121,90 @@ class OpenCVAuto2_Imreadmulti(NormalElement):
         return [], \
                [Output('mats', 'mats')], \
                [TextParameter('filename', 'filename'),
-                ComboboxParameter('flags', [('IMREAD_ANYCOLOR',4)])]
+                ComboboxParameter('flags', [('IMREAD_UNCHANGED',-1),('IMREAD_GRAYSCALE',0),('IMREAD_COLOR',1),('IMREAD_ANYDEPTH',2),('IMREAD_ANYCOLOR',4),('IMREAD_LOAD_GDAL',8),('IMREAD_REDUCED_GRAYSCALE_2',16),('IMREAD_REDUCED_COLOR_2',17),('IMREAD_REDUCED_GRAYSCALE_4',32),('IMREAD_REDUCED_COLOR_4',33),('IMREAD_REDUCED_GRAYSCALE_8',64),('IMREAD_REDUCED_COLOR_8',65),('IMREAD_IGNORE_ORIENTATION',128)])]
 
     def process_inputs(self, inputs, outputs, parameters):
         filename = parameters['filename']
         flags = parameters['flags']
         retval, mats = cv2.imreadmulti(filename=filename, flags=flags)
         outputs['mats'] = Data(mats)
+
+### inRange ###
+
+class OpenCVAuto2_InRange(NormalElement):
+    name = 'InRange'
+    comment = '''inRange(src, lowerb, upperb[, dst]) -> dst\n@brief  Checks if array elements lie between the elements of two other arrays.\n\nThe function checks the range as follows:\n-   For every element of a single-channel input array:\n\f[\texttt{dst} (I)= \texttt{lowerb} (I)_0  \leq \texttt{src} (I)_0 \leq  \texttt{upperb} (I)_0\f]\n-   For two-channel arrays:\n\f[\texttt{dst} (I)= \texttt{lowerb} (I)_0  \leq \texttt{src} (I)_0 \leq  \texttt{upperb} (I)_0  \land \texttt{lowerb} (I)_1  \leq \texttt{src} (I)_1 \leq  \texttt{upperb} (I)_1\f]\n-   and so forth.\n\nThat is, dst (I) is set to 255 (all 1 -bits) if src (I) is within the\nspecified 1D, 2D, 3D, ... box and 0 otherwise.\n\nWhen the lower and/or upper boundary parameters are scalars, the indexes\n(I) at lowerb and upperb in the above formulas should be omitted.\n@param src first input array.\n@param lowerb inclusive lower boundary array or a scalar.\n@param upperb inclusive upper boundary array or a scalar.\n@param dst output array of the same size as src and CV_8U type.'''
+
+    def get_attributes(self):
+        return [Input('src', 'src'),
+                Input('lowerb', 'lowerb'),
+                Input('upperb', 'upperb')], \
+               [Output('dst', 'dst')], \
+               []
+
+    def process_inputs(self, inputs, outputs, parameters):
+        src = inputs['src'].value
+        lowerb = inputs['lowerb'].value
+        upperb = inputs['upperb'].value
+        dst = cv2.inRange(src=src, lowerb=lowerb, upperb=upperb)
+        outputs['dst'] = Data(dst)
+
+### initUndistortRectifyMap ###
+
+class OpenCVAuto2_InitUndistortRectifyMap(NormalElement):
+    name = 'InitUndistortRectifyMap'
+    comment = '''initUndistortRectifyMap(cameraMatrix, distCoeffs, R, newCameraMatrix, size, m1type[, map1[, map2]]) -> map1, map2\n@brief Computes the undistortion and rectification transformation map.\n\nThe function computes the joint undistortion and rectification transformation and represents the\nresult in the form of maps for remap. The undistorted image looks like original, as if it is\ncaptured with a camera using the camera matrix =newCameraMatrix and zero distortion. In case of a\nmonocular camera, newCameraMatrix is usually equal to cameraMatrix, or it can be computed by\n#getOptimalNewCameraMatrix for a better control over scaling. In case of a stereo camera,\nnewCameraMatrix is normally set to P1 or P2 computed by #stereoRectify .\n\nAlso, this new camera is oriented differently in the coordinate space, according to R. That, for\nexample, helps to align two heads of a stereo camera so that the epipolar lines on both images\nbecome horizontal and have the same y- coordinate (in case of a horizontally aligned stereo camera).\n\nThe function actually builds the maps for the inverse mapping algorithm that is used by remap. That\nis, for each pixel \f$(u, v)\f$ in the destination (corrected and rectified) image, the function\ncomputes the corresponding coordinates in the source image (that is, in the original image from\ncamera). The following process is applied:\n\f[\n\begin{array}{l}\nx  \leftarrow (u - {c'}_x)/{f'}_x  \\\ny  \leftarrow (v - {c'}_y)/{f'}_y  \\\n{[X\,Y\,W]} ^T  \leftarrow R^{-1}*[x \, y \, 1]^T  \\\nx'  \leftarrow X/W  \\\ny'  \leftarrow Y/W  \\\nr^2  \leftarrow x'^2 + y'^2 \\\nx''  \leftarrow x' \frac{1 + k_1 r^2 + k_2 r^4 + k_3 r^6}{1 + k_4 r^2 + k_5 r^4 + k_6 r^6}\n+ 2p_1 x' y' + p_2(r^2 + 2 x'^2)  + s_1 r^2 + s_2 r^4\\\ny''  \leftarrow y' \frac{1 + k_1 r^2 + k_2 r^4 + k_3 r^6}{1 + k_4 r^2 + k_5 r^4 + k_6 r^6}\n+ p_1 (r^2 + 2 y'^2) + 2 p_2 x' y' + s_3 r^2 + s_4 r^4 \\\ns\vecthree{x'}{y'}{1} =\n\vecthreethree{R_{33}(\tau_x, \tau_y)}{0}{-R_{13}((\tau_x, \tau_y)}\n{0}{R_{33}(\tau_x, \tau_y)}{-R_{23}(\tau_x, \tau_y)}\n{0}{0}{1} R(\tau_x, \tau_y) \vecthree{x''}{y''}{1}\\\nmap_x(u,v)  \leftarrow x' f_x + c_x  \\\nmap_y(u,v)  \leftarrow y' f_y + c_y\n\end{array}\n\f]\nwhere \f$(k_1, k_2, p_1, p_2[, k_3[, k_4, k_5, k_6[, s_1, s_2, s_3, s_4[, \tau_x, \tau_y]]]])\f$\nare the distortion coefficients.\n\nIn case of a stereo camera, this function is called twice: once for each camera head, after\nstereoRectify, which in its turn is called after #stereoCalibrate. But if the stereo camera\nwas not calibrated, it is still possible to compute the rectification transformations directly from\nthe fundamental matrix using #stereoRectifyUncalibrated. For each camera, the function computes\nhomography H as the rectification transformation in a pixel domain, not a rotation matrix R in 3D\nspace. R can be computed from H as\n\f[\texttt{R} = \texttt{cameraMatrix} ^{-1} \cdot \texttt{H} \cdot \texttt{cameraMatrix}\f]\nwhere cameraMatrix can be chosen arbitrarily.\n\n@param cameraMatrix Input camera matrix \f$A=\vecthreethree{f_x}{0}{c_x}{0}{f_y}{c_y}{0}{0}{1}\f$ .\n@param distCoeffs Input vector of distortion coefficients\n\f$(k_1, k_2, p_1, p_2[, k_3[, k_4, k_5, k_6[, s_1, s_2, s_3, s_4[, \tau_x, \tau_y]]]])\f$\nof 4, 5, 8, 12 or 14 elements. If the vector is NULL/empty, the zero distortion coefficients are assumed.\n@param R Optional rectification transformation in the object space (3x3 matrix). R1 or R2 ,\ncomputed by #stereoRectify can be passed here. If the matrix is empty, the identity transformation\nis assumed. In cvInitUndistortMap R assumed to be an identity matrix.\n@param newCameraMatrix New camera matrix \f$A'=\vecthreethree{f_x'}{0}{c_x'}{0}{f_y'}{c_y'}{0}{0}{1}\f$.\n@param size Undistorted image size.\n@param m1type Type of the first output map that can be CV_32FC1, CV_32FC2 or CV_16SC2, see #convertMaps\n@param map1 The first output map.\n@param map2 The second output map.'''
+
+    def get_attributes(self):
+        return [Input('cameraMatrix', 'cameraMatrix'),
+                Input('distCoeffs', 'distCoeffs'),
+                Input('R', 'R'),
+                Input('newCameraMatrix', 'newCameraMatrix')], \
+               [Output('map1', 'map1'),
+                Output('map2', 'map2')], \
+               [SizeParameter('size', 'size'),
+                IntParameter('m1type', 'm1type')]
+
+    def process_inputs(self, inputs, outputs, parameters):
+        cameraMatrix = inputs['cameraMatrix'].value
+        distCoeffs = inputs['distCoeffs'].value
+        R = inputs['R'].value
+        newCameraMatrix = inputs['newCameraMatrix'].value
+        size = parameters['size']
+        m1type = parameters['m1type']
+        map1, map2 = cv2.initUndistortRectifyMap(cameraMatrix=cameraMatrix, distCoeffs=distCoeffs, R=R, newCameraMatrix=newCameraMatrix, size=size, m1type=m1type)
+        outputs['map1'] = Data(map1)
+        outputs['map2'] = Data(map2)
+
+### initWideAngleProjMap ###
+
+class OpenCVAuto2_InitWideAngleProjMap(NormalElement):
+    name = 'InitWideAngleProjMap'
+    comment = '''initWideAngleProjMap(cameraMatrix, distCoeffs, imageSize, destImageWidth, m1type[, map1[, map2[, projType[, alpha]]]]) -> retval, map1, map2
+.'''
+
+    def get_attributes(self):
+        return [Input('cameraMatrix', 'cameraMatrix'),
+                Input('distCoeffs', 'distCoeffs'),
+                Input('imageSize', 'imageSize'),
+                Input('destImageWidth', 'destImageWidth')], \
+               [Output('map1', 'map1'),
+                Output('map2', 'map2')], \
+               [IntParameter('m1type', 'm1type'),
+                IntParameter('projType', 'projType'),
+                FloatParameter('alpha', 'alpha')]
+
+    def process_inputs(self, inputs, outputs, parameters):
+        cameraMatrix = inputs['cameraMatrix'].value
+        distCoeffs = inputs['distCoeffs'].value
+        imageSize = inputs['imageSize'].value
+        destImageWidth = inputs['destImageWidth'].value
+        m1type = parameters['m1type']
+        projType = parameters['projType']
+        alpha = parameters['alpha']
+        retval, map1, map2 = cv2.initWideAngleProjMap(cameraMatrix=cameraMatrix, distCoeffs=distCoeffs, imageSize=imageSize, destImageWidth=destImageWidth, m1type=m1type, projType=projType, alpha=alpha)
+        outputs['map1'] = Data(map1)
+        outputs['map2'] = Data(map2)
 
 ### inpaint ###
 
@@ -1298,7 +2216,7 @@ class OpenCVAuto2_Inpaint(NormalElement):
         return [Input('src', 'src'),
                 Input('inpaintMask', 'inpaintMask')], \
                [Output('dst', 'dst')], \
-               [IntParameter('inpaintRadius', 'inpaintRadius'),
+               [IntParameter('inpaintRadius', 'inpaintRadius', min_=0),
                 ComboboxParameter('flags', [('INPAINT_NS',0),('INPAINT_TELEA',1)])]
 
     def process_inputs(self, inputs, outputs, parameters):
@@ -1307,6 +2225,25 @@ class OpenCVAuto2_Inpaint(NormalElement):
         inpaintRadius = parameters['inpaintRadius']
         flags = parameters['flags']
         dst = cv2.inpaint(src=src, inpaintMask=inpaintMask, inpaintRadius=inpaintRadius, flags=flags)
+        outputs['dst'] = Data(dst)
+
+### insertChannel ###
+
+class OpenCVAuto2_InsertChannel(NormalElement):
+    name = 'InsertChannel'
+    comment = '''insertChannel(src, dst, coi) -> dst\n@brief Inserts a single channel to dst (coi is 0-based index)\n@param src input array\n@param dst output array\n@param coi index of channel for insertion\n@sa mixChannels, merge'''
+
+    def get_attributes(self):
+        return [Input('src', 'src'),
+                Input('dst', 'dst')], \
+               [Output('dst', 'dst')], \
+               [IntParameter('coi', 'coi')]
+
+    def process_inputs(self, inputs, outputs, parameters):
+        src = inputs['src'].value
+        dst = inputs['dst'].value.copy()
+        coi = parameters['coi']
+        dst = cv2.insertChannel(src=src, dst=dst, coi=coi)
         outputs['dst'] = Data(dst)
 
 ### integral ###
@@ -1318,11 +2255,12 @@ class OpenCVAuto2_Integral(NormalElement):
     def get_attributes(self):
         return [Input('src', 'src')], \
                [Output('sum', 'sum')], \
-               []
+               [IntParameter('sdepth', 'sdepth')]
 
     def process_inputs(self, inputs, outputs, parameters):
         src = inputs['src'].value
-        sum = cv2.integral(src=src)
+        sdepth = parameters['sdepth']
+        sum = cv2.integral(src=src, sdepth=sdepth)
         outputs['sum'] = Data(sum)
 
 ### integral2 ###
@@ -1391,15 +2329,19 @@ class OpenCVAuto2_Line(NormalElement):
                [PointParameter('pt1', 'pt1'),
                 PointParameter('pt2', 'pt2'),
                 ScalarParameter('color', 'color'),
-                IntParameter('thickness', 'thickness')]
+                IntParameter('thickness', 'thickness', min_=-1, max_=100),
+                ComboboxParameter('lineType', [('LINE_4',4),('LINE_8',8),('LINE_AA',16)]),
+                IntParameter('shift', 'shift')]
 
     def process_inputs(self, inputs, outputs, parameters):
-        img = inputs['img'].value
+        img = inputs['img'].value.copy()
         pt1 = parameters['pt1']
         pt2 = parameters['pt2']
         color = parameters['color']
         thickness = parameters['thickness']
-        img = cv2.line(img=img, pt1=pt1, pt2=pt2, color=color, thickness=thickness)
+        lineType = parameters['lineType']
+        shift = parameters['shift']
+        img = cv2.line(img=img, pt1=pt1, pt2=pt2, color=color, thickness=thickness, lineType=lineType, shift=shift)
         outputs['img'] = Data(img)
 
 ### linearPolar ###
@@ -1412,8 +2354,8 @@ class OpenCVAuto2_LinearPolar(NormalElement):
         return [Input('src', 'src')], \
                [Output('dst', 'dst')], \
                [PointParameter('center', 'center'),
-                IntParameter('maxRadius', 'maxRadius'),
-                ComboboxParameter('flags', [('INTER_AREA',3),('INTER_BITS',5),('INTER_BITS2',10),('INTER_CUBIC',2),('INTER_LANCZOS4',4),('INTER_LINEAR',1),('INTER_LINEAR_EXACT',5),('INTER_MAX',7),('INTER_NEAREST',0),('INTER_TAB_SIZE',32),('INTER_TAB_SIZE2',1024)])]
+                IntParameter('maxRadius', 'maxRadius', min_=0),
+                ComboboxParameter('flags', [('INTER_NEAREST',0),('INTER_LINEAR',1),('INTER_CUBIC',2),('INTER_AREA',3),('INTER_LANCZOS4',4),('INTER_BITS',5),('INTER_LINEAR_EXACT',5),('INTER_MAX',7),('INTER_BITS2',10),('INTER_TAB_SIZE',32),('INTER_TAB_SIZE2',1024)])]
 
     def process_inputs(self, inputs, outputs, parameters):
         src = inputs['src'].value
@@ -1450,7 +2392,7 @@ class OpenCVAuto2_LogPolar(NormalElement):
                 Input('M', 'M')], \
                [Output('dst', 'dst')], \
                [PointParameter('center', 'center'),
-                ComboboxParameter('flags', [('INTER_AREA',3),('INTER_BITS',5),('INTER_BITS2',10),('INTER_CUBIC',2),('INTER_LANCZOS4',4),('INTER_LINEAR',1),('INTER_LINEAR_EXACT',5),('INTER_MAX',7),('INTER_NEAREST',0),('INTER_TAB_SIZE',32),('INTER_TAB_SIZE2',1024)])]
+                ComboboxParameter('flags', [('INTER_NEAREST',0),('INTER_LINEAR',1),('INTER_CUBIC',2),('INTER_AREA',3),('INTER_LANCZOS4',4),('INTER_BITS',5),('INTER_LINEAR_EXACT',5),('INTER_MAX',7),('INTER_BITS2',10),('INTER_TAB_SIZE',32),('INTER_TAB_SIZE2',1024)])]
 
     def process_inputs(self, inputs, outputs, parameters):
         src = inputs['src'].value
@@ -1459,6 +2401,65 @@ class OpenCVAuto2_LogPolar(NormalElement):
         flags = parameters['flags']
         dst = cv2.logPolar(src=src, M=M, center=center, flags=flags)
         outputs['dst'] = Data(dst)
+
+### magnitude ###
+
+class OpenCVAuto2_Magnitude(NormalElement):
+    name = 'Magnitude'
+    comment = '''magnitude(x, y[, magnitude]) -> magnitude\n@brief Calculates the magnitude of 2D vectors.\n\nThe function cv::magnitude calculates the magnitude of 2D vectors formed\nfrom the corresponding elements of x and y arrays:\n\f[\texttt{dst} (I) =  \sqrt{\texttt{x}(I)^2 + \texttt{y}(I)^2}\f]\n@param x floating-point array of x-coordinates of the vectors.\n@param y floating-point array of y-coordinates of the vectors; it must\nhave the same size as x.\n@param magnitude output array of the same size and type as x.\n@sa cartToPolar, polarToCart, phase, sqrt'''
+
+    def get_attributes(self):
+        return [Input('x', 'x'),
+                Input('y', 'y')], \
+               [Output('magnitude', 'magnitude')], \
+               []
+
+    def process_inputs(self, inputs, outputs, parameters):
+        x = inputs['x'].value
+        y = inputs['y'].value
+        magnitude = cv2.magnitude(x=x, y=y)
+        outputs['magnitude'] = Data(magnitude)
+
+### matMulDeriv ###
+
+class OpenCVAuto2_MatMulDeriv(NormalElement):
+    name = 'MatMulDeriv'
+    comment = '''matMulDeriv(A, B[, dABdA[, dABdB]]) -> dABdA, dABdB\n@brief Computes partial derivatives of the matrix product for each multiplied matrix.\n\n@param A First multiplied matrix.\n@param B Second multiplied matrix.\n@param dABdA First output derivative matrix d(A\*B)/dA of size\n\f$\texttt{A.rows*B.cols} \times {A.rows*A.cols}\f$ .\n@param dABdB Second output derivative matrix d(A\*B)/dB of size\n\f$\texttt{A.rows*B.cols} \times {B.rows*B.cols}\f$ .\n\nThe function computes partial derivatives of the elements of the matrix product \f$A*B\f$ with regard to\nthe elements of each of the two input matrices. The function is used to compute the Jacobian\nmatrices in stereoCalibrate but can also be used in any other similar optimization function.'''
+
+    def get_attributes(self):
+        return [Input('A', 'A'),
+                Input('B', 'B')], \
+               [Output('dABdA', 'dABdA'),
+                Output('dABdB', 'dABdB')], \
+               []
+
+    def process_inputs(self, inputs, outputs, parameters):
+        A = inputs['A'].value
+        B = inputs['B'].value
+        dABdA, dABdB = cv2.matMulDeriv(A=A, B=B)
+        outputs['dABdA'] = Data(dABdA)
+        outputs['dABdB'] = Data(dABdB)
+
+### matchTemplate ###
+
+class OpenCVAuto2_MatchTemplate(NormalElement):
+    name = 'MatchTemplate'
+    comment = '''matchTemplate(image, templ, method[, result[, mask]]) -> result\n@brief Compares a template against overlapped image regions.\n\nThe function slides through image , compares the overlapped patches of size \f$w \times h\f$ against\ntempl using the specified method and stores the comparison results in result . Here are the formulae\nfor the available comparison methods ( \f$I\f$ denotes image, \f$T\f$ template, \f$R\f$ result ). The summation\nis done over template and/or the image patch: \f$x' = 0...w-1, y' = 0...h-1\f$\n\nAfter the function finishes the comparison, the best matches can be found as global minimums (when\n#TM_SQDIFF was used) or maximums (when #TM_CCORR or #TM_CCOEFF was used) using the\n#minMaxLoc function. In case of a color image, template summation in the numerator and each sum in\nthe denominator is done over all of the channels and separate mean values are used for each channel.\nThat is, the function can take a color template and a color image. The result will still be a\nsingle-channel image, which is easier to analyze.\n\n@param image Image where the search is running. It must be 8-bit or 32-bit floating-point.\n@param templ Searched template. It must be not greater than the source image and have the same\ndata type.\n@param result Map of comparison results. It must be single-channel 32-bit floating-point. If image\nis \f$W \times H\f$ and templ is \f$w \times h\f$ , then result is \f$(W-w+1) \times (H-h+1)\f$ .\n@param method Parameter specifying the comparison method, see #TemplateMatchModes\n@param mask Mask of searched template. It must have the same datatype and size with templ. It is\nnot set by default. Currently, only the #TM_SQDIFF and #TM_CCORR_NORMED methods are supported.'''
+
+    def get_attributes(self):
+        return [Input('image', 'image'),
+                Input('templ', 'templ'),
+                Input('mask', 'mask', optional=True)], \
+               [Output('result', 'result')], \
+               [IntParameter('method', 'method')]
+
+    def process_inputs(self, inputs, outputs, parameters):
+        image = inputs['image'].value
+        templ = inputs['templ'].value
+        mask = inputs['mask'].value
+        method = parameters['method']
+        result = cv2.matchTemplate(image=image, templ=templ, mask=mask, method=method)
+        outputs['result'] = Data(result)
 
 ### max ###
 
@@ -1513,6 +2514,22 @@ class OpenCVAuto2_MedianBlur(NormalElement):
         src = inputs['src'].value
         ksize = parameters['ksize']
         dst = cv2.medianBlur(src=src, ksize=ksize)
+        outputs['dst'] = Data(dst)
+
+### merge ###
+
+class OpenCVAuto2_Merge(NormalElement):
+    name = 'Merge'
+    comment = '''merge(mv[, dst]) -> dst\n@overload\n@param mv input vector of matrices to be merged; all the matrices in mv must have the same\nsize and the same depth.\n@param dst output array of the same size and the same depth as mv[0]; The number of channels will\nbe the total number of channels in the matrix array.'''
+
+    def get_attributes(self):
+        return [Input('mv', 'mv')], \
+               [Output('dst', 'dst')], \
+               []
+
+    def process_inputs(self, inputs, outputs, parameters):
+        mv = inputs['mv'].value
+        dst = cv2.merge(mv=mv)
         outputs['dst'] = Data(dst)
 
 ### min ###
@@ -1591,6 +2608,53 @@ class OpenCVAuto2_MinMaxLoc(NormalElement):
         outputs['minLoc'] = Data(minLoc)
         outputs['maxLoc'] = Data(maxLoc)
 
+### mixChannels ###
+
+class OpenCVAuto2_MixChannels(NormalElement):
+    name = 'MixChannels'
+    comment = '''mixChannels(src, dst, fromTo) -> dst\n@overload\n@param src input array or vector of matrices; all of the matrices must have the same size and the\nsame depth.\n@param dst output array or vector of matrices; all the matrices **must be allocated**; their size and\ndepth must be the same as in src[0].\n@param fromTo array of index pairs specifying which channels are copied and where; fromTo[k\*2] is\na 0-based index of the input channel in src, fromTo[k\*2+1] is an index of the output channel in\ndst; the continuous channel numbering is used: the first input image channels are indexed from 0 to\nsrc[0].channels()-1, the second input image channels are indexed from src[0].channels() to\nsrc[0].channels() + src[1].channels()-1, and so on, the same scheme is used for the output image\nchannels; as a special case, when fromTo[k\*2] is negative, the corresponding output channel is\nfilled with zero .'''
+
+    def get_attributes(self):
+        return [Input('src', 'src'),
+                Input('dst', 'dst'),
+                Input('fromTo', 'fromTo')], \
+               [Output('dst', 'dst')], \
+               []
+
+    def process_inputs(self, inputs, outputs, parameters):
+        src = inputs['src'].value
+        dst = inputs['dst'].value.copy()
+        fromTo = inputs['fromTo'].value
+        dst = cv2.mixChannels(src=src, dst=dst, fromTo=fromTo)
+        outputs['dst'] = Data(dst)
+
+### morphologyEx ###
+
+class OpenCVAuto2_MorphologyEx(NormalElement):
+    name = 'MorphologyEx'
+    comment = '''morphologyEx(src, op, kernel[, dst[, anchor[, iterations[, borderType[, borderValue]]]]]) -> dst\n@brief Performs advanced morphological transformations.\n\nThe function cv::morphologyEx can perform advanced morphological transformations using an erosion and dilation as\nbasic operations.\n\nAny of the operations can be done in-place. In case of multi-channel images, each channel is\nprocessed independently.\n\n@param src Source image. The number of channels can be arbitrary. The depth should be one of\nCV_8U, CV_16U, CV_16S, CV_32F or CV_64F.\n@param dst Destination image of the same size and type as source image.\n@param op Type of a morphological operation, see #MorphTypes\n@param kernel Structuring element. It can be created using #getStructuringElement.\n@param anchor Anchor position with the kernel. Negative values mean that the anchor is at the\nkernel center.\n@param iterations Number of times erosion and dilation are applied.\n@param borderType Pixel extrapolation method, see #BorderTypes\n@param borderValue Border value in case of a constant border. The default value has a special\nmeaning.\n@sa  dilate, erode, getStructuringElement\n@note The number of iterations is the number of times erosion or dilatation operation will be applied.\nFor instance, an opening operation (#MORPH_OPEN) with two iterations is equivalent to apply\nsuccessively: erode -> erode -> dilate -> dilate (and not erode -> dilate -> erode -> dilate).'''
+
+    def get_attributes(self):
+        return [Input('src', 'src'),
+                Input('kernel', 'kernel')], \
+               [Output('dst', 'dst')], \
+               [IntParameter('op', 'op'),
+                PointParameter('anchor', 'anchor'),
+                IntParameter('iterations', 'iterations', min_=0),
+                ComboboxParameter('borderType', [('BORDER_CONSTANT',0),('BORDER_REPLICATE',1),('BORDER_REFLECT',2),('BORDER_WRAP',3),('BORDER_DEFAULT',4),('BORDER_REFLECT101',4),('BORDER_REFLECT_101',4),('BORDER_TRANSPARENT',5),('BORDER_ISOLATED',16)]),
+                ScalarParameter('borderValue', 'borderValue')]
+
+    def process_inputs(self, inputs, outputs, parameters):
+        src = inputs['src'].value
+        kernel = inputs['kernel'].value
+        op = parameters['op']
+        anchor = parameters['anchor']
+        iterations = parameters['iterations']
+        borderType = parameters['borderType']
+        borderValue = parameters['borderValue']
+        dst = cv2.morphologyEx(src=src, kernel=kernel, op=op, anchor=anchor, iterations=iterations, borderType=borderType, borderValue=borderValue)
+        outputs['dst'] = Data(dst)
+
 ### multiply ###
 
 class OpenCVAuto2_Multiply(NormalElement):
@@ -1602,7 +2666,7 @@ class OpenCVAuto2_Multiply(NormalElement):
                 Input('src2', 'src2')], \
                [Output('dst', 'dst')], \
                [FloatParameter('scale', 'scale'),
-                ComboboxParameter('dtype', [('NONE',0),('CV_8U',0),('CV_8UC1',0),('CV_8UC2',8),('CV_8UC3',16),('CV_8UC4',24),('CV_8S',1),('CV_8SC1',1),('CV_8SC2',9),('CV_8SC3',17),('CV_8SC4',25),('CV_16U',2),('CV_16UC1',2),('CV_16UC2',10),('CV_16UC3',18),('CV_16UC4',26),('CV_16S',3),('CV_16SC1',3),('CV_16SC2',11),('CV_16SC3',19),('CV_16SC4',27),('CV_32S',4),('CV_32SC1',4),('CV_32SC2',12),('CV_32SC3',20),('CV_32SC4',28),('CV_32F',5),('CV_32FC1',5),('CV_32FC2',13),('CV_32FC3',21),('CV_32FC4',29),('CV_64F',6),('CV_64FC1',6),('CV_64FC2',14),('CV_64FC3',22),('CV_64FC4',30)])]
+                ComboboxParameter('dtype', [('NONE',-1),('CV_8U',0),('CV_8UC1',0),('CV_8S',1),('CV_8SC1',1),('CV_16U',2),('CV_16UC1',2),('CV_16S',3),('CV_16SC1',3),('CV_32S',4),('CV_32SC1',4),('CV_32F',5),('CV_32FC1',5),('CV_64F',6),('CV_64FC1',6),('CV_8UC2',8),('CV_8SC2',9),('CV_16UC2',10),('CV_16SC2',11),('CV_32SC2',12),('CV_32FC2',13),('CV_64FC2',14),('CV_8UC3',16),('CV_8SC3',17),('CV_16UC3',18),('CV_16SC3',19),('CV_32SC3',20),('CV_32FC3',21),('CV_64FC3',22),('CV_8UC4',24),('CV_8SC4',25),('CV_16UC4',26),('CV_16SC4',27),('CV_32SC4',28),('CV_32FC4',29),('CV_64FC4',30)])]
 
     def process_inputs(self, inputs, outputs, parameters):
         src1 = inputs['src1'].value
@@ -1625,17 +2689,36 @@ class OpenCVAuto2_Normalize(NormalElement):
                [Output('dst', 'dst')], \
                [FloatParameter('alpha', 'alpha'),
                 FloatParameter('beta', 'beta'),
-                ComboboxParameter('dtype', [('NONE',0),('CV_8U',0),('CV_8UC1',0),('CV_8UC2',8),('CV_8UC3',16),('CV_8UC4',24),('CV_8S',1),('CV_8SC1',1),('CV_8SC2',9),('CV_8SC3',17),('CV_8SC4',25),('CV_16U',2),('CV_16UC1',2),('CV_16UC2',10),('CV_16UC3',18),('CV_16UC4',26),('CV_16S',3),('CV_16SC1',3),('CV_16SC2',11),('CV_16SC3',19),('CV_16SC4',27),('CV_32S',4),('CV_32SC1',4),('CV_32SC2',12),('CV_32SC3',20),('CV_32SC4',28),('CV_32F',5),('CV_32FC1',5),('CV_32FC2',13),('CV_32FC3',21),('CV_32FC4',29),('CV_64F',6),('CV_64FC1',6),('CV_64FC2',14),('CV_64FC3',22),('CV_64FC4',30)])]
+                IntParameter('norm_type', 'norm_type'),
+                ComboboxParameter('dtype', [('NONE',-1),('CV_8U',0),('CV_8UC1',0),('CV_8S',1),('CV_8SC1',1),('CV_16U',2),('CV_16UC1',2),('CV_16S',3),('CV_16SC1',3),('CV_32S',4),('CV_32SC1',4),('CV_32F',5),('CV_32FC1',5),('CV_64F',6),('CV_64FC1',6),('CV_8UC2',8),('CV_8SC2',9),('CV_16UC2',10),('CV_16SC2',11),('CV_32SC2',12),('CV_32FC2',13),('CV_64FC2',14),('CV_8UC3',16),('CV_8SC3',17),('CV_16UC3',18),('CV_16SC3',19),('CV_32SC3',20),('CV_32FC3',21),('CV_64FC3',22),('CV_8UC4',24),('CV_8SC4',25),('CV_16UC4',26),('CV_16SC4',27),('CV_32SC4',28),('CV_32FC4',29),('CV_64FC4',30)])]
 
     def process_inputs(self, inputs, outputs, parameters):
         src = inputs['src'].value
-        dst = inputs['dst'].value
+        dst = inputs['dst'].value.copy()
         mask = inputs['mask'].value
         alpha = parameters['alpha']
         beta = parameters['beta']
+        norm_type = parameters['norm_type']
         dtype = parameters['dtype']
-        dst = cv2.normalize(src=src, dst=dst, mask=mask, alpha=alpha, beta=beta, dtype=dtype)
+        dst = cv2.normalize(src=src, dst=dst, mask=mask, alpha=alpha, beta=beta, norm_type=norm_type, dtype=dtype)
         outputs['dst'] = Data(dst)
+
+### patchNaNs ###
+
+class OpenCVAuto2_PatchNaNs(NormalElement):
+    name = 'PatchNaNs'
+    comment = '''patchNaNs(a[, val]) -> a\n@brief converts NaN's to the given number'''
+
+    def get_attributes(self):
+        return [Input('a', 'a')], \
+               [Output('a', 'a')], \
+               [FloatParameter('val', 'val')]
+
+    def process_inputs(self, inputs, outputs, parameters):
+        a = inputs['a'].value.copy()
+        val = parameters['val']
+        a = cv2.patchNaNs(a=a, val=val)
+        outputs['a'] = Data(a)
 
 ### pencilSketch ###
 
@@ -1684,15 +2767,34 @@ class OpenCVAuto2_PhaseCorrelate(NormalElement):
 
     def get_attributes(self):
         return [Input('src1', 'src1'),
-                Input('src2', 'src2')], \
+                Input('src2', 'src2'),
+                Input('window', 'window', optional=True)], \
                [Output('response', 'response')], \
                []
 
     def process_inputs(self, inputs, outputs, parameters):
         src1 = inputs['src1'].value
         src2 = inputs['src2'].value
-        retval, response = cv2.phaseCorrelate(src1=src1, src2=src2)
+        window = inputs['window'].value
+        retval, response = cv2.phaseCorrelate(src1=src1, src2=src2, window=window)
         outputs['response'] = Data(response)
+
+### pow ###
+
+class OpenCVAuto2_Pow(NormalElement):
+    name = 'Pow'
+    comment = '''pow(src, power[, dst]) -> dst\n@brief Raises every array element to a power.\n\nThe function cv::pow raises every element of the input array to power :\n\f[\texttt{dst} (I) =  \fork{\texttt{src}(I)^{power}}{if \(\texttt{power}\) is integer}{|\texttt{src}(I)|^{power}}{otherwise}\f]\n\nSo, for a non-integer power exponent, the absolute values of input array\nelements are used. However, it is possible to get true values for\nnegative values using some extra operations. In the example below,\ncomputing the 5th root of array src shows:\n@code{.cpp}\nMat mask = src < 0;\npow(src, 1./5, dst);\nsubtract(Scalar::all(0), dst, dst, mask);\n@endcode\nFor some values of power, such as integer values, 0.5 and -0.5,\nspecialized faster algorithms are used.\n\nSpecial values (NaN, Inf) are not handled.\n@param src input array.\n@param power exponent of power.\n@param dst output array of the same size and type as src.\n@sa sqrt, exp, log, cartToPolar, polarToCart'''
+
+    def get_attributes(self):
+        return [Input('src', 'src')], \
+               [Output('dst', 'dst')], \
+               [FloatParameter('power', 'power')]
+
+    def process_inputs(self, inputs, outputs, parameters):
+        src = inputs['src'].value
+        power = parameters['power']
+        dst = cv2.pow(src=src, power=power)
+        outputs['dst'] = Data(dst)
 
 ### preCornerDetect ###
 
@@ -1704,7 +2806,7 @@ class OpenCVAuto2_PreCornerDetect(NormalElement):
         return [Input('src', 'src')], \
                [Output('dst', 'dst')], \
                [SizeParameter('ksize', 'ksize'),
-                ComboboxParameter('borderType', [('BORDER_CONSTANT',0),('BORDER_DEFAULT',4),('BORDER_ISOLATED',16),('BORDER_REFLECT',2),('BORDER_REFLECT101',4),('BORDER_REFLECT_101',4),('BORDER_REPLICATE',1),('BORDER_TRANSPARENT',5),('BORDER_WRAP',3)])]
+                ComboboxParameter('borderType', [('BORDER_CONSTANT',0),('BORDER_REPLICATE',1),('BORDER_REFLECT',2),('BORDER_WRAP',3),('BORDER_DEFAULT',4),('BORDER_REFLECT101',4),('BORDER_REFLECT_101',4),('BORDER_TRANSPARENT',5),('BORDER_ISOLATED',16)])]
 
     def process_inputs(self, inputs, outputs, parameters):
         src = inputs['src'].value
@@ -1712,6 +2814,33 @@ class OpenCVAuto2_PreCornerDetect(NormalElement):
         borderType = parameters['borderType']
         dst = cv2.preCornerDetect(src=src, ksize=ksize, borderType=borderType)
         outputs['dst'] = Data(dst)
+
+### projectPoints ###
+
+class OpenCVAuto2_ProjectPoints(NormalElement):
+    name = 'ProjectPoints'
+    comment = '''projectPoints(objectPoints, rvec, tvec, cameraMatrix, distCoeffs[, imagePoints[, jacobian[, aspectRatio]]]) -> imagePoints, jacobian\n@brief Projects 3D points to an image plane.\n\n@param objectPoints Array of object points, 3xN/Nx3 1-channel or 1xN/Nx1 3-channel (or\nvector\<Point3f\> ), where N is the number of points in the view.\n@param rvec Rotation vector. See Rodrigues for details.\n@param tvec Translation vector.\n@param cameraMatrix Camera matrix \f$A = \vecthreethree{f_x}{0}{c_x}{0}{f_y}{c_y}{0}{0}{_1}\f$ .\n@param distCoeffs Input vector of distortion coefficients\n\f$(k_1, k_2, p_1, p_2[, k_3[, k_4, k_5, k_6 [, s_1, s_2, s_3, s_4[, \tau_x, \tau_y]]]])\f$ of\n4, 5, 8, 12 or 14 elements. If the vector is empty, the zero distortion coefficients are assumed.\n@param imagePoints Output array of image points, 2xN/Nx2 1-channel or 1xN/Nx1 2-channel, or\nvector\<Point2f\> .\n@param jacobian Optional output 2Nx(10+\<numDistCoeffs\>) jacobian matrix of derivatives of image\npoints with respect to components of the rotation vector, translation vector, focal lengths,\ncoordinates of the principal point and the distortion coefficients. In the old interface different\ncomponents of the jacobian are returned via different output parameters.\n@param aspectRatio Optional "fixed aspect ratio" parameter. If the parameter is not 0, the\nfunction assumes that the aspect ratio (*fx/fy*) is fixed and correspondingly adjusts the jacobian\nmatrix.\n\nThe function computes projections of 3D points to the image plane given intrinsic and extrinsic\ncamera parameters. Optionally, the function computes Jacobians - matrices of partial derivatives of\nimage points coordinates (as functions of all the input parameters) with respect to the particular\nparameters, intrinsic and/or extrinsic. The Jacobians are used during the global optimization in\ncalibrateCamera, solvePnP, and stereoCalibrate . The function itself can also be used to compute a\nre-projection error given the current intrinsic and extrinsic parameters.\n\n@note By setting rvec=tvec=(0,0,0) or by setting cameraMatrix to a 3x3 identity matrix, or by\npassing zero distortion coefficients, you can get various useful partial cases of the function. This\nmeans that you can compute the distorted coordinates for a sparse set of points or apply a\nperspective transformation (and also compute the derivatives) in the ideal zero-distortion setup.'''
+
+    def get_attributes(self):
+        return [Input('objectPoints', 'objectPoints'),
+                Input('rvec', 'rvec'),
+                Input('tvec', 'tvec'),
+                Input('cameraMatrix', 'cameraMatrix'),
+                Input('distCoeffs', 'distCoeffs')], \
+               [Output('imagePoints', 'imagePoints'),
+                Output('jacobian', 'jacobian')], \
+               [FloatParameter('aspectRatio', 'aspectRatio')]
+
+    def process_inputs(self, inputs, outputs, parameters):
+        objectPoints = inputs['objectPoints'].value
+        rvec = inputs['rvec'].value
+        tvec = inputs['tvec'].value
+        cameraMatrix = inputs['cameraMatrix'].value
+        distCoeffs = inputs['distCoeffs'].value
+        aspectRatio = parameters['aspectRatio']
+        imagePoints, jacobian = cv2.projectPoints(objectPoints=objectPoints, rvec=rvec, tvec=tvec, cameraMatrix=cameraMatrix, distCoeffs=distCoeffs, aspectRatio=aspectRatio)
+        outputs['imagePoints'] = Data(imagePoints)
+        outputs['jacobian'] = Data(jacobian)
 
 ### pyrDown ###
 
@@ -1723,7 +2852,7 @@ class OpenCVAuto2_PyrDown(NormalElement):
         return [Input('src', 'src')], \
                [Output('dst', 'dst')], \
                [SizeParameter('dstsize', 'dstsize'),
-                ComboboxParameter('borderType', [('BORDER_CONSTANT',0),('BORDER_DEFAULT',4),('BORDER_ISOLATED',16),('BORDER_REFLECT',2),('BORDER_REFLECT101',4),('BORDER_REFLECT_101',4),('BORDER_REPLICATE',1),('BORDER_TRANSPARENT',5),('BORDER_WRAP',3)])]
+                ComboboxParameter('borderType', [('BORDER_CONSTANT',0),('BORDER_REPLICATE',1),('BORDER_REFLECT',2),('BORDER_WRAP',3),('BORDER_DEFAULT',4),('BORDER_REFLECT101',4),('BORDER_REFLECT_101',4),('BORDER_TRANSPARENT',5),('BORDER_ISOLATED',16)])]
 
     def process_inputs(self, inputs, outputs, parameters):
         src = inputs['src'].value
@@ -1742,7 +2871,7 @@ class OpenCVAuto2_PyrUp(NormalElement):
         return [Input('src', 'src')], \
                [Output('dst', 'dst')], \
                [SizeParameter('dstsize', 'dstsize'),
-                ComboboxParameter('borderType', [('BORDER_DEFAULT',4),('BORDER_CONSTANT',0),('BORDER_ISOLATED',16),('BORDER_REFLECT',2),('BORDER_REFLECT101',4),('BORDER_REFLECT_101',4),('BORDER_REPLICATE',1),('BORDER_TRANSPARENT',5),('BORDER_WRAP',3)])]
+                ComboboxParameter('borderType', [('BORDER_CONSTANT',0),('BORDER_REPLICATE',1),('BORDER_REFLECT',2),('BORDER_WRAP',3),('BORDER_DEFAULT',4),('BORDER_REFLECT101',4),('BORDER_REFLECT_101',4),('BORDER_TRANSPARENT',5),('BORDER_ISOLATED',16)])]
 
     def process_inputs(self, inputs, outputs, parameters):
         src = inputs['src'].value
@@ -1760,12 +2889,87 @@ class OpenCVAuto2_RandShuffle(NormalElement):
     def get_attributes(self):
         return [Input('dst', 'dst')], \
                [Output('dst', 'dst')], \
+               [FloatParameter('iterFactor', 'iterFactor')]
+
+    def process_inputs(self, inputs, outputs, parameters):
+        dst = inputs['dst'].value.copy()
+        iterFactor = parameters['iterFactor']
+        dst = cv2.randShuffle(dst=dst, iterFactor=iterFactor)
+        outputs['dst'] = Data(dst)
+
+### randn ###
+
+class OpenCVAuto2_Randn(NormalElement):
+    name = 'Randn'
+    comment = '''randn(dst, mean, stddev) -> dst\n@brief Fills the array with normally distributed random numbers.\n\nThe function cv::randn fills the matrix dst with normally distributed random numbers with the specified\nmean vector and the standard deviation matrix. The generated random numbers are clipped to fit the\nvalue range of the output array data type.\n@param dst output array of random numbers; the array must be pre-allocated and have 1 to 4 channels.\n@param mean mean value (expectation) of the generated random numbers.\n@param stddev standard deviation of the generated random numbers; it can be either a vector (in\nwhich case a diagonal standard deviation matrix is assumed) or a square matrix.\n@sa RNG, randu'''
+
+    def get_attributes(self):
+        return [Input('dst', 'dst'),
+                Input('mean', 'mean'),
+                Input('stddev', 'stddev')], \
+               [Output('dst', 'dst')], \
                []
 
     def process_inputs(self, inputs, outputs, parameters):
-        dst = inputs['dst'].value
-        dst = cv2.randShuffle(dst=dst)
+        dst = inputs['dst'].value.copy()
+        mean = inputs['mean'].value
+        stddev = inputs['stddev'].value
+        dst = cv2.randn(dst=dst, mean=mean, stddev=stddev)
         outputs['dst'] = Data(dst)
+
+### randu ###
+
+class OpenCVAuto2_Randu(NormalElement):
+    name = 'Randu'
+    comment = '''randu(dst, low, high) -> dst\n@brief Generates a single uniformly-distributed random number or an array of random numbers.\n\nNon-template variant of the function fills the matrix dst with uniformly-distributed\nrandom numbers from the specified range:\n\f[\texttt{low} _c  \leq \texttt{dst} (I)_c <  \texttt{high} _c\f]\n@param dst output array of random numbers; the array must be pre-allocated.\n@param low inclusive lower boundary of the generated random numbers.\n@param high exclusive upper boundary of the generated random numbers.\n@sa RNG, randn, theRNG'''
+
+    def get_attributes(self):
+        return [Input('dst', 'dst'),
+                Input('low', 'low'),
+                Input('high', 'high')], \
+               [Output('dst', 'dst')], \
+               []
+
+    def process_inputs(self, inputs, outputs, parameters):
+        dst = inputs['dst'].value.copy()
+        low = inputs['low'].value
+        high = inputs['high'].value
+        dst = cv2.randu(dst=dst, low=low, high=high)
+        outputs['dst'] = Data(dst)
+
+### recoverPose ###
+
+class OpenCVAuto2_RecoverPose(NormalElement):
+    name = 'RecoverPose'
+    comment = '''recoverPose(E, points1, points2, cameraMatrix[, R[, t[, mask]]]) -> retval, R, t, mask\n@brief Recover relative camera rotation and translation from an estimated essential matrix and the\ncorresponding points in two images, using cheirality check. Returns the number of inliers which pass\nthe check.\n\n@param E The input essential matrix.\n@param points1 Array of N 2D points from the first image. The point coordinates should be\nfloating-point (single or double precision).\n@param points2 Array of the second image points of the same size and format as points1 .\n@param cameraMatrix Camera matrix \f$K = \vecthreethree{f_x}{0}{c_x}{0}{f_y}{c_y}{0}{0}{1}\f$ .\nNote that this function assumes that points1 and points2 are feature points from cameras with the\nsame camera matrix.\n@param R Recovered relative rotation.\n@param t Recovered relative translation.\n@param mask Input/output mask for inliers in points1 and points2.\n:   If it is not empty, then it marks inliers in points1 and points2 for then given essential\nmatrix E. Only these inliers will be used to recover pose. In the output mask only inliers\nwhich pass the cheirality check.\nThis function decomposes an essential matrix using decomposeEssentialMat and then verifies possible\npose hypotheses by doing cheirality check. The cheirality check basically means that the\ntriangulated 3D points should have positive depth. Some details can be found in @cite Nister03 .\n\nThis function can be used to process output E and mask from findEssentialMat. In this scenario,\npoints1 and points2 are the same input for findEssentialMat. :\n@code\n// Example. Estimation of fundamental matrix using the RANSAC algorithm\nint point_count = 100;\nvector<Point2f> points1(point_count);\nvector<Point2f> points2(point_count);\n\n// initialize the points here ...\nfor( int i = 0; i < point_count; i++ )\n{\npoints1[i] = ...;\npoints2[i] = ...;\n}\n\n// cametra matrix with both focal lengths = 1, and principal point = (0, 0)\nMat cameraMatrix = Mat::eye(3, 3, CV_64F);\n\nMat E, R, t, mask;\n\nE = findEssentialMat(points1, points2, cameraMatrix, RANSAC, 0.999, 1.0, mask);\nrecoverPose(E, points1, points2, cameraMatrix, R, t, mask);\n@endcode
+
+
+
+recoverPose(E, points1, points2[, R[, t[, focal[, pp[, mask]]]]]) -> retval, R, t, mask\n@overload\n@param E The input essential matrix.\n@param points1 Array of N 2D points from the first image. The point coordinates should be\nfloating-point (single or double precision).\n@param points2 Array of the second image points of the same size and format as points1 .\n@param R Recovered relative rotation.\n@param t Recovered relative translation.\n@param focal Focal length of the camera. Note that this function assumes that points1 and points2\nare feature points from cameras with same focal length and principal point.\n@param pp principal point of the camera.\n@param mask Input/output mask for inliers in points1 and points2.\n:   If it is not empty, then it marks inliers in points1 and points2 for then given essential\nmatrix E. Only these inliers will be used to recover pose. In the output mask only inliers\nwhich pass the cheirality check.\n\nThis function differs from the one above that it computes camera matrix from focal length and\nprincipal point:\n\n\f[K =\n\begin{bmatrix}\nf & 0 & x_{pp}  \\\n0 & f & y_{pp}  \\\n0 & 0 & 1\n\end{bmatrix}\f]
+
+
+
+recoverPose(E, points1, points2, cameraMatrix, distanceThresh[, R[, t[, mask[, triangulatedPoints]]]]) -> retval, R, t, mask, triangulatedPoints\n@overload\n@param E The input essential matrix.\n@param points1 Array of N 2D points from the first image. The point coordinates should be\nfloating-point (single or double precision).\n@param points2 Array of the second image points of the same size and format as points1.\n@param cameraMatrix Camera matrix \f$K = \vecthreethree{f_x}{0}{c_x}{0}{f_y}{c_y}{0}{0}{1}\f$ .\nNote that this function assumes that points1 and points2 are feature points from cameras with the\nsame camera matrix.\n@param R Recovered relative rotation.\n@param t Recovered relative translation.\n@param distanceThresh threshold distance which is used to filter out far away points (i.e. infinite points).\n@param mask Input/output mask for inliers in points1 and points2.\n:   If it is not empty, then it marks inliers in points1 and points2 for then given essential\nmatrix E. Only these inliers will be used to recover pose. In the output mask only inliers\nwhich pass the cheirality check.\n@param triangulatedPoints 3d points which were reconstructed by triangulation.'''
+
+    def get_attributes(self):
+        return [Input('E', 'E'),
+                Input('points1', 'points1'),
+                Input('points2', 'points2'),
+                Input('cameraMatrix', 'cameraMatrix')], \
+               [Output('R', 'R'),
+                Output('t', 't'),
+                Output('mask', 'mask')], \
+               []
+
+    def process_inputs(self, inputs, outputs, parameters):
+        E = inputs['E'].value
+        points1 = inputs['points1'].value
+        points2 = inputs['points2'].value
+        cameraMatrix = inputs['cameraMatrix'].value
+        retval, R, t, mask = cv2.recoverPose(E=E, points1=points1, points2=points2, cameraMatrix=cameraMatrix)
+        outputs['R'] = Data(R)
+        outputs['t'] = Data(t)
+        outputs['mask'] = Data(mask)
 
 ### rectangle ###
 
@@ -1779,16 +2983,85 @@ class OpenCVAuto2_Rectangle(NormalElement):
                [PointParameter('pt1', 'pt1'),
                 PointParameter('pt2', 'pt2'),
                 ScalarParameter('color', 'color'),
-                IntParameter('thickness', 'thickness')]
+                IntParameter('thickness', 'thickness', min_=-1, max_=100),
+                ComboboxParameter('lineType', [('LINE_4',4),('LINE_8',8),('LINE_AA',16)]),
+                IntParameter('shift', 'shift')]
 
     def process_inputs(self, inputs, outputs, parameters):
-        img = inputs['img'].value
+        img = inputs['img'].value.copy()
         pt1 = parameters['pt1']
         pt2 = parameters['pt2']
         color = parameters['color']
         thickness = parameters['thickness']
-        img = cv2.rectangle(img=img, pt1=pt1, pt2=pt2, color=color, thickness=thickness)
+        lineType = parameters['lineType']
+        shift = parameters['shift']
+        img = cv2.rectangle(img=img, pt1=pt1, pt2=pt2, color=color, thickness=thickness, lineType=lineType, shift=shift)
         outputs['img'] = Data(img)
+
+### reduce ###
+
+class OpenCVAuto2_Reduce(NormalElement):
+    name = 'Reduce'
+    comment = '''reduce(src, dim, rtype[, dst[, dtype]]) -> dst\n@brief Reduces a matrix to a vector.\n\nThe function #reduce reduces the matrix to a vector by treating the matrix rows/columns as a set of\n1D vectors and performing the specified operation on the vectors until a single row/column is\nobtained. For example, the function can be used to compute horizontal and vertical projections of a\nraster image. In case of #REDUCE_MAX and #REDUCE_MIN , the output image should have the same type as the source one.\nIn case of #REDUCE_SUM and #REDUCE_AVG , the output may have a larger element bit-depth to preserve accuracy.\nAnd multi-channel arrays are also supported in these two reduction modes.\n\nThe following code demonstrates its usage for a single channel matrix.\n@snippet snippets/core_reduce.cpp example\n\nAnd the following code demonstrates its usage for a two-channel matrix.\n@snippet snippets/core_reduce.cpp example2\n\n@param src input 2D matrix.\n@param dst output vector. Its size and type is defined by dim and dtype parameters.\n@param dim dimension index along which the matrix is reduced. 0 means that the matrix is reduced to\na single row. 1 means that the matrix is reduced to a single column.\n@param rtype reduction operation that could be one of #ReduceTypes\n@param dtype when negative, the output vector will have the same type as the input matrix,\notherwise, its type will be CV_MAKE_TYPE(CV_MAT_DEPTH(dtype), src.channels()).\n@sa repeat'''
+
+    def get_attributes(self):
+        return [Input('src', 'src')], \
+               [Output('dst', 'dst')], \
+               [IntParameter('dim', 'dim'),
+                IntParameter('rtype', 'rtype'),
+                ComboboxParameter('dtype', [('NONE',-1),('CV_8U',0),('CV_8UC1',0),('CV_8S',1),('CV_8SC1',1),('CV_16U',2),('CV_16UC1',2),('CV_16S',3),('CV_16SC1',3),('CV_32S',4),('CV_32SC1',4),('CV_32F',5),('CV_32FC1',5),('CV_64F',6),('CV_64FC1',6),('CV_8UC2',8),('CV_8SC2',9),('CV_16UC2',10),('CV_16SC2',11),('CV_32SC2',12),('CV_32FC2',13),('CV_64FC2',14),('CV_8UC3',16),('CV_8SC3',17),('CV_16UC3',18),('CV_16SC3',19),('CV_32SC3',20),('CV_32FC3',21),('CV_64FC3',22),('CV_8UC4',24),('CV_8SC4',25),('CV_16UC4',26),('CV_16SC4',27),('CV_32SC4',28),('CV_32FC4',29),('CV_64FC4',30)])]
+
+    def process_inputs(self, inputs, outputs, parameters):
+        src = inputs['src'].value
+        dim = parameters['dim']
+        rtype = parameters['rtype']
+        dtype = parameters['dtype']
+        dst = cv2.reduce(src=src, dim=dim, rtype=rtype, dtype=dtype)
+        outputs['dst'] = Data(dst)
+
+### remap ###
+
+class OpenCVAuto2_Remap(NormalElement):
+    name = 'Remap'
+    comment = '''remap(src, map1, map2, interpolation[, dst[, borderMode[, borderValue]]]) -> dst\n@brief Applies a generic geometrical transformation to an image.\n\nThe function remap transforms the source image using the specified map:\n\n\f[\texttt{dst} (x,y) =  \texttt{src} (map_x(x,y),map_y(x,y))\f]\n\nwhere values of pixels with non-integer coordinates are computed using one of available\ninterpolation methods. \f$map_x\f$ and \f$map_y\f$ can be encoded as separate floating-point maps\nin \f$map_1\f$ and \f$map_2\f$ respectively, or interleaved floating-point maps of \f$(x,y)\f$ in\n\f$map_1\f$, or fixed-point maps created by using convertMaps. The reason you might want to\nconvert from floating to fixed-point representations of a map is that they can yield much faster\n(\~2x) remapping operations. In the converted case, \f$map_1\f$ contains pairs (cvFloor(x),\ncvFloor(y)) and \f$map_2\f$ contains indices in a table of interpolation coefficients.\n\nThis function cannot operate in-place.\n\n@param src Source image.\n@param dst Destination image. It has the same size as map1 and the same type as src .\n@param map1 The first map of either (x,y) points or just x values having the type CV_16SC2 ,\nCV_32FC1, or CV_32FC2. See convertMaps for details on converting a floating point\nrepresentation to fixed-point for speed.\n@param map2 The second map of y values having the type CV_16UC1, CV_32FC1, or none (empty map\nif map1 is (x,y) points), respectively.\n@param interpolation Interpolation method (see #InterpolationFlags). The method #INTER_AREA is\nnot supported by this function.\n@param borderMode Pixel extrapolation method (see #BorderTypes). When\nborderMode=#BORDER_TRANSPARENT, it means that the pixels in the destination image that\ncorresponds to the "outliers" in the source image are not modified by the function.\n@param borderValue Value used in case of a constant border. By default, it is 0.\n@note\nDue to current implementation limitations the size of an input and output images should be less than 32767x32767.'''
+
+    def get_attributes(self):
+        return [Input('src', 'src'),
+                Input('map1', 'map1'),
+                Input('map2', 'map2')], \
+               [Output('dst', 'dst')], \
+               [ComboboxParameter('interpolation', [('INTER_NEAREST',0),('INTER_LINEAR',1),('INTER_CUBIC',2),('INTER_AREA',3),('INTER_LANCZOS4',4),('INTER_BITS',5),('INTER_LINEAR_EXACT',5),('INTER_MAX',7),('INTER_BITS2',10),('INTER_TAB_SIZE',32),('INTER_TAB_SIZE2',1024)]),
+                ComboboxParameter('borderMode', [('BORDER_CONSTANT',0),('BORDER_REPLICATE',1),('BORDER_REFLECT',2),('BORDER_WRAP',3),('BORDER_DEFAULT',4),('BORDER_REFLECT101',4),('BORDER_REFLECT_101',4),('BORDER_TRANSPARENT',5),('BORDER_ISOLATED',16)]),
+                ScalarParameter('borderValue', 'borderValue')]
+
+    def process_inputs(self, inputs, outputs, parameters):
+        src = inputs['src'].value
+        map1 = inputs['map1'].value
+        map2 = inputs['map2'].value
+        interpolation = parameters['interpolation']
+        borderMode = parameters['borderMode']
+        borderValue = parameters['borderValue']
+        dst = cv2.remap(src=src, map1=map1, map2=map2, interpolation=interpolation, borderMode=borderMode, borderValue=borderValue)
+        outputs['dst'] = Data(dst)
+
+### repeat ###
+
+class OpenCVAuto2_Repeat(NormalElement):
+    name = 'Repeat'
+    comment = '''repeat(src, ny, nx[, dst]) -> dst\n@brief Fills the output array with repeated copies of the input array.\n\nThe function cv::repeat duplicates the input array one or more times along each of the two axes:\n\f[\texttt{dst} _{ij}= \texttt{src} _{i\mod src.rows, \; j\mod src.cols }\f]\nThe second variant of the function is more convenient to use with @ref MatrixExpressions.\n@param src input array to replicate.\n@param ny Flag to specify how many times the `src` is repeated along the\nvertical axis.\n@param nx Flag to specify how many times the `src` is repeated along the\nhorizontal axis.\n@param dst output array of the same type as `src`.\n@sa cv::reduce'''
+
+    def get_attributes(self):
+        return [Input('src', 'src')], \
+               [Output('dst', 'dst')], \
+               [IntParameter('ny', 'ny'),
+                IntParameter('nx', 'nx')]
+
+    def process_inputs(self, inputs, outputs, parameters):
+        src = inputs['src'].value
+        ny = parameters['ny']
+        nx = parameters['nx']
+        dst = cv2.repeat(src=src, ny=ny, nx=nx)
+        outputs['dst'] = Data(dst)
 
 ### resize ###
 
@@ -1800,13 +3073,34 @@ class OpenCVAuto2_Resize(NormalElement):
         return [Input('src', 'src')], \
                [Output('dst', 'dst')], \
                [SizeParameter('dsize', 'dsize'),
-                ComboboxParameter('interpolation', [('INTER_AREA',3),('INTER_BITS',5),('INTER_BITS2',10),('INTER_CUBIC',2),('INTER_LANCZOS4',4),('INTER_LINEAR',1),('INTER_LINEAR_EXACT',5),('INTER_MAX',7),('INTER_NEAREST',0),('INTER_TAB_SIZE',32),('INTER_TAB_SIZE2',1024)])]
+                FloatParameter('fx', 'fx'),
+                FloatParameter('fy', 'fy'),
+                ComboboxParameter('interpolation', [('INTER_NEAREST',0),('INTER_LINEAR',1),('INTER_CUBIC',2),('INTER_AREA',3),('INTER_LANCZOS4',4),('INTER_BITS',5),('INTER_LINEAR_EXACT',5),('INTER_MAX',7),('INTER_BITS2',10),('INTER_TAB_SIZE',32),('INTER_TAB_SIZE2',1024)])]
 
     def process_inputs(self, inputs, outputs, parameters):
         src = inputs['src'].value
         dsize = parameters['dsize']
+        fx = parameters['fx']
+        fy = parameters['fy']
         interpolation = parameters['interpolation']
-        dst = cv2.resize(src=src, dsize=dsize, interpolation=interpolation)
+        dst = cv2.resize(src=src, dsize=dsize, fx=fx, fy=fy, interpolation=interpolation)
+        outputs['dst'] = Data(dst)
+
+### rotate ###
+
+class OpenCVAuto2_Rotate(NormalElement):
+    name = 'Rotate'
+    comment = '''rotate(src, rotateCode[, dst]) -> dst\n@brief Rotates a 2D array in multiples of 90 degrees.\nThe function cv::rotate rotates the array in one of three different ways:\n*   Rotate by 90 degrees clockwise (rotateCode = ROTATE_90_CLOCKWISE).\n*   Rotate by 180 degrees clockwise (rotateCode = ROTATE_180).\n*   Rotate by 270 degrees clockwise (rotateCode = ROTATE_90_COUNTERCLOCKWISE).\n@param src input array.\n@param dst output array of the same type as src.  The size is the same with ROTATE_180,\nand the rows and cols are switched for ROTATE_90_CLOCKWISE and ROTATE_90_COUNTERCLOCKWISE.\n@param rotateCode an enum to specify how to rotate the array; see the enum #RotateFlags\n@sa transpose , repeat , completeSymm, flip, RotateFlags'''
+
+    def get_attributes(self):
+        return [Input('src', 'src')], \
+               [Output('dst', 'dst')], \
+               [IntParameter('rotateCode', 'rotateCode')]
+
+    def process_inputs(self, inputs, outputs, parameters):
+        src = inputs['src'].value
+        rotateCode = parameters['rotateCode']
+        dst = cv2.rotate(src=src, rotateCode=rotateCode)
         outputs['dst'] = Data(dst)
 
 ### scaleAdd ###
@@ -1828,22 +3122,32 @@ class OpenCVAuto2_ScaleAdd(NormalElement):
         dst = cv2.scaleAdd(src1=src1, src2=src2, alpha=alpha)
         outputs['dst'] = Data(dst)
 
-### selectROIs ###
+### sepFilter2D ###
 
-class OpenCVAuto2_SelectROIs(NormalElement):
-    name = 'SelectROIs'
-    comment = '''selectROIs(windowName, img[, showCrosshair[, fromCenter]]) -> boundingBoxes\n@brief Selects ROIs on the given image.\nFunction creates a window and allows user to select a ROIs using mouse.\nControls: use `space` or `enter` to finish current selection and start a new one,\nuse `esc` to terminate multiple ROI selection process.\n\n@param windowName name of the window where selection process will be shown.\n@param img image to select a ROI.\n@param boundingBoxes selected ROIs.\n@param showCrosshair if true crosshair of selection rectangle will be shown.\n@param fromCenter if true center of selection will match initial mouse position. In opposite case a corner of\nselection rectangle will correspont to the initial mouse position.\n\n@note The function sets it's own mouse callback for specified window using cv::setMouseCallback(windowName, ...).\nAfter finish of work an empty callback will be set for the used window.'''
+class OpenCVAuto2_SepFilter2D(NormalElement):
+    name = 'SepFilter2D'
+    comment = '''sepFilter2D(src, ddepth, kernelX, kernelY[, dst[, anchor[, delta[, borderType]]]]) -> dst\n@brief Applies a separable linear filter to an image.\n\nThe function applies a separable linear filter to the image. That is, first, every row of src is\nfiltered with the 1D kernel kernelX. Then, every column of the result is filtered with the 1D\nkernel kernelY. The final result shifted by delta is stored in dst .\n\n@param src Source image.\n@param dst Destination image of the same size and the same number of channels as src .\n@param ddepth Destination image depth, see @ref filter_depths "combinations"\n@param kernelX Coefficients for filtering each row.\n@param kernelY Coefficients for filtering each column.\n@param anchor Anchor position within the kernel. The default value \f$(-1,-1)\f$ means that the anchor\nis at the kernel center.\n@param delta Value added to the filtered results before storing them.\n@param borderType Pixel extrapolation method, see #BorderTypes\n@sa  filter2D, Sobel, GaussianBlur, boxFilter, blur'''
 
     def get_attributes(self):
-        return [Input('img', 'img')], \
-               [Output('boundingBoxes', 'boundingBoxes')], \
-               [TextParameter('windowName', 'windowName')]
+        return [Input('src', 'src'),
+                Input('kernelX', 'kernelX'),
+                Input('kernelY', 'kernelY')], \
+               [Output('dst', 'dst')], \
+               [ComboboxParameter('ddepth', [('NONE',-1),('CV_8U',0),('CV_8UC1',0),('CV_8S',1),('CV_8SC1',1),('CV_16U',2),('CV_16UC1',2),('CV_16S',3),('CV_16SC1',3),('CV_32S',4),('CV_32SC1',4),('CV_32F',5),('CV_32FC1',5),('CV_64F',6),('CV_64FC1',6),('CV_8UC2',8),('CV_8SC2',9),('CV_16UC2',10),('CV_16SC2',11),('CV_32SC2',12),('CV_32FC2',13),('CV_64FC2',14),('CV_8UC3',16),('CV_8SC3',17),('CV_16UC3',18),('CV_16SC3',19),('CV_32SC3',20),('CV_32FC3',21),('CV_64FC3',22),('CV_8UC4',24),('CV_8SC4',25),('CV_16UC4',26),('CV_16SC4',27),('CV_32SC4',28),('CV_32FC4',29),('CV_64FC4',30)]),
+                PointParameter('anchor', 'anchor'),
+                FloatParameter('delta', 'delta'),
+                ComboboxParameter('borderType', [('BORDER_CONSTANT',0),('BORDER_REPLICATE',1),('BORDER_REFLECT',2),('BORDER_WRAP',3),('BORDER_DEFAULT',4),('BORDER_REFLECT101',4),('BORDER_REFLECT_101',4),('BORDER_TRANSPARENT',5),('BORDER_ISOLATED',16)])]
 
     def process_inputs(self, inputs, outputs, parameters):
-        img = inputs['img'].value
-        windowName = parameters['windowName']
-        boundingBoxes = cv2.selectROIs(img=img, windowName=windowName)
-        outputs['boundingBoxes'] = Data(boundingBoxes)
+        src = inputs['src'].value
+        kernelX = inputs['kernelX'].value
+        kernelY = inputs['kernelY'].value
+        ddepth = parameters['ddepth']
+        anchor = parameters['anchor']
+        delta = parameters['delta']
+        borderType = parameters['borderType']
+        dst = cv2.sepFilter2D(src=src, kernelX=kernelX, kernelY=kernelY, ddepth=ddepth, anchor=anchor, delta=delta, borderType=borderType)
+        outputs['dst'] = Data(dst)
 
 ### setIdentity ###
 
@@ -1854,11 +3158,12 @@ class OpenCVAuto2_SetIdentity(NormalElement):
     def get_attributes(self):
         return [Input('mtx', 'mtx')], \
                [Output('mtx', 'mtx')], \
-               []
+               [ScalarParameter('s', 's')]
 
     def process_inputs(self, inputs, outputs, parameters):
-        mtx = inputs['mtx'].value
-        mtx = cv2.setIdentity(mtx=mtx)
+        mtx = inputs['mtx'].value.copy()
+        s = parameters['s']
+        mtx = cv2.setIdentity(mtx=mtx, s=s)
         outputs['mtx'] = Data(mtx)
 
 ### solveCubic ###
@@ -1890,7 +3195,7 @@ class OpenCVAuto2_SolveP3P(NormalElement):
                 Input('distCoeffs', 'distCoeffs')], \
                [Output('rvecs', 'rvecs'),
                 Output('tvecs', 'tvecs')], \
-               [ComboboxParameter('flags', [('SOLVEPNP_P3P',2),('SOLVEPNP_AP3P',5)])]
+               [ComboboxParameter('flags', [('SOLVEPNP_ITERATIVE',0),('SOLVEPNP_EPNP',1),('SOLVEPNP_P3P',2),('SOLVEPNP_DLS',3),('SOLVEPNP_UPNP',4),('SOLVEPNP_AP3P',5),('SOLVEPNP_MAX_COUNT',6)])]
 
     def process_inputs(self, inputs, outputs, parameters):
         objectPoints = inputs['objectPoints'].value
@@ -1902,31 +3207,6 @@ class OpenCVAuto2_SolveP3P(NormalElement):
         outputs['rvecs'] = Data(rvecs)
         outputs['tvecs'] = Data(tvecs)
 
-### solvePnP ###
-
-class OpenCVAuto2_SolvePnP(NormalElement):
-    name = 'SolvePnP'
-    comment = '''solvePnP(objectPoints, imagePoints, cameraMatrix, distCoeffs[, rvec[, tvec[, useExtrinsicGuess[, flags]]]]) -> retval, rvec, tvec\n@brief Finds an object pose from 3D-2D point correspondences.\n\n@param objectPoints Array of object points in the object coordinate space, Nx3 1-channel or\n1xN/Nx1 3-channel, where N is the number of points. vector\<Point3f\> can be also passed here.\n@param imagePoints Array of corresponding image points, Nx2 1-channel or 1xN/Nx1 2-channel,\nwhere N is the number of points. vector\<Point2f\> can be also passed here.\n@param cameraMatrix Input camera matrix \f$A = \vecthreethree{fx}{0}{cx}{0}{fy}{cy}{0}{0}{1}\f$ .\n@param distCoeffs Input vector of distortion coefficients\n\f$(k_1, k_2, p_1, p_2[, k_3[, k_4, k_5, k_6 [, s_1, s_2, s_3, s_4[, \tau_x, \tau_y]]]])\f$ of\n4, 5, 8, 12 or 14 elements. If the vector is NULL/empty, the zero distortion coefficients are\nassumed.\n@param rvec Output rotation vector (see @ref Rodrigues ) that, together with tvec , brings points from\nthe model coordinate system to the camera coordinate system.\n@param tvec Output translation vector.\n@param useExtrinsicGuess Parameter used for #SOLVEPNP_ITERATIVE. If true (1), the function uses\nthe provided rvec and tvec values as initial approximations of the rotation and translation\nvectors, respectively, and further optimizes them.\n@param flags Method for solving a PnP problem:\n-   **SOLVEPNP_ITERATIVE** Iterative method is based on Levenberg-Marquardt optimization. In\nthis case the function finds such a pose that minimizes reprojection error, that is the sum\nof squared distances between the observed projections imagePoints and the projected (using\nprojectPoints ) objectPoints .\n-   **SOLVEPNP_P3P** Method is based on the paper of X.S. Gao, X.-R. Hou, J. Tang, H.-F. Chang\n"Complete Solution Classification for the Perspective-Three-Point Problem" (@cite gao2003complete).\nIn this case the function requires exactly four object and image points.\n-   **SOLVEPNP_AP3P** Method is based on the paper of T. Ke, S. Roumeliotis\n"An Efficient Algebraic Solution to the Perspective-Three-Point Problem" (@cite Ke17).\nIn this case the function requires exactly four object and image points.\n-   **SOLVEPNP_EPNP** Method has been introduced by F.Moreno-Noguer, V.Lepetit and P.Fua in the\npaper "EPnP: Efficient Perspective-n-Point Camera Pose Estimation" (@cite lepetit2009epnp).\n-   **SOLVEPNP_DLS** Method is based on the paper of Joel A. Hesch and Stergios I. Roumeliotis.\n"A Direct Least-Squares (DLS) Method for PnP" (@cite hesch2011direct).\n-   **SOLVEPNP_UPNP** Method is based on the paper of A.Penate-Sanchez, J.Andrade-Cetto,\nF.Moreno-Noguer. "Exhaustive Linearization for Robust Camera Pose and Focal Length\nEstimation" (@cite penate2013exhaustive). In this case the function also estimates the parameters \f$f_x\f$ and \f$f_y\f$\nassuming that both have the same value. Then the cameraMatrix is updated with the estimated\nfocal length.\n-   **SOLVEPNP_AP3P** Method is based on the paper of Tong Ke and Stergios I. Roumeliotis.\n"An Efficient Algebraic Solution to the Perspective-Three-Point Problem" (@cite Ke17). In this case the\nfunction requires exactly four object and image points.\n\nThe function estimates the object pose given a set of object points, their corresponding image\nprojections, as well as the camera matrix and the distortion coefficients, see the figure below\n(more precisely, the X-axis of the camera frame is pointing to the right, the Y-axis downward\nand the Z-axis forward).\n\n![](pnp.jpg)\n\nPoints expressed in the world frame \f$ \bf{X}_w \f$ are projected into the image plane \f$ \left[ u, v \right] \f$\nusing the perspective projection model \f$ \Pi \f$ and the camera intrinsic parameters matrix \f$ \bf{A} \f$:\n\n\f[\n\begin{align*}\n\begin{bmatrix}\nu \\\nv \\\n1\n\end{bmatrix} &=\n\bf{A} \hspace{0.1em} \Pi \hspace{0.2em} ^{c}\bf{M}_w\n\begin{bmatrix}\nX_{w} \\\nY_{w} \\\nZ_{w} \\\n1\n\end{bmatrix} \\\n\begin{bmatrix}\nu \\\nv \\\n1\n\end{bmatrix} &=\n\begin{bmatrix}\nf_x & 0 & c_x \\\n0 & f_y & c_y \\\n0 & 0 & 1\n\end{bmatrix}\n\begin{bmatrix}\n1 & 0 & 0 & 0 \\\n0 & 1 & 0 & 0 \\\n0 & 0 & 1 & 0\n\end{bmatrix}\n\begin{bmatrix}\nr_{11} & r_{12} & r_{13} & t_x \\\nr_{21} & r_{22} & r_{23} & t_y \\\nr_{31} & r_{32} & r_{33} & t_z \\\n0 & 0 & 0 & 1\n\end{bmatrix}\n\begin{bmatrix}\nX_{w} \\\nY_{w} \\\nZ_{w} \\\n1\n\end{bmatrix}\n\end{align*}\n\f]\n\nThe estimated pose is thus the rotation (`rvec`) and the translation (`tvec`) vectors that allow to transform\na 3D point expressed in the world frame into the camera frame:\n\n\f[\n\begin{align*}\n\begin{bmatrix}\nX_c \\\nY_c \\\nZ_c \\\n1\n\end{bmatrix} &=\n\hspace{0.2em} ^{c}\bf{M}_w\n\begin{bmatrix}\nX_{w} \\\nY_{w} \\\nZ_{w} \\\n1\n\end{bmatrix} \\\n\begin{bmatrix}\nX_c \\\nY_c \\\nZ_c \\\n1\n\end{bmatrix} &=\n\begin{bmatrix}\nr_{11} & r_{12} & r_{13} & t_x \\\nr_{21} & r_{22} & r_{23} & t_y \\\nr_{31} & r_{32} & r_{33} & t_z \\\n0 & 0 & 0 & 1\n\end{bmatrix}\n\begin{bmatrix}\nX_{w} \\\nY_{w} \\\nZ_{w} \\\n1\n\end{bmatrix}\n\end{align*}\n\f]\n\n@note\n-   An example of how to use solvePnP for planar augmented reality can be found at\nopencv_source_code/samples/python/plane_ar.py\n-   If you are using Python:\n- Numpy array slices won't work as input because solvePnP requires contiguous\narrays (enforced by the assertion using cv::Mat::checkVector() around line 55 of\nmodules/calib3d/src/solvepnp.cpp version 2.4.9)\n- The P3P algorithm requires image points to be in an array of shape (N,1,2) due\nto its calling of cv::undistortPoints (around line 75 of modules/calib3d/src/solvepnp.cpp version 2.4.9)\nwhich requires 2-channel information.\n- Thus, given some data D = np.array(...) where D.shape = (N,M), in order to use a subset of\nit as, e.g., imagePoints, one must effectively copy it into a new array: imagePoints =\nnp.ascontiguousarray(D[:,:2]).reshape((N,1,2))\n-   The methods **SOLVEPNP_DLS** and **SOLVEPNP_UPNP** cannot be used as the current implementations are\nunstable and sometimes give completely wrong results. If you pass one of these two\nflags, **SOLVEPNP_EPNP** method will be used instead.\n-   The minimum number of points is 4 in the general case. In the case of **SOLVEPNP_P3P** and **SOLVEPNP_AP3P**\nmethods, it is required to use exactly 4 points (the first 3 points are used to estimate all the solutions\nof the P3P problem, the last one is used to retain the best solution that minimizes the reprojection error).\n-   With **SOLVEPNP_ITERATIVE** method and `useExtrinsicGuess=true`, the minimum number of points is 3 (3 points\nare sufficient to compute a pose but there are up to 4 solutions). The initial solution should be close to the\nglobal solution to converge.'''
-
-    def get_attributes(self):
-        return [Input('objectPoints', 'objectPoints'),
-                Input('imagePoints', 'imagePoints'),
-                Input('cameraMatrix', 'cameraMatrix'),
-                Input('distCoeffs', 'distCoeffs')], \
-               [Output('rvec', 'rvec'),
-                Output('tvec', 'tvec')], \
-               [ComboboxParameter('flags', [('SOLVEPNP_ITERATIVE',0),('SOLVEPNP_P3P',2),('SOLVEPNP_AP3P',5),('SOLVEPNP_EPNP',1),('SOLVEPNP_DLS',3),('SOLVEPNP_UPNP',4)])]
-
-    def process_inputs(self, inputs, outputs, parameters):
-        objectPoints = inputs['objectPoints'].value
-        imagePoints = inputs['imagePoints'].value
-        cameraMatrix = inputs['cameraMatrix'].value
-        distCoeffs = inputs['distCoeffs'].value
-        flags = parameters['flags']
-        retval, rvec, tvec = cv2.solvePnP(objectPoints=objectPoints, imagePoints=imagePoints, cameraMatrix=cameraMatrix, distCoeffs=distCoeffs, flags=flags)
-        outputs['rvec'] = Data(rvec)
-        outputs['tvec'] = Data(tvec)
-
 ### solvePoly ###
 
 class OpenCVAuto2_SolvePoly(NormalElement):
@@ -1936,7 +3216,7 @@ class OpenCVAuto2_SolvePoly(NormalElement):
     def get_attributes(self):
         return [Input('coeffs', 'coeffs')], \
                [Output('roots', 'roots')], \
-               [IntParameter('maxIters', 'maxIters')]
+               [IntParameter('maxIters', 'maxIters', min_=0)]
 
     def process_inputs(self, inputs, outputs, parameters):
         coeffs = inputs['coeffs'].value
@@ -1955,7 +3235,7 @@ class OpenCVAuto2_SpatialGradient(NormalElement):
                [Output('dx', 'dx'),
                 Output('dy', 'dy')], \
                [SizeParameter('ksize', 'ksize'),
-                ComboboxParameter('borderType', [('BORDER_CONSTANT',0),('BORDER_DEFAULT',4),('BORDER_ISOLATED',16),('BORDER_REFLECT',2),('BORDER_REFLECT101',4),('BORDER_REFLECT_101',4),('BORDER_REPLICATE',1),('BORDER_TRANSPARENT',5),('BORDER_WRAP',3)])]
+                ComboboxParameter('borderType', [('BORDER_CONSTANT',0),('BORDER_REPLICATE',1),('BORDER_REFLECT',2),('BORDER_WRAP',3),('BORDER_DEFAULT',4),('BORDER_REFLECT101',4),('BORDER_REFLECT_101',4),('BORDER_TRANSPARENT',5),('BORDER_ISOLATED',16)])]
 
     def process_inputs(self, inputs, outputs, parameters):
         src = inputs['src'].value
@@ -1981,29 +3261,6 @@ class OpenCVAuto2_Split(NormalElement):
         mv = cv2.split(m=m)
         outputs['mv'] = Data(mv)
 
-### sqrBoxFilter ###
-
-class OpenCVAuto2_SqrBoxFilter(NormalElement):
-    name = 'SqrBoxFilter'
-    comment = '''sqrBoxFilter(_src, ddepth, ksize[, _dst[, anchor[, normalize[, borderType]]]]) -> _dst\n@brief Calculates the normalized sum of squares of the pixel values overlapping the filter.\n\nFor every pixel \f$ (x, y) \f$ in the source image, the function calculates the sum of squares of those neighboring\npixel values which overlap the filter placed over the pixel \f$ (x, y) \f$.\n\nThe unnormalized square box filter can be useful in computing local image statistics such as the the local\nvariance and standard deviation around the neighborhood of a pixel.\n\n@param _src input image\n@param _dst output image of the same size and type as _src\n@param ddepth the output image depth (-1 to use src.depth())\n@param ksize kernel size\n@param anchor kernel anchor point. The default value of Point(-1, -1) denotes that the anchor is at the kernel\ncenter.\n@param normalize flag, specifying whether the kernel is to be normalized by it's area or not.\n@param borderType border mode used to extrapolate pixels outside of the image, see #BorderTypes\n@sa boxFilter'''
-
-    def get_attributes(self):
-        return [Input('_src', '_src')], \
-               [Output('_dst', '_dst')], \
-               [ComboboxParameter('ddepth', [('NONE',0),('CV_8U',0),('CV_8UC1',0),('CV_8UC2',8),('CV_8UC3',16),('CV_8UC4',24),('CV_8S',1),('CV_8SC1',1),('CV_8SC2',9),('CV_8SC3',17),('CV_8SC4',25),('CV_16U',2),('CV_16UC1',2),('CV_16UC2',10),('CV_16UC3',18),('CV_16UC4',26),('CV_16S',3),('CV_16SC1',3),('CV_16SC2',11),('CV_16SC3',19),('CV_16SC4',27),('CV_32S',4),('CV_32SC1',4),('CV_32SC2',12),('CV_32SC3',20),('CV_32SC4',28),('CV_32F',5),('CV_32FC1',5),('CV_32FC2',13),('CV_32FC3',21),('CV_32FC4',29),('CV_64F',6),('CV_64FC1',6),('CV_64FC2',14),('CV_64FC3',22),('CV_64FC4',30)]),
-                SizeParameter('ksize', 'ksize'),
-                PointParameter('anchor', 'anchor'),
-                ComboboxParameter('borderType', [('BORDER_CONSTANT',0),('BORDER_DEFAULT',4),('BORDER_ISOLATED',16),('BORDER_REFLECT',2),('BORDER_REFLECT101',4),('BORDER_REFLECT_101',4),('BORDER_REPLICATE',1),('BORDER_TRANSPARENT',5),('BORDER_WRAP',3)])]
-
-    def process_inputs(self, inputs, outputs, parameters):
-        _src = inputs['_src'].value
-        ddepth = parameters['ddepth']
-        ksize = parameters['ksize']
-        anchor = parameters['anchor']
-        borderType = parameters['borderType']
-        _dst = cv2.sqrBoxFilter(_src=_src, ddepth=ddepth, ksize=ksize, anchor=anchor, borderType=borderType)
-        outputs['_dst'] = Data(_dst)
-
 ### sqrt ###
 
 class OpenCVAuto2_Sqrt(NormalElement):
@@ -2019,6 +3276,76 @@ class OpenCVAuto2_Sqrt(NormalElement):
         src = inputs['src'].value
         dst = cv2.sqrt(src=src)
         outputs['dst'] = Data(dst)
+
+### stereoRectify ###
+
+class OpenCVAuto2_StereoRectify(NormalElement):
+    name = 'StereoRectify'
+    comment = '''stereoRectify(cameraMatrix1, distCoeffs1, cameraMatrix2, distCoeffs2, imageSize, R, T[, R1[, R2[, P1[, P2[, Q[, flags[, alpha[, newImageSize]]]]]]]]) -> R1, R2, P1, P2, Q, validPixROI1, validPixROI2\n@brief Computes rectification transforms for each head of a calibrated stereo camera.\n\n@param cameraMatrix1 First camera matrix.\n@param distCoeffs1 First camera distortion parameters.\n@param cameraMatrix2 Second camera matrix.\n@param distCoeffs2 Second camera distortion parameters.\n@param imageSize Size of the image used for stereo calibration.\n@param R Rotation matrix between the coordinate systems of the first and the second cameras.\n@param T Translation vector between coordinate systems of the cameras.\n@param R1 Output 3x3 rectification transform (rotation matrix) for the first camera.\n@param R2 Output 3x3 rectification transform (rotation matrix) for the second camera.\n@param P1 Output 3x4 projection matrix in the new (rectified) coordinate systems for the first\ncamera.\n@param P2 Output 3x4 projection matrix in the new (rectified) coordinate systems for the second\ncamera.\n@param Q Output \f$4 \times 4\f$ disparity-to-depth mapping matrix (see reprojectImageTo3D ).\n@param flags Operation flags that may be zero or CALIB_ZERO_DISPARITY . If the flag is set,\nthe function makes the principal points of each camera have the same pixel coordinates in the\nrectified views. And if the flag is not set, the function may still shift the images in the\nhorizontal or vertical direction (depending on the orientation of epipolar lines) to maximize the\nuseful image area.\n@param alpha Free scaling parameter. If it is -1 or absent, the function performs the default\nscaling. Otherwise, the parameter should be between 0 and 1. alpha=0 means that the rectified\nimages are zoomed and shifted so that only valid pixels are visible (no black areas after\nrectification). alpha=1 means that the rectified image is decimated and shifted so that all the\npixels from the original images from the cameras are retained in the rectified images (no source\nimage pixels are lost). Obviously, any intermediate value yields an intermediate result between\nthose two extreme cases.\n@param newImageSize New image resolution after rectification. The same size should be passed to\ninitUndistortRectifyMap (see the stereo_calib.cpp sample in OpenCV samples directory). When (0,0)\nis passed (default), it is set to the original imageSize . Setting it to larger value can help you\npreserve details in the original image, especially when there is a big radial distortion.\n@param validPixROI1 Optional output rectangles inside the rectified images where all the pixels\nare valid. If alpha=0 , the ROIs cover the whole images. Otherwise, they are likely to be smaller\n(see the picture below).\n@param validPixROI2 Optional output rectangles inside the rectified images where all the pixels\nare valid. If alpha=0 , the ROIs cover the whole images. Otherwise, they are likely to be smaller\n(see the picture below).\n\nThe function computes the rotation matrices for each camera that (virtually) make both camera image\nplanes the same plane. Consequently, this makes all the epipolar lines parallel and thus simplifies\nthe dense stereo correspondence problem. The function takes the matrices computed by stereoCalibrate\nas input. As output, it provides two rotation matrices and also two projection matrices in the new\ncoordinates. The function distinguishes the following two cases:\n\n-   **Horizontal stereo**: the first and the second camera views are shifted relative to each other\nmainly along the x axis (with possible small vertical shift). In the rectified images, the\ncorresponding epipolar lines in the left and right cameras are horizontal and have the same\ny-coordinate. P1 and P2 look like:\n\n\f[\texttt{P1} = \begin{bmatrix} f & 0 & cx_1 & 0 \\ 0 & f & cy & 0 \\ 0 & 0 & 1 & 0 \end{bmatrix}\f]\n\n\f[\texttt{P2} = \begin{bmatrix} f & 0 & cx_2 & T_x*f \\ 0 & f & cy & 0 \\ 0 & 0 & 1 & 0 \end{bmatrix} ,\f]\n\nwhere \f$T_x\f$ is a horizontal shift between the cameras and \f$cx_1=cx_2\f$ if\nCALIB_ZERO_DISPARITY is set.\n\n-   **Vertical stereo**: the first and the second camera views are shifted relative to each other\nmainly in vertical direction (and probably a bit in the horizontal direction too). The epipolar\nlines in the rectified images are vertical and have the same x-coordinate. P1 and P2 look like:\n\n\f[\texttt{P1} = \begin{bmatrix} f & 0 & cx & 0 \\ 0 & f & cy_1 & 0 \\ 0 & 0 & 1 & 0 \end{bmatrix}\f]\n\n\f[\texttt{P2} = \begin{bmatrix} f & 0 & cx & 0 \\ 0 & f & cy_2 & T_y*f \\ 0 & 0 & 1 & 0 \end{bmatrix} ,\f]\n\nwhere \f$T_y\f$ is a vertical shift between the cameras and \f$cy_1=cy_2\f$ if CALIB_ZERO_DISPARITY is\nset.\n\nAs you can see, the first three columns of P1 and P2 will effectively be the new "rectified" camera\nmatrices. The matrices, together with R1 and R2 , can then be passed to initUndistortRectifyMap to\ninitialize the rectification map for each camera.\n\nSee below the screenshot from the stereo_calib.cpp sample. Some red horizontal lines pass through\nthe corresponding image regions. This means that the images are well rectified, which is what most\nstereo correspondence algorithms rely on. The green rectangles are roi1 and roi2 . You see that\ntheir interiors are all valid pixels.\n\n![image](pics/stereo_undistort.jpg)'''
+
+    def get_attributes(self):
+        return [Input('cameraMatrix1', 'cameraMatrix1'),
+                Input('distCoeffs1', 'distCoeffs1'),
+                Input('cameraMatrix2', 'cameraMatrix2'),
+                Input('distCoeffs2', 'distCoeffs2'),
+                Input('imageSize', 'imageSize'),
+                Input('R', 'R'),
+                Input('T', 'T'),
+                Input('newImageSize', 'newImageSize', optional=True)], \
+               [Output('R1', 'R1'),
+                Output('R2', 'R2'),
+                Output('P1', 'P1'),
+                Output('P2', 'P2'),
+                Output('Q', 'Q'),
+                Output('validPixROI1', 'validPixROI1'),
+                Output('validPixROI2', 'validPixROI2')], \
+               [ComboboxParameter('flags', [('CALIB_CB_ADAPTIVE_THRESH',1),('CALIB_CB_SYMMETRIC_GRID',1),('CALIB_USE_INTRINSIC_GUESS',1),('CALIB_CB_ASYMMETRIC_GRID',2),('CALIB_CB_NORMALIZE_IMAGE',2),('CALIB_FIX_ASPECT_RATIO',2),('CALIB_CB_CLUSTERING',4),('CALIB_CB_FILTER_QUADS',4),('CALIB_FIX_PRINCIPAL_POINT',4),('CALIB_CB_FAST_CHECK',8),('CALIB_ZERO_TANGENT_DIST',8),('CALIB_FIX_FOCAL_LENGTH',16),('CALIB_FIX_K1',32),('CALIB_FIX_K2',64),('CALIB_FIX_K3',128),('CALIB_FIX_INTRINSIC',256),('CALIB_SAME_FOCAL_LENGTH',512),('CALIB_ZERO_DISPARITY',1024),('CALIB_FIX_K4',2048),('CALIB_FIX_K5',4096),('CALIB_FIX_K6',8192),('CALIB_RATIONAL_MODEL',16384),('CALIB_THIN_PRISM_MODEL',32768),('CALIB_FIX_S1_S2_S3_S4',65536),('CALIB_USE_LU',131072),('CALIB_TILTED_MODEL',262144),('CALIB_FIX_TAUX_TAUY',524288),('CALIB_USE_QR',1048576),('CALIB_FIX_TANGENT_DIST',2097152),('CALIB_USE_EXTRINSIC_GUESS',4194304)]),
+                FloatParameter('alpha', 'alpha')]
+
+    def process_inputs(self, inputs, outputs, parameters):
+        cameraMatrix1 = inputs['cameraMatrix1'].value
+        distCoeffs1 = inputs['distCoeffs1'].value
+        cameraMatrix2 = inputs['cameraMatrix2'].value
+        distCoeffs2 = inputs['distCoeffs2'].value
+        imageSize = inputs['imageSize'].value
+        R = inputs['R'].value
+        T = inputs['T'].value
+        newImageSize = inputs['newImageSize'].value
+        flags = parameters['flags']
+        alpha = parameters['alpha']
+        R1, R2, P1, P2, Q, validPixROI1, validPixROI2 = cv2.stereoRectify(cameraMatrix1=cameraMatrix1, distCoeffs1=distCoeffs1, cameraMatrix2=cameraMatrix2, distCoeffs2=distCoeffs2, imageSize=imageSize, R=R, T=T, newImageSize=newImageSize, flags=flags, alpha=alpha)
+        outputs['R1'] = Data(R1)
+        outputs['R2'] = Data(R2)
+        outputs['P1'] = Data(P1)
+        outputs['P2'] = Data(P2)
+        outputs['Q'] = Data(Q)
+        outputs['validPixROI1'] = Data(validPixROI1)
+        outputs['validPixROI2'] = Data(validPixROI2)
+
+### stereoRectifyUncalibrated ###
+
+class OpenCVAuto2_StereoRectifyUncalibrated(NormalElement):
+    name = 'StereoRectifyUncalibrated'
+    comment = '''stereoRectifyUncalibrated(points1, points2, F, imgSize[, H1[, H2[, threshold]]]) -> retval, H1, H2\n@brief Computes a rectification transform for an uncalibrated stereo camera.\n\n@param points1 Array of feature points in the first image.\n@param points2 The corresponding points in the second image. The same formats as in\nfindFundamentalMat are supported.\n@param F Input fundamental matrix. It can be computed from the same set of point pairs using\nfindFundamentalMat .\n@param imgSize Size of the image.\n@param H1 Output rectification homography matrix for the first image.\n@param H2 Output rectification homography matrix for the second image.\n@param threshold Optional threshold used to filter out the outliers. If the parameter is greater\nthan zero, all the point pairs that do not comply with the epipolar geometry (that is, the points\nfor which \f$|\texttt{points2[i]}^T*\texttt{F}*\texttt{points1[i]}|>\texttt{threshold}\f$ ) are\nrejected prior to computing the homographies. Otherwise, all the points are considered inliers.\n\nThe function computes the rectification transformations without knowing intrinsic parameters of the\ncameras and their relative position in the space, which explains the suffix "uncalibrated". Another\nrelated difference from stereoRectify is that the function outputs not the rectification\ntransformations in the object (3D) space, but the planar perspective transformations encoded by the\nhomography matrices H1 and H2 . The function implements the algorithm @cite Hartley99 .\n\n@note\nWhile the algorithm does not need to know the intrinsic parameters of the cameras, it heavily\ndepends on the epipolar geometry. Therefore, if the camera lenses have a significant distortion,\nit would be better to correct it before computing the fundamental matrix and calling this\nfunction. For example, distortion coefficients can be estimated for each head of stereo camera\nseparately by using calibrateCamera . Then, the images can be corrected using undistort , or\njust the point coordinates can be corrected with undistortPoints .'''
+
+    def get_attributes(self):
+        return [Input('points1', 'points1'),
+                Input('points2', 'points2'),
+                Input('F', 'F')], \
+               [Output('H1', 'H1'),
+                Output('H2', 'H2')], \
+               [SizeParameter('imgSize', 'imgSize'),
+                FloatParameter('threshold', 'threshold')]
+
+    def process_inputs(self, inputs, outputs, parameters):
+        points1 = inputs['points1'].value
+        points2 = inputs['points2'].value
+        F = inputs['F'].value
+        imgSize = parameters['imgSize']
+        threshold = parameters['threshold']
+        retval, H1, H2 = cv2.stereoRectifyUncalibrated(points1=points1, points2=points2, F=F, imgSize=imgSize, threshold=threshold)
+        outputs['H1'] = Data(H1)
+        outputs['H2'] = Data(H2)
 
 ### stylization ###
 
@@ -2050,7 +3377,7 @@ class OpenCVAuto2_Subtract(NormalElement):
                 Input('src2', 'src2'),
                 Input('mask', 'mask', optional=True)], \
                [Output('dst', 'dst')], \
-               [ComboboxParameter('dtype', [('NONE',0),('CV_8U',0),('CV_8UC1',0),('CV_8UC2',8),('CV_8UC3',16),('CV_8UC4',24),('CV_8S',1),('CV_8SC1',1),('CV_8SC2',9),('CV_8SC3',17),('CV_8SC4',25),('CV_16U',2),('CV_16UC1',2),('CV_16UC2',10),('CV_16UC3',18),('CV_16UC4',26),('CV_16S',3),('CV_16SC1',3),('CV_16SC2',11),('CV_16SC3',19),('CV_16SC4',27),('CV_32S',4),('CV_32SC1',4),('CV_32SC2',12),('CV_32SC3',20),('CV_32SC4',28),('CV_32F',5),('CV_32FC1',5),('CV_32FC2',13),('CV_32FC3',21),('CV_32FC4',29),('CV_64F',6),('CV_64FC1',6),('CV_64FC2',14),('CV_64FC3',22),('CV_64FC4',30)])]
+               [ComboboxParameter('dtype', [('NONE',-1),('CV_8U',0),('CV_8UC1',0),('CV_8S',1),('CV_8SC1',1),('CV_16U',2),('CV_16UC1',2),('CV_16S',3),('CV_16SC1',3),('CV_32S',4),('CV_32SC1',4),('CV_32F',5),('CV_32FC1',5),('CV_64F',6),('CV_64FC1',6),('CV_8UC2',8),('CV_8SC2',9),('CV_16UC2',10),('CV_16SC2',11),('CV_32SC2',12),('CV_32FC2',13),('CV_64FC2',14),('CV_8UC3',16),('CV_8SC3',17),('CV_16UC3',18),('CV_16SC3',19),('CV_32SC3',20),('CV_32FC3',21),('CV_64FC3',22),('CV_8UC4',24),('CV_8SC4',25),('CV_16UC4',26),('CV_16SC4',27),('CV_32SC4',28),('CV_32FC4',29),('CV_64FC4',30)])]
 
     def process_inputs(self, inputs, outputs, parameters):
         src1 = inputs['src1'].value
@@ -2094,7 +3421,7 @@ class OpenCVAuto2_Threshold(NormalElement):
                [Output('dst', 'dst')], \
                [FloatParameter('thresh', 'thresh'),
                 FloatParameter('maxval', 'maxval'),
-                ComboboxParameter('type', [('THRESH_BINARY',0),('THRESH_BINARY_INV',1),('THRESH_MASK',7),('THRESH_OTSU',8),('THRESH_TOZERO',3),('THRESH_TOZERO_INV',4),('THRESH_TRIANGLE',16),('THRESH_TRUNC',2)])]
+                ComboboxParameter('type', [('THRESH_BINARY',0),('THRESH_BINARY_INV',1),('THRESH_TRUNC',2),('THRESH_TOZERO',3),('THRESH_TOZERO_INV',4),('THRESH_MASK',7),('THRESH_OTSU',8),('THRESH_TRIANGLE',16)])]
 
     def process_inputs(self, inputs, outputs, parameters):
         src = inputs['src'].value
@@ -2191,7 +3518,9 @@ class OpenCVAuto2_UndistortPoints(NormalElement):
     def get_attributes(self):
         return [Input('src', 'src'),
                 Input('cameraMatrix', 'cameraMatrix'),
-                Input('distCoeffs', 'distCoeffs')], \
+                Input('distCoeffs', 'distCoeffs'),
+                Input('R', 'R', optional=True),
+                Input('P', 'P', optional=True)], \
                [Output('dst', 'dst')], \
                []
 
@@ -2199,8 +3528,34 @@ class OpenCVAuto2_UndistortPoints(NormalElement):
         src = inputs['src'].value
         cameraMatrix = inputs['cameraMatrix'].value
         distCoeffs = inputs['distCoeffs'].value
-        dst = cv2.undistortPoints(src=src, cameraMatrix=cameraMatrix, distCoeffs=distCoeffs)
+        R = inputs['R'].value
+        P = inputs['P'].value
+        dst = cv2.undistortPoints(src=src, cameraMatrix=cameraMatrix, distCoeffs=distCoeffs, R=R, P=P)
         outputs['dst'] = Data(dst)
+
+### validateDisparity ###
+
+class OpenCVAuto2_ValidateDisparity(NormalElement):
+    name = 'ValidateDisparity'
+    comment = '''validateDisparity(disparity, cost, minDisparity, numberOfDisparities[, disp12MaxDisp]) -> disparity
+.'''
+
+    def get_attributes(self):
+        return [Input('disparity', 'disparity'),
+                Input('cost', 'cost')], \
+               [Output('disparity', 'disparity')], \
+               [IntParameter('minDisparity', 'minDisparity'),
+                IntParameter('numberOfDisparities', 'numberOfDisparities'),
+                IntParameter('disp12MaxDisp', 'disp12MaxDisp')]
+
+    def process_inputs(self, inputs, outputs, parameters):
+        disparity = inputs['disparity'].value.copy()
+        cost = inputs['cost'].value
+        minDisparity = parameters['minDisparity']
+        numberOfDisparities = parameters['numberOfDisparities']
+        disp12MaxDisp = parameters['disp12MaxDisp']
+        disparity = cv2.validateDisparity(disparity=disparity, cost=cost, minDisparity=minDisparity, numberOfDisparities=numberOfDisparities, disp12MaxDisp=disp12MaxDisp)
+        outputs['disparity'] = Data(disparity)
 
 ### vconcat ###
 
@@ -2229,8 +3584,8 @@ class OpenCVAuto2_WarpAffine(NormalElement):
                 Input('M', 'M')], \
                [Output('dst', 'dst')], \
                [SizeParameter('dsize', 'dsize'),
-                ComboboxParameter('flags', [('WARP_INVERSE_MAP',16),('INTER_AREA',3),('INTER_BITS',5),('INTER_BITS2',10),('INTER_CUBIC',2),('INTER_LANCZOS4',4),('INTER_LINEAR',1),('INTER_LINEAR_EXACT',5),('INTER_MAX',7),('INTER_NEAREST',0),('INTER_TAB_SIZE',32),('INTER_TAB_SIZE2',1024)]),
-                ComboboxParameter('borderMode', [('BORDER_TRANSPARENT',5),('BORDER_CONSTANT',0),('BORDER_DEFAULT',4),('BORDER_ISOLATED',16),('BORDER_REFLECT',2),('BORDER_REFLECT101',4),('BORDER_REFLECT_101',4),('BORDER_REPLICATE',1),('BORDER_WRAP',3)]),
+                ComboboxParameter('flags', [('WARP_POLAR_LINEAR',0),('INTER_NEAREST',0),('INTER_LINEAR',1),('INTER_CUBIC',2),('INTER_AREA',3),('INTER_LANCZOS4',4),('INTER_BITS',5),('INTER_LINEAR_EXACT',5),('INTER_MAX',7),('WARP_FILL_OUTLIERS',8),('INTER_BITS2',10),('WARP_INVERSE_MAP',16),('INTER_TAB_SIZE',32),('WARP_POLAR_LOG',256),('INTER_TAB_SIZE2',1024)]),
+                ComboboxParameter('borderMode', [('BORDER_CONSTANT',0),('BORDER_REPLICATE',1),('BORDER_REFLECT',2),('BORDER_WRAP',3),('BORDER_DEFAULT',4),('BORDER_REFLECT101',4),('BORDER_REFLECT_101',4),('BORDER_TRANSPARENT',5),('BORDER_ISOLATED',16)]),
                 ScalarParameter('borderValue', 'borderValue')]
 
     def process_inputs(self, inputs, outputs, parameters):
@@ -2254,8 +3609,8 @@ class OpenCVAuto2_WarpPerspective(NormalElement):
                 Input('M', 'M')], \
                [Output('dst', 'dst')], \
                [SizeParameter('dsize', 'dsize'),
-                ComboboxParameter('flags', [('INTER_LINEAR',1),('INTER_NEAREST',0),('WARP_INVERSE_MAP',16)]),
-                ComboboxParameter('borderMode', [('BORDER_CONSTANT',0),('BORDER_REPLICATE',1)]),
+                ComboboxParameter('flags', [('INTER_NEAREST',0),('WARP_POLAR_LINEAR',0),('INTER_LINEAR',1),('INTER_CUBIC',2),('INTER_AREA',3),('INTER_LANCZOS4',4),('INTER_BITS',5),('INTER_LINEAR_EXACT',5),('INTER_MAX',7),('WARP_FILL_OUTLIERS',8),('INTER_BITS2',10),('WARP_INVERSE_MAP',16),('INTER_TAB_SIZE',32),('WARP_POLAR_LOG',256),('INTER_TAB_SIZE2',1024)]),
+                ComboboxParameter('borderMode', [('BORDER_CONSTANT',0),('BORDER_REPLICATE',1),('BORDER_REFLECT',2),('BORDER_WRAP',3),('BORDER_DEFAULT',4),('BORDER_REFLECT101',4),('BORDER_REFLECT_101',4),('BORDER_TRANSPARENT',5),('BORDER_ISOLATED',16)]),
                 ScalarParameter('borderValue', 'borderValue')]
 
     def process_inputs(self, inputs, outputs, parameters):
@@ -2279,8 +3634,8 @@ class OpenCVAuto2_WarpPolar(NormalElement):
                [Output('dst', 'dst')], \
                [SizeParameter('dsize', 'dsize'),
                 PointParameter('center', 'center'),
-                IntParameter('maxRadius', 'maxRadius'),
-                ComboboxParameter('flags', [('WARP_POLAR_LINEAR',0),('WARP_POLAR_LOG',256),('WARP_INVERSE_MAP',16),('INTER_AREA',3),('INTER_BITS',5),('INTER_BITS2',10),('INTER_CUBIC',2),('INTER_LANCZOS4',4),('INTER_LINEAR',1),('INTER_LINEAR_EXACT',5),('INTER_MAX',7),('INTER_NEAREST',0),('INTER_TAB_SIZE',32),('INTER_TAB_SIZE2',1024)])]
+                IntParameter('maxRadius', 'maxRadius', min_=0),
+                ComboboxParameter('flags', [('WARP_POLAR_LINEAR',0),('INTER_NEAREST',0),('INTER_LINEAR',1),('INTER_CUBIC',2),('INTER_AREA',3),('INTER_LANCZOS4',4),('INTER_BITS',5),('INTER_LINEAR_EXACT',5),('INTER_MAX',7),('WARP_FILL_OUTLIERS',8),('INTER_BITS2',10),('WARP_INVERSE_MAP',16),('INTER_TAB_SIZE',32),('WARP_POLAR_LOG',256),('INTER_TAB_SIZE2',1024)])]
 
     def process_inputs(self, inputs, outputs, parameters):
         src = inputs['src'].value
@@ -2305,7 +3660,7 @@ class OpenCVAuto2_Watershed(NormalElement):
 
     def process_inputs(self, inputs, outputs, parameters):
         image = inputs['image'].value
-        markers = inputs['markers'].value
+        markers = inputs['markers'].value.copy()
         markers = cv2.watershed(image=image, markers=markers)
         outputs['markers'] = Data(markers)
 

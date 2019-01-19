@@ -1,4 +1,6 @@
 import inspect
+import json
+import os
 import re
 from collections import OrderedDict
 
@@ -6,7 +8,7 @@ import cv2
 
 
 UNKNOWN = ""
-MATRIX = "matrix"
+MATRIX = "mat"
 BOOL = "bool"
 INT = "int"
 FLOAT = "float"
@@ -17,9 +19,20 @@ POINT = "point"
 ENUM = "enum"
 
 
+def get_typelist():
+    try:
+        file = os.path.dirname(__file__) + "/typelist.json"
+        return json.load(open(file))
+    except Exception:
+        return {}
+
+
+typelist = get_typelist()
+
+
 class Argument:
     def __init__(self, name, function, optional=None, description=""):
-        self.name = name
+        self.name = name if name not in ("from","import","def") else name + "_"
         self.function = function
         self.optional = optional
         self.description = description
@@ -42,7 +55,7 @@ class Argument:
             self.type = ENUM
             self.enum = self.auto_constants()
             self.multi_enum = True
-        elif name in ("interpolation","bordermode","bordertype","ddepth","dtype","code") or (name == "type" and self.function == "threshold"):
+        elif name in ("interpolation","bordermode","bordertype","ddepth","dtype","code","linetype") or (name == "type" and self.function == "threshold"):
             self.type = ENUM
             self.enum = self.auto_constants()
             self.multi_enum = False
@@ -62,6 +75,17 @@ class Argument:
             self.type = BOOL
         elif "name" in name or name in ("text","string"):
             self.type = STRING
+        elif self.function.lower() + ":" + name.lower() in typelist:
+            self.type = typelist[self.function.lower() + ":" + name.lower()]
+            print("Reading type from typelist:", self.function, self.name, self.type)
+
+        if name in ("radius",):
+            self.min = 1
+            self.max = 1000
+
+        if name == "thickness":
+            self.min = -1
+            self.max = 100
 
     def all_constants(self, prefix, consts):
         for name, value in vars(cv2).items():
@@ -87,19 +111,20 @@ class Argument:
             "linetype": ["LINE_"],
             "interpolationflag": ["INTER_"],
             "code": ["COLOR_"],
+            "hersheyfonts": ["FONT_HERSHEY_"]
         }
 
         consts = self.detect_constants()
 
         if self.name in ("ddepth","dtype"):
-            consts["NONE"] = 0
+            consts["NONE"] = -1
 
         if self.name in types:
             for prefix in types[self.name]:
                 self.all_constants(prefix, consts)
 
         for name in consts.copy():
-            prefix = re.match(r"([A-Z0-9]_).*", name)
+            prefix = re.match(r"([A-Z0-9]+_).*", name)
             if not prefix: continue
             prefix = prefix.groups(1)
             self.all_constants(prefix, consts)
@@ -111,9 +136,8 @@ class Argument:
                     for prefix in prefixes:
                         self.all_constants(prefix, consts)
 
-        for k in consts:
-            if "cv2" in k:
-                print("DUPA")
+        if self.name in ("ddepth", "dtype"):
+            consts = dict(filter(lambda kv: not kv[0].startswith("CV_FEAT"), consts.items()))
 
         return consts
 
@@ -125,10 +149,15 @@ class Argument:
         return "Output('{self.name}', '{self.name}')".format(**locals())
 
     def source_param(self):
+
+        minmax = ""
+        if self.min is not None: minmax += ", min_={self.min}".format(**locals())
+        if self.max is not None: minmax += ", max_={self.max}".format(**locals())
+
         if self.type == INT:
-            return "IntParameter('{self.name}', '{self.name}')".format(**locals())
+            return "IntParameter('{self.name}', '{self.name}'{minmax})".format(**locals())
         if self.type == FLOAT:
-            return "FloatParameter('{self.name}', '{self.name}')".format(**locals())
+            return "FloatParameter('{self.name}', '{self.name}{minmax}')".format(**locals())
         if self.type == SIZE:
             return "SizeParameter('{self.name}', '{self.name}')".format(**locals())
         if self.type == POINT:
@@ -136,10 +165,10 @@ class Argument:
         if self.type == STRING:
             return "TextParameter('{self.name}', '{self.name}')".format(**locals())
         if self.type == SCALAR:
-            return "ScalarParameter('{self.name}', '{self.name}')".format(**locals())
+            return "ScalarParameter('{self.name}', '{self.name}'{minmax})".format(**locals())
         if self.type == ENUM:
             if not self.enum: raise Exception("No values given for enum")
-            values = ["('" + name + "'," + repr(value) + ")" for name, value in self.enum.items()]
+            values = ["('" + name + "'," + repr(value) + ")" for name, value in sorted(self.enum.items(), key=lambda kv: kv[1])]
             values = ",".join(values)
             return "ComboboxParameter('{self.name}', [{values}])".format(**locals())
         raise Exception("Cannot get parameter source for argument " + self.name)
@@ -228,7 +257,7 @@ class {class_name}(NormalElement):
 
     def source(self):
         element_name = self.name[0].upper() + self.name[1:]
-        element_comment = self.doc.replace("\n.   ","\\n")
+        element_comment = self.doc.replace("\n.   ","\\n").replace("'''","'")
         class_name = "OpenCVAuto2_" + element_name
 
         args = []
@@ -241,7 +270,7 @@ class {class_name}(NormalElement):
                     print("WARN Ignoring optional argument:", arg)
                     continue
                 else:
-                    raise Exception("Unknown type of mandatory argument:", arg)
+                    raise Exception("Unknown type of mandatory argument: {}".format(arg))
             else:
                 args.append(arg)
 
@@ -275,7 +304,8 @@ class {class_name}(NormalElement):
 
         for arg in inputs:
             if code: code += "\n" + self.code_indent
-            code += "{arg.name} = inputs['{arg.name}'].value".format(**locals())
+            do_copy = ".copy()" if arg.name in self.ret else ""
+            code += "{arg.name} = inputs['{arg.name}'].value{do_copy}".format(**locals())
 
         for arg in params:
             if code: code += "\n" + self.code_indent
@@ -312,7 +342,7 @@ import cv2
 from cvlab.diagram.elements.base import *
 
 """
-    for name, obj in vars(cv2).items():
+    for name, obj in sorted(vars(cv2).items()):
         try:
             if not inspect.isbuiltin(obj) and not inspect.isfunction(obj): continue
             print("INFO", name)
