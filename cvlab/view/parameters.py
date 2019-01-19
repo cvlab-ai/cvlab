@@ -278,13 +278,13 @@ class GuiMultiNumberParameter(QHBoxLayout):
         self.label = QLabel(self.parameter.name)
         self.addWidget(self.label)
 
-        min_val = self.parameter.min_val
-        max_val = self.parameter.max_val
+        min_ = self.parameter.min
+        max_ = self.parameter.max
 
         self.spins = []
         for i in range(count):
             spin = QSpinBox()
-            spin.setRange(min_val, max_val)
+            spin.setRange(min_, max_)
             self.addWidget(spin)
             self.spins.append(spin)
 

@@ -112,9 +112,8 @@ class FloatParameter(NumberParameter):
 class SizeParameter(Parameter):
     def __init__(self, id, name=None, value=(1, 1)):
         super(SizeParameter, self).__init__(id, name, value)
-        self.min_val = 0
-        big_int = pow(10, 9)
-        self.max_val = big_int
+        self.min = 0
+        self.max = 10**9
 
     def set(self, value):
         Parameter.set(self, tuple(value))
@@ -123,17 +122,18 @@ class SizeParameter(Parameter):
 class PointParameter(Parameter):
     def __init__(self, id, name=None, value=(0, 0)):
         super(PointParameter, self).__init__(id, name, value)
-        self.min_val = -1
-        big_int = pow(10, 9)
-        self.max_val = big_int
+        self.min = -1
+        self.max = 10**9
 
     def set(self, value):
         Parameter.set(self, tuple(value))
 
 
 class ScalarParameter(Parameter):
-    def __init__(self, id, name=None, value=(0, 0, 0, 0)):
+    def __init__(self, id, name=None, value=(0, 0, 0, 0), min_=-1000, max_=1000):
         super(ScalarParameter, self).__init__(id, name, value)
+        self.min = min_
+        self.max = max_
 
     def set(self, value):
         value = list(value) + [0,0,0,0]
