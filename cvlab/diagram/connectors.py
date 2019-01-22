@@ -1,4 +1,3 @@
-
 class Input:
     def __init__(self, id, name=None, multiple=False, optional=False):
         super(Input, self).__init__()

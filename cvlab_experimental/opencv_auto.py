@@ -1,5 +1,3 @@
-
-
 import cv2
 
 from cvlab.diagram.elements.base import *

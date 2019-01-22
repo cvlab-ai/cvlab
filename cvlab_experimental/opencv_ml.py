@@ -1,7 +1,3 @@
-
-
-
-
 from cvlab.diagram.elements.base import *
 
 from .ml import Trainable

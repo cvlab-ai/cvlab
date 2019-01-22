@@ -1,6 +1,3 @@
-
-
-
 class GeneralException(Exception):
     pass
 

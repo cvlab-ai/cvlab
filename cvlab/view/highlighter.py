@@ -1,5 +1,5 @@
-from PyQt5 import QtWidgets, QtGui
-from PyQt5.QtGui import QColor, QSyntaxHighlighter, QFont, QTextCharFormat
+from PyQt5.QtWidgets import *
+from PyQt5.QtGui import *
 
 from pygments.formatter import Formatter
 from pygments.lexers.python import PythonLexer

@@ -1,7 +1,3 @@
-# -*- coding: utf-8 -*-
-
-
-
 from matplotlib.figure import Figure
 from mpl_toolkits.mplot3d import Axes3D
 from matplotlib.backends.backend_qt4agg import FigureCanvasQTAgg

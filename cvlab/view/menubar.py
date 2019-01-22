@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 from distutils.util import strtobool
 
 from PyQt5.QtCore import Qt, pyqtSlot

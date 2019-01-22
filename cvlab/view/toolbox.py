@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 from PyQt5 import QtGui, QtCore
 
 from ..diagram.elements import get_sorted_elements

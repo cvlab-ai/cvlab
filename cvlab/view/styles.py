@@ -1,4 +1,3 @@
-
 import os
 from PyQt5.QtCore import QTimer, pyqtSignal, QObject
 from PyQt5.QtWidgets import *

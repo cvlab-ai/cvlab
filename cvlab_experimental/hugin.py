@@ -1,4 +1,3 @@
-
 from cvlab.diagram.elements.base import *
 
 

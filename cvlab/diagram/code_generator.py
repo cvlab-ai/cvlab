@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 from ..core.core_element import CoreElement
 from .connectors import Input, Output
 
@@ -207,7 +205,6 @@ def ImageData(value=None):
 
 file_template = """\
 #!/usr/bin/env python
-# -*- coding: utf-8 -*-
 #
 # Code generated with CV Lab
 # https://github.com/cvlab-ai/cvlab

@@ -1,9 +1,6 @@
-# -*- coding: utf-8 -*-
-
 import os
 from subprocess import check_call
 from tempfile import mkstemp, mkdtemp
-
 
 import cv2 as cv
 

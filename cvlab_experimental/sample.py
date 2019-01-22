@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 #
 # Creating your own Element for CV Lab
 #

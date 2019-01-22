@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 import itertools
 
 from PyQt5.QtCore import Qt

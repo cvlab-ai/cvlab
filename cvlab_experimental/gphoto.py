@@ -1,6 +1,3 @@
-# -*- coding: utf-8 -*-
-
-
 from cvlab.diagram.elements.base import *
 
 

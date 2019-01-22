@@ -1,12 +1,8 @@
-
-
 import os
 if os.name != 'nt': raise ImportError("Kinect module only work on Windows")
 
 from datetime import datetime, timedelta, time
 from threading import Event
-
-
 
 from cvlab.diagram.elements.base import *
 

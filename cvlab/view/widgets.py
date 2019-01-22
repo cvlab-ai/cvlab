@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 from distutils.util import strtobool
 
 import cv2
