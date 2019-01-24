@@ -1,7 +1,3 @@
-# -*- coding: utf-8 -*-
-
-from __future__ import division, unicode_literals
-
 from .base import *
 
 
@@ -23,7 +19,7 @@ class AutoResizer(NormalElement):
     comment = "Resizes its inputs to match first input's size"
 
     def get_attributes(self):
-        return [Input("main"), Input("others", multiple=True, optional=True)], \
+        return [Input("main"), Input("others", multiple=True)], \
                [Output("main"), Output("others", desequencing=True)], \
             []
 

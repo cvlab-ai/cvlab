@@ -1,9 +1,3 @@
-# -*- coding: utf-8 -*-
-
-from __future__ import print_function, unicode_literals
-from six import iteritems
-from builtins import range
-
 import time
 import math
 from threading import Event
@@ -50,7 +44,7 @@ class Camera(InputElement):
 
     def process(self):
         parameters = {}
-        for name, parameter in iteritems(self.parameters):
+        for name, parameter in self.parameters.items():
             parameters[name] = parameter.get()
 
         if self.actual_parameters != parameters:
@@ -103,15 +97,13 @@ class Camera(InputElement):
             retval, image = self.capture.read()
             self.may_interrupt()
             if image is not None and len(image) > 0:
-                # print "VideoCature returned image {}".format(image.shape)
                 if parameters["width"] and parameters["height"] and (image.shape[0] != parameters["height"] or image.shape[1] != parameters["width"]):
                     image = cv.resize(image, (parameters["width"], parameters["height"]))
                 data.value = image
                 self.set_state(Element.STATE_READY)
                 self.notify_state_changed()
             elif self.repeat_after_end:
-                # print "VideoCapture returned null image - restarting"
-                # jesli odczytujemy z pliku, to zapetlamy
+                # if reading from file, then repeat
                 # todo: what if this is a camera device? if so, this means that camera was disconnected so we shall restart it
                 self.capture.set(1, 0)  # poczatek wideo
             else:

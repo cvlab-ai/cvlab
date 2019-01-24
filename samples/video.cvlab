@@ -1,0 +1,157 @@
+{
+  "_filetype": "CV-Lab diagram save file. See: https://github.com/cvlab-ai/cvlab ",
+  "_type": "diagram",
+  "_version": "1.1",
+  "elements": {
+    "1": {
+      "_type": "element",
+      "class": "VideoLoader",
+      "gui_options": {
+        "position": [
+          3660,
+          4300
+        ],
+        "preview_size": 493.1868807430146,
+        "show_parameters": true,
+        "show_preview": true,
+        "show_sliders": false
+      },
+      "module": "cvlab.diagram.elements.video_io",
+      "parameters": {
+        "device": "images/fractal.avi",
+        "fps": 15,
+        "height": 0,
+        "pause": "",
+        "width": 0
+      },
+      "unique_id": "022081"
+    },
+    "2": {
+      "_type": "element",
+      "class": "ImageLoader",
+      "gui_options": {
+        "position": [
+          3660,
+          5060
+        ],
+        "preview_size": 493.1868807430146,
+        "show_parameters": true,
+        "show_preview": true,
+        "show_sliders": null
+      },
+      "module": "cvlab.diagram.elements.image_io",
+      "parameters": {
+        "path": "images/lena.jpg"
+      },
+      "unique_id": "501918"
+    },
+    "4": {
+      "_type": "element",
+      "class": "Resizer",
+      "gui_options": {
+        "position": [
+          4400,
+          5060
+        ],
+        "preview_size": 120,
+        "show_parameters": true,
+        "show_preview": true,
+        "show_sliders": false
+      },
+      "module": "cvlab.diagram.elements.basic_transforms",
+      "parameters": {
+        "height": 200,
+        "width": 200
+      },
+      "unique_id": "017661"
+    },
+    "7": {
+      "_type": "element",
+      "class": "Resizer",
+      "gui_options": {
+        "position": [
+          4400,
+          4300
+        ],
+        "preview_size": 120,
+        "show_parameters": true,
+        "show_preview": true,
+        "show_sliders": false
+      },
+      "module": "cvlab.diagram.elements.basic_transforms",
+      "parameters": {
+        "height": 200,
+        "width": 200
+      },
+      "unique_id": "007580"
+    },
+    "10": {
+      "_type": "element",
+      "class": "PlusOperator",
+      "gui_options": {
+        "position": [
+          4920,
+          4680
+        ],
+        "preview_size": 702.2133516829251,
+        "show_parameters": true,
+        "show_preview": true,
+        "show_sliders": null
+      },
+      "module": "cvlab.diagram.elements.operators",
+      "parameters": {},
+      "unique_id": "635268"
+    }
+  },
+  "params": [
+    {
+      "from": 6,
+      "to": 8
+    },
+    {
+      "from": 7,
+      "to": 9
+    },
+    {
+      "from": 8,
+      "to": 6
+    },
+    {
+      "from": 9,
+      "to": 7
+    }
+  ],
+  "wires": {
+    "0": {
+      "from_element": 1,
+      "from_output": "output",
+      "to_element": 7,
+      "to_input": "input"
+    },
+    "1": {
+      "from_element": 1,
+      "from_output": "output",
+      "to_element": 4,
+      "to_input": "input"
+    },
+    "2": {
+      "from_element": 2,
+      "from_output": "output",
+      "to_element": 4,
+      "to_input": "input"
+    },
+    "3": {
+      "from_element": 7,
+      "from_output": "output",
+      "to_element": 10,
+      "to_input": "inputs"
+    },
+    "4": {
+      "from_element": 4,
+      "from_output": "output",
+      "to_element": 10,
+      "to_input": "inputs"
+    }
+  },
+  "zoom_level": 1.0
+}

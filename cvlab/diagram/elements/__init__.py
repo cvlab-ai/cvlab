@@ -1,14 +1,6 @@
-# -*- coding: utf-8 -*-
-
-from __future__ import print_function, unicode_literals
-
 import sys
-
-from six import itervalues, iteritems
-
 import importlib
 import os
-import traceback
 from collections import defaultdict
 
 import re
@@ -37,17 +29,17 @@ def register_elements(package, elements, sort_key=999):
 
 
 def register_elements_auto(module_name, module_locals, package, sort_key=999):
-    elements = [cls for cls in itervalues(module_locals) if isinstance(cls, type) and cls.__module__ == module_name and hasattr(cls, "name")]
+    elements = [cls for cls in module_locals.values() if isinstance(cls, type) and cls.__module__ == module_name and hasattr(cls, "name")]
     return register_elements(package, elements, sort_key)
 
 
 def get_sorted_elements():
-    return sorted(iteritems(registered_elements), key=lambda kv: sort_keys[kv[0]])
+    return sorted(registered_elements.items(), key=lambda kv: sort_keys[kv[0]])
 
 
 def get_element_fallback(name):
     class_name = name.split(".")[-1]
-    for element in itervalues(all_elements):
+    for element in all_elements.values():
         if element.__name__ == class_name:
             print("WARN: Loading fallback element. Requested name: {name}. Returned class: {element}".format(**locals()))
             return element

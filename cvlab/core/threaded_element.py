@@ -1,16 +1,9 @@
-# -*- coding: utf-8 -*-
-
-
-from __future__ import unicode_literals
-from six import itervalues
-
 import time
 
 from .hooks import *
 from .exceptions import *
 from .processing_time import ProcessingTimeInfo
 from .core_element import CoreElement
-
 
 
 class ThreadedElement(CoreElement):
@@ -68,7 +61,7 @@ class ThreadedElement(CoreElement):
 
     def get_previous_time_infos(self):
         time_infos = []
-        for connector in itervalues(self.inputs):
+        for connector in self.inputs.values():
             for inpt in connector.connected_from:
                 if hasattr(inpt.parent, "processing_time_info"):    # fixme: ugly hack...
                     time_infos.append(inpt.parent.processing_time_info)

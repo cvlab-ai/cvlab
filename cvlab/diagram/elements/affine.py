@@ -1,7 +1,4 @@
-from cvlab.diagram.elements import register_elements_auto
-from cvlab.diagram.elements.base import NormalElement, Input, Output, IntParameter, Data
-import cv2 as cv
-import numpy as np
+from .base import *
 
 
 class Rotate(NormalElement):

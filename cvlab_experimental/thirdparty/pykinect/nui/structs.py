@@ -8,9 +8,9 @@
  # ###########################################################################/
 
 """defines the core data structures used for communicating w/ the Kinect APIs"""
-from __future__ import division, unicode_literals
-from builtins import range
-from future.utils import with_metaclass
+
+
+
 
 import ctypes
 from ctypes import Array

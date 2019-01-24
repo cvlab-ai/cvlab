@@ -1,12 +1,6 @@
-# -*- coding: utf-8 -*-
-
-from __future__ import print_function, unicode_literals
-from builtins import range
-
 import os
 from subprocess import check_call
 from tempfile import mkstemp, mkdtemp
-
 
 import cv2 as cv
 

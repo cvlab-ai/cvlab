@@ -1,5 +1,3 @@
-from __future__ import unicode_literals
-
 import cv2
 
 from cvlab.diagram.elements.base import *

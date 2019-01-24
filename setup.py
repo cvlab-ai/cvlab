@@ -1,6 +1,4 @@
-#!/usr/bin/env python
-
-from __future__ import print_function
+#!/usr/bin/env python3
 
 import sys
 import os
@@ -13,7 +11,9 @@ from glob import glob
 data_files = glob("cvlab/images/*.*")+glob("cvlab/styles/*/*.*")+glob("cvlab/styles/*/*/*.*")
 data_files = list(map(lambda x:x[6:], data_files))
 
-is_python2 = sys.version_info.major == 2
+if sys.version_info.major <= 2:
+    raise Exception("Only python 3+ is supported!")
+
 is_windows = os.name == 'nt'
 is_linux = os.name == "posix"
 
@@ -23,16 +23,8 @@ requirements = [
     "scipy",
     "pygments>=2",
     "matplotlib",
-    "tinycss2"
+    "tinycss2",
 ]
-
-
-if is_python2:
-    requirements += [
-        "future>=0.16",
-        "configparser",
-    ]
-
 
 try:
     import cv2
@@ -46,17 +38,9 @@ except ImportError:
 
 
 try:
-    import PyQt4
+    import PyQt5
 except ImportError:
-    print("ERROR! You must install PyQt4 to use CV-Lab!")
-    if is_linux:
-        print("Under ubuntu, you can run: sudo apt-get install python-qt4")
-    if is_windows:
-        print("Under Windows, it is advised to use Anaconda or Python(x,y)")
-        print("You can also try: pip install python-qt5")
-    print("With conda, you can run: conda install pyqt=4")
-    print("Please read: https://www.riverbankcomputing.com/software/pyqt/download")
-    exit(1)
+    requirements.append("pyqt5")
 
 
 __version__ = None
@@ -75,6 +59,6 @@ setup(
     package_data={"cvlab":data_files},
     entry_points={'gui_scripts': ['cvlab=cvlab.__main__:main']},
     license="AGPL-3.0+",
-    python_requires='>=2.7',
+    python_requires='>=3.3',
     install_requires=requirements,
 )

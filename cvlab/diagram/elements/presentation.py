@@ -1,7 +1,3 @@
-# -*- coding: utf-8 -*-
-
-from __future__ import division, unicode_literals
-
 from matplotlib.figure import Figure
 from mpl_toolkits.mplot3d import Axes3D
 from matplotlib.backends.backend_qt4agg import FigureCanvasQTAgg
@@ -100,7 +96,7 @@ class Plot3d(NormalElement):
         super(Plot3d, self).__init__()
         self.figure = Figure(figsize=(4, 4), dpi=90, facecolor=(1, 1, 1), edgecolor=(0, 0, 0))
         self.axes = self.figure.add_subplot(111, projection='3d')
-        self.axes.hold(False)
+        # self.axes.hold(False)
         self.plot_widget = FigureCanvasQTAgg(self.figure)
         self.axes.mouse_init()
         self.layout().addWidget(self.plot_widget)

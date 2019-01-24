@@ -1,7 +1,4 @@
-# -*- coding: utf-8 -*-
-
-from __future__ import division, unicode_literals
-from builtins import str, range, object
+from PyQt5 import QtGui, QtCore
 
 from ..diagram.elements import get_sorted_elements
 from .elements import *
@@ -12,15 +9,15 @@ class Toolbox(StyledWidget):
     def __init__(self):
         super(Toolbox, self).__init__()
         self.setObjectName("Toolbox")
-        label = QtGui.QLabel("Image Processing Toolbox")
+        label = QLabel("Image Processing Toolbox")
         label.setObjectName("ToolboxTitle")
         elements_list = ElementsList()
         elements_list.setObjectName("ToolboxTree")
-        self.filter_input = QtGui.QLineEdit()
+        self.filter_input = QLineEdit()
         self.filter_input.setPlaceholderText("Search toolbox...")
         self.filter_input.textChanged.connect(elements_list.filter_changed)
 
-        layout = QtGui.QVBoxLayout()
+        layout = QVBoxLayout()
         layout.setSpacing(0)
         layout.setContentsMargins(0, 0, 0, 0)
         layout.addWidget(label)
@@ -29,15 +26,15 @@ class Toolbox(StyledWidget):
         self.setLayout(layout)
 
 
-class BoldElementGroupDelegate(QtGui.QStyledItemDelegate):
+class BoldElementGroupDelegate(QStyledItemDelegate):
     def paint(self, painter, option, index):
         isIndexParent = not index.parent().isValid()
         if isIndexParent:
-            option.font.setWeight(QtGui.QFont.Bold)
-        QtGui.QStyledItemDelegate.paint(self, painter, option, index)
+            option.font.setWeight(QFont.Bold)
+        QStyledItemDelegate.paint(self, painter, option, index)
 
 
-class ElementsList(QtGui.QTreeView):
+class ElementsList(QTreeView):
     def __init__(self):
         super(ElementsList, self).__init__()
         self.class_mapper = None
@@ -53,8 +50,8 @@ class ElementsList(QtGui.QTreeView):
         self.last_spawned_element = 0
 
     def prepare_elements_model(self):
-        model = QtGui.QStandardItemModel()
-        nodes = [(elements, QtGui.QStandardItem(package)) for package, elements in
+        model = QStandardItemModel()
+        nodes = [(elements, QStandardItem(package)) for package, elements in
                  get_sorted_elements()]
         element_types = [node[0] for node in nodes]
         elements_types_list = flatten_list(element_types)
@@ -62,9 +59,9 @@ class ElementsList(QtGui.QTreeView):
 
         for elements, node in nodes:
             for element in elements:
-                row = [QtGui.QStandardItem(element.name),
-                       QtGui.QStandardItem(element.comment),
-                       QtGui.QStandardItem(self.class_mapper.to_string(element))]
+                row = [QStandardItem(element.name),
+                       QStandardItem(element.comment),
+                       QStandardItem(self.class_mapper.to_string(element))]
                 node.appendRow(row)
             model.appendRow(node)
         return model
@@ -78,19 +75,19 @@ class ElementsList(QtGui.QTreeView):
         return len(self.selectedIndexes()) > 2
 
     def mousePressEvent(self, event):
-        QtGui.QTreeView.mousePressEvent(self, event)
+        QTreeView.mousePressEvent(self, event)
         if self.is_draggable_item_selected():
             index = self.selectedIndexes()[2]
             source_selected = index.model().mapToSource(index)
             selected = self.model().sourceModel().itemFromIndex(source_selected)
             if event.button() == QtCore.Qt.LeftButton:
-                drag = QtGui.QDrag(self)
+                drag = QDrag(self)
                 mime_data = QtCore.QMimeData()
                 mime_data.setText(Mime.NEW_ELEMENT)
                 selected_class = self.class_mapper.to_class(str(selected.text()))
                 self.last_spawned_element = selected_class()
                 self.last_spawned_element.setParent(self)
-                img = QtGui.QPixmap.grabWidget(self.last_spawned_element)
+                img = self.last_spawned_element.grab()
                 drag.setMimeData(mime_data)
                 drag.setPixmap(img)
                 drag.setHotSpot(QtCore.QPoint(img.width() / 2, img.height() / 2))
@@ -99,12 +96,12 @@ class ElementsList(QtGui.QTreeView):
                     self.last_spawned_element.setParent(None)
                     self.last_spawned_element.deleteLater()
                 else:
-                    self.last_spawned_element.recalculate(True, True,
-                                                          True)  # todo: move this functionality to elements self logic
+                    # todo: move this functionality to elements self logic
+                    self.last_spawned_element.recalculate(True, True, True)
         self.clearSelection()
 
 
-class FilterProxy(QtGui.QSortFilterProxyModel):
+class FilterProxy(QtCore.QSortFilterProxyModel):
     def filterAcceptsRow(self, source_row, source_parent):
         if not self.filterRegExp().isEmpty():
             source_index = self.sourceModel().index(source_row, self.filterKeyColumn(), source_parent)
@@ -119,7 +116,7 @@ class FilterProxy(QtGui.QSortFilterProxyModel):
         return super(FilterProxy, self).filterAcceptsRow(source_row, source_parent)
 
 
-class ClassStringMapper(object):
+class ClassStringMapper:
     def __init__(self, class_list):
         self.map = {}
         for class_type in class_list:

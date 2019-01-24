@@ -1,2 +1,2 @@
 package_name = "cvlab"
-__version__ = "1.1rc1"
+__version__ = "1.1rc7"
