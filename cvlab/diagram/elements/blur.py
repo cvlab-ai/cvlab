@@ -49,5 +49,5 @@ class GaussianBlur3D(NormalElement):
         outputs['dst'] = Data(image)
 
 
-register_elements_auto(__name__, locals(), "Blur", 5)
+register_elements_auto(__name__, locals(), "Filters", 5)
 

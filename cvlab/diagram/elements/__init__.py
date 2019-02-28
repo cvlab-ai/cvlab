@@ -19,13 +19,15 @@ def element_name(name):
 
 
 def register_elements(package, elements, sort_key=999):
-    registered_elements[package] += elements
     sort_keys[package] = min(sort_key, sort_keys[package])
     for element in elements:
+        element_package = getattr(element, "package", None) or package
         module = element.__module__
         classname = element.__name__
         name = module + "." + classname
+        registered_elements[element_package].append(element)
         all_elements[element_name(name)] = element
+        sort_keys[element_package] = min(sort_keys[element_package], sort_key + 100)
 
 
 def register_elements_auto(module_name, module_locals, package, sort_key=999):

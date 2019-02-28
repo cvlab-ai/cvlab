@@ -152,6 +152,7 @@ class SequenceDeleter(NormalElement):
 class ConcatenateOperator(MultiInputOneOutputElement):
     name = "Concatenate operator"
     comment = "Concatenates input arrays"
+    package = "Matrix miscellaneous"
 
     def process_inputs(self, inputs, outputs, parameters):
         output = Data()

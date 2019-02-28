@@ -116,4 +116,4 @@ class Plot3d(NormalElement):
         self.plot_widget.updateGeometry()
 
 
-register_elements_auto(__name__, locals(), "Data presentation", 3)
+register_elements_auto(__name__, locals(), "Visualization", 3)

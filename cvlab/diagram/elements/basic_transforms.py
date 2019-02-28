@@ -98,5 +98,5 @@ class AutoCrop(NormalElement):
         outputs["output"] = ImageData(cropped)
 
 
-register_elements_auto(__name__, locals(), "Basic transforms", 5)
+register_elements_auto(__name__, locals(), "Transforms", 5)
 

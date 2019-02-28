@@ -93,4 +93,4 @@ class OpenCVErode(NormalElement):
         outputs["output"] = Data(image)
 
 
-register_elements_auto(__name__, locals(), "Basic filters", 5)
+register_elements_auto(__name__, locals(), "Filters", 5)

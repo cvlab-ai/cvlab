@@ -6,6 +6,7 @@ from .base import *
 class InPaint(NormalElement):
     name = "Inpaint"
     comment = "Inpaint"
+    package = "Photo"
 
     def get_attributes(self):
         return [Input("input"), Input("mask")], \
@@ -20,6 +21,7 @@ class InPaint(NormalElement):
 class GetGaborKernel(InputElement):
     name = "getGaborKernel"
     comment = "getGaborKernel"
+    package = "Data generation"
 
     def get_attributes(self):
         return [], [Output("output")], \

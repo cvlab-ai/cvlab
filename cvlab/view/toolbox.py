@@ -51,8 +51,7 @@ class ElementsList(QTreeView):
 
     def prepare_elements_model(self):
         model = QStandardItemModel()
-        nodes = [(elements, QStandardItem(package)) for package, elements in
-                 get_sorted_elements()]
+        nodes = [(elements, QStandardItem(package)) for package, elements in get_sorted_elements()]
         element_types = [node[0] for node in nodes]
         elements_types_list = flatten_list(element_types)
         self.class_mapper = ClassStringMapper(elements_types_list)

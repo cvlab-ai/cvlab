@@ -14,6 +14,7 @@ from cvlab.diagram.elements.base import *
 class MySampleElement(NormalElement):
     name = "My sample element"
     comment = "My first self-created element, hurray! :)"
+    package = "My private elements"
 
     def get_attributes(self):
         return [Input("input", name="Input")], \

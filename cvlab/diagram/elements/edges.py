@@ -27,4 +27,4 @@ class OpenCVCanny(NormalElement):
         outputs["output"] = Data(output)
 
 
-register_elements_auto(__name__, locals(), "Edges", 5)
+register_elements_auto(__name__, locals(), "Features 2D", 5)

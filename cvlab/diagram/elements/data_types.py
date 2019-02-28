@@ -4,6 +4,7 @@ from .base import *
 class ColorConverter(NormalElement):
     name = "Color converter"
     comment = "Converts image to another color space"
+    package = "Color"
 
     def get_attributes(self):
         return [Input("input")], \
@@ -30,6 +31,7 @@ class ColorConverter(NormalElement):
 class TypeConverter(NormalElement):
     name = "Type converter"
     comment = "Converts contents of the image to another internal data type"
+    package = "Type conversion"
 
     def get_attributes(self):
         return [Input("input")], \
@@ -56,6 +58,7 @@ class TypeConverter(NormalElement):
 class ChannelSplitter(NormalElement):
     name = "Channel splitter"
     comment = "Splits the image into channels"
+    package = "Channels"
 
     def get_attributes(self):
         return [Input("input")], \
@@ -71,6 +74,7 @@ class ChannelSplitter(NormalElement):
 class ChannelMerger(NormalElement):
     name = "Channel merger"
     comment = "Merges the channels into an image"
+    package = "Channels"
 
     def get_attributes(self):
         return [Input("1"), Input("2", optional=True), Input("3", optional=True), Input("4", optional=True)], \
@@ -90,6 +94,7 @@ class ChannelMerger(NormalElement):
 class ColorspaceExtractor(NormalElement):
     name = "Color space extractor"
     comment = "Splits the image into RGB and HSV"
+    package = "Color"
 
     def get_attributes(self):
         return [Input("input")], \
@@ -106,4 +111,4 @@ class ColorspaceExtractor(NormalElement):
         outputs["S"] = Data(hsv[1])
         outputs["V"] = Data(hsv[2])
 
-register_elements_auto(__name__, locals(), "Data types", 2)
+register_elements_auto(__name__, locals(), "Data types")

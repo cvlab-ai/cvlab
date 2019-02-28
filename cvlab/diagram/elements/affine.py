@@ -40,4 +40,4 @@ class Rotate(NormalElement):
         outputs["output"] = Data(out)
 
 
-register_elements_auto(__name__, locals(), "Affine transformations", 5)
+register_elements_auto(__name__, locals(), "Transforms", 5)
