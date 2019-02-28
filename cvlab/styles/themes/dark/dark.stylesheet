@@ -20,7 +20,7 @@ http://www.yasinuludag.com/darkorange.stylesheet
 
 /*** by AB ***/
 
-QMainWindow
+QMainWindow, QDialog
 {
 	background-color: #323232;
 }

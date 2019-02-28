@@ -111,6 +111,9 @@ class GuiTextParameter(QHBoxLayout):
         self.wnd.setLayout(QVBoxLayout())
         self.wnd.setObjectName("CodeDialog")
         self.wnd.setWindowTitle(parameter.window_title)
+        desktop = QApplication.instance().desktop()
+        self.wnd.resize(desktop.screenGeometry(desktop.screenNumber(self.element)).width() // 2,
+                        desktop.screenGeometry(desktop.screenNumber(self.element)).height() // 2)
         self.wnd.finished.connect(self.actualize)
         self.wnd_geometry = None
 
@@ -138,6 +141,7 @@ class GuiTextParameter(QHBoxLayout):
 
         if self.wnd_geometry:
             self.wnd.setGeometry(self.wnd_geometry)
+
         self.wnd.show()
 
     @pyqtSlot()
