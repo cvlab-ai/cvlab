@@ -44,7 +44,7 @@ class ElementsList(QTreeView):
         self.filter_proxy.setFilterCaseSensitivity(QtCore.Qt.CaseInsensitive)
         self.setModel(self.filter_proxy)
         self.setItemDelegate(BoldElementGroupDelegate(self))
-        self.expandAll()
+        self.collapseAll()
         self.header().hide()
         self.setFocusPolicy(QtCore.Qt.NoFocus)
         self.last_spawned_element = 0
@@ -57,8 +57,13 @@ class ElementsList(QTreeView):
         self.class_mapper = ClassStringMapper(elements_types_list)
 
         for elements, node in nodes:
+            node.setCheckable(False)
+            node.setEditable(False)
             for element in elements:
-                row = [QStandardItem(element.name),
+                item = QStandardItem(element.name)
+                item.setEditable(False)
+                item.setCheckable(False)
+                row = [item,
                        QStandardItem(element.comment),
                        QStandardItem(self.class_mapper.to_string(element))]
                 node.appendRow(row)
@@ -68,7 +73,8 @@ class ElementsList(QTreeView):
     @pyqtSlot(str)
     def filter_changed(self, text):
         self.filter_proxy.setFilterFixedString(text)
-        self.expandAll()
+        if text: self.expandAll()
+        else: self.collapseAll()
 
     def is_draggable_item_selected(self):
         return len(self.selectedIndexes()) > 2
@@ -97,6 +103,9 @@ class ElementsList(QTreeView):
                 else:
                     # todo: move this functionality to elements self logic
                     self.last_spawned_element.recalculate(True, True, True)
+        elif event.button() == QtCore.Qt.LeftButton:
+            self.setExpanded(self.currentIndex(), not self.isExpanded(self.currentIndex()))
+
         self.clearSelection()
 
 
