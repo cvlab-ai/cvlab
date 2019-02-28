@@ -6,6 +6,8 @@ from collections import OrderedDict
 
 import cv2
 
+import opencv_names as names
+
 
 UNKNOWN = ""
 MATRIX = "mat"
@@ -19,6 +21,31 @@ POINT = "point"
 ENUM = "enum"
 
 
+def nice_name(name):
+    if len(name) <= 1:
+        return name
+
+    parts = re.findall(r"([A-Z0-9]+|[a-z]+)", name)
+
+    if len(parts) > 1 and name.lower() != name:
+        parts[0] = parts[0][0].upper() + parts[0][1:]
+
+    nice = ""
+    for part, next_part in zip(parts, parts[1:]+[""]):
+        if re.match(r"^[A-Z0-9]*[A-Z]$", part) and re.match(r"^[a-z]+$", next_part):
+            if len(part) <= 1:
+                nice += part
+            else:
+                nice += part[:-1] + " " + part[-1]
+        else:
+            nice += part + " "
+
+    nice = nice.strip()
+    if not nice: raise Exception("Cannot create nice name: " + name)
+
+    return nice
+
+
 def get_typelist():
     try:
         file = os.path.dirname(__file__) + "/typelist.json"
@@ -27,12 +54,12 @@ def get_typelist():
         return {}
 
 
-typelist = get_typelist()
-
-
 class Argument:
+    typelist = get_typelist()
+
     def __init__(self, name, function, optional=None, description=""):
         self.name = name if name not in ("from","import","def") else name + "_"
+        self.nice_name = nice_name(self.name)
         self.function = function
         self.optional = optional
         self.description = description
@@ -42,6 +69,7 @@ class Argument:
         self.max = None
         self.enum = {}
         self.multi_enum = None
+        self.ignored = False
 
     def parse_doc(self):
         name = self.name.lower()
@@ -75,9 +103,9 @@ class Argument:
             self.type = BOOL
         elif "name" in name or name in ("text","string"):
             self.type = STRING
-        elif self.function.lower() + ":" + name.lower() in typelist:
-            self.type = typelist[self.function.lower() + ":" + name.lower()]
-            print("Reading type from typelist:", self.function, self.name, self.type)
+        elif self.function.lower() + ":" + name.lower() in self.typelist:
+            self.type = self.typelist[self.function.lower() + ":" + name.lower()]
+            print("DEBUG Reading type from typelist:", self.function, self.name, self.type)
 
         if name in ("radius",):
             self.min = 1
@@ -143,10 +171,10 @@ class Argument:
 
     def source_input(self):
         optional = ", optional=True" if self.optional else ""
-        return "Input('{self.name}', '{self.name}'{optional})".format(**locals())
+        return "Input('{self.name}', '{self.nice_name}'{optional})".format(**locals())
 
     def source_output(self):
-        return "Output('{self.name}', '{self.name}')".format(**locals())
+        return "Output('{self.name}', '{self.nice_name}')".format(**locals())
 
     def source_param(self):
 
@@ -155,22 +183,22 @@ class Argument:
         if self.max is not None: minmax += ", max_={self.max}".format(**locals())
 
         if self.type == INT:
-            return "IntParameter('{self.name}', '{self.name}'{minmax})".format(**locals())
+            return "IntParameter('{self.name}', '{self.nice_name}'{minmax})".format(**locals())
         if self.type == FLOAT:
-            return "FloatParameter('{self.name}', '{self.name}{minmax}')".format(**locals())
+            return "FloatParameter('{self.name}', '{self.nice_name}{minmax}')".format(**locals())
         if self.type == SIZE:
-            return "SizeParameter('{self.name}', '{self.name}')".format(**locals())
+            return "SizeParameter('{self.name}', '{self.nice_name}')".format(**locals())
         if self.type == POINT:
-            return "PointParameter('{self.name}', '{self.name}')".format(**locals())
+            return "PointParameter('{self.name}', '{self.nice_name}')".format(**locals())
         if self.type == STRING:
-            return "TextParameter('{self.name}', '{self.name}')".format(**locals())
+            return "TextParameter('{self.name}', '{self.nice_name}')".format(**locals())
         if self.type == SCALAR:
-            return "ScalarParameter('{self.name}', '{self.name}'{minmax})".format(**locals())
+            return "ScalarParameter('{self.name}', '{self.nice_name}'{minmax})".format(**locals())
         if self.type == ENUM:
             if not self.enum: raise Exception("No values given for enum")
             values = ["('" + name + "'," + repr(value) + ")" for name, value in sorted(self.enum.items(), key=lambda kv: kv[1])]
             values = ",".join(values)
-            return "ComboboxParameter('{self.name}', [{values}])".format(**locals())
+            return "ComboboxParameter('{self.name}', name='{self.nice_name}', values=[{values}])".format(**locals())
         raise Exception("Cannot get parameter source for argument " + self.name)
 
 
@@ -193,6 +221,7 @@ class Function:
 class {class_name}(NormalElement):
     name = '{element_name}'
     comment = '''{element_comment}'''
+    {package}
 
     def get_attributes(self):
         return [{inputs_def}], \\
@@ -209,6 +238,7 @@ class {class_name}(NormalElement):
         self.obj = obj
         self.doc = self.obj.__doc__
         self.name = obj.__name__
+        self.group = names.get_group(self.name)
         self.args = OrderedDict()  # name -> Argument
         self.ret = OrderedDict()  # name -> Argument
 
@@ -259,6 +289,9 @@ class {class_name}(NormalElement):
         element_name = self.name[0].upper() + self.name[1:]
         element_comment = self.doc.replace("\n.   ","\\n").replace("'''","'")
         class_name = "OpenCVAuto2_" + element_name
+        element_name = nice_name(element_name)
+
+        package = 'package = "{self.group}"'.format(**locals()) if self.group else ""
 
         args = []
         for arg in self.args.values():
@@ -341,22 +374,23 @@ def process_cv2():
 import cv2
 from cvlab.diagram.elements.base import *
 
+
 """
     for name, obj in sorted(vars(cv2).items()):
         try:
             if not inspect.isbuiltin(obj) and not inspect.isfunction(obj): continue
             print("INFO", name)
             function_source = process(name, obj)
-            source += "### " + name + " ###\n\n"
+            source += "# cv2." + name + "\n"
             source += function_source
             source += "\n"
         except Exception as e:
             print("ERROR", e)
         print()
 
-    source += "\n\n"
+    source += "\n"
     source += 'register_elements_auto(__name__, locals(), "OpenCV autogenerated 2", 15)'
-    source += "\n\n"
+    source += "\n"
 
     with open("opencv_auto2.py", 'w') as f:
         f.write(source)
