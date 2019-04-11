@@ -83,7 +83,7 @@ class Argument:
             self.type = ENUM
             self.enum = self.auto_constants()
             self.multi_enum = True
-        elif name in ("interpolation","bordermode","bordertype","ddepth","dtype","code","linetype") or (name == "type" and self.function == "threshold"):
+        elif name in ("interpolation","bordermode","bordertype","ddepth","dtype","code","linetype","norm_type") or (name == "type" and self.function == "threshold"):
             self.type = ENUM
             self.enum = self.auto_constants()
             self.multi_enum = False
@@ -139,7 +139,8 @@ class Argument:
             "linetype": ["LINE_"],
             "interpolationflag": ["INTER_"],
             "code": ["COLOR_"],
-            "hersheyfonts": ["FONT_HERSHEY_"]
+            "hersheyfonts": ["FONT_HERSHEY_"],
+            "norm_type": ["NORM_"],
         }
 
         consts = self.detect_constants()
