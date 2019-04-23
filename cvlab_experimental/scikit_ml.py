@@ -1,7 +1,3 @@
-# -*- coding: utf-8 -*-
-
-from __future__ import unicode_literals, division
-
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.naive_bayes import BernoulliNB
 from sklearn.naive_bayes import GaussianNB

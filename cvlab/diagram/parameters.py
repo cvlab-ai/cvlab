@@ -1,10 +1,8 @@
-from __future__ import unicode_literals
-
 import threading
 from collections import OrderedDict
 
 import numpy as np
-from PyQt4.QtCore import pyqtSignal, QObject
+from PyQt5.QtCore import pyqtSignal, QObject
 
 from . import id_manager
 
@@ -114,9 +112,8 @@ class FloatParameter(NumberParameter):
 class SizeParameter(Parameter):
     def __init__(self, id, name=None, value=(1, 1)):
         super(SizeParameter, self).__init__(id, name, value)
-        self.min_val = 0
-        big_int = pow(10, 9)
-        self.max_val = big_int
+        self.min = 0
+        self.max = 10**9
 
     def set(self, value):
         Parameter.set(self, tuple(value))
@@ -125,12 +122,23 @@ class SizeParameter(Parameter):
 class PointParameter(Parameter):
     def __init__(self, id, name=None, value=(0, 0)):
         super(PointParameter, self).__init__(id, name, value)
-        self.min_val = -1
-        big_int = pow(10, 9)
-        self.max_val = big_int
+        self.min = -1
+        self.max = 10**9
 
     def set(self, value):
         Parameter.set(self, tuple(value))
+
+
+class ScalarParameter(Parameter):
+    def __init__(self, id, name=None, value=(0, 0, 0, 0), min_=-1000, max_=1000):
+        super(ScalarParameter, self).__init__(id, name, value)
+        self.min = min_
+        self.max = max_
+
+    def set(self, value):
+        value = list(value) + [0,0,0,0]
+        value = tuple(value[:4])
+        Parameter.set(self, value)
 
 
 class ComboboxParameter(Parameter):
@@ -143,10 +151,22 @@ class ComboboxParameter(Parameter):
             self.value = list(self.values.values())[0]
 
     def to_json(self):
-        return list(self.values.values()).index(self.value)
+        # return list(self.values.values()).index(self.value)  # cv-lab v1.0
+        index = list(self.values.values()).index(self.value)
+        name = list(self.values)[index]
+        return {"name": name, "value": self.value}
 
     def from_json(self, data):
-        self.set(list(self.values.values())[data])
+        if isinstance(data, int):  # cv-lab v1.0
+            if 0 <= data < len(self.values):
+                value = list(self.values.values())[data]
+            else:
+                print("Warning: Cannot decode parameter '{}' value '{}'".format(self.name, data))
+                value = data
+        else: # cv-lab v1.1+
+            value = data["value"]
+
+        self.set(value)
 
 
 class ButtonParameter(Parameter):

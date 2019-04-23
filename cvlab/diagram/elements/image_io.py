@@ -1,9 +1,3 @@
-# -*- coding: utf-8 -*-
-
-
-from __future__ import unicode_literals
-from builtins import zip, range
-
 from .base import *
 
 
@@ -38,6 +32,28 @@ class ImageSequenceLoader(InputElement):
             image = cv.imread(path)
             if image is not None:
                 data.value = image
+
+
+class ImageLoader3D(InputElement):
+    name = "Image loader 3D"
+    comment = "Loads multiple images as 3D image"
+
+    def get_attributes(self):
+        return [], [Output("output")], [MultiPathParameter("paths", value=["images/lena.jpg"]*10)]
+
+    def process_inputs(self, inputs, outputs, parameters):
+        paths = parameters["paths"]
+        image = []
+
+        for path in sorted(paths):
+            slice = cv.imread(path)
+            self.may_interrupt()
+            image.append(slice)
+            if slice.shape != image[0].shape:
+                raise Exception("Inconsisten slice dimensions")
+
+        image = np.array(image)
+        outputs["output"] = Data(image)
 
 
 class RecurrentSequenceLoader(InputElement):

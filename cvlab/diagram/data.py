@@ -1,17 +1,10 @@
-# -*- coding: utf-8 -*-
-
-from __future__ import unicode_literals
-
-from six import itervalues
-from builtins import str, zip, object, TypeError
-
 from collections import defaultdict
 from threading import Lock, RLock
 
 from .errors import ProcessingError
 
 
-class Data(object):
+class Data:
     NONE = 0
     SEQUENCE = 1
     IMAGE = 2
@@ -125,8 +118,8 @@ class Data(object):
                 return iter([self])
 
     def desequence_all(self):
+        """Returns a one-dimensional array with all sequence values"""
         with self.lock:
-            """Zwraca tablice jednowymiarowa z wszystkimi wartosciami sekwencji"""
             if self._type == Data.NONE: return [None]
             if self._type == Data.IMAGE: return [self._value]
             if self._type == Data.SEQUENCE:
@@ -230,7 +223,7 @@ def ImageData(value=None):
 
 
 
-class DataSet(object):
+class DataSet:
     def __init__(self, inputs=None, parameters=None, outputs=None):
         self.inputs = inputs if inputs is not None else {}
         self.parameters = parameters if parameters is not None else {}
@@ -253,9 +246,6 @@ class DataSet(object):
 class ProcessingUnit(DataSet):
     def __init__(self, element, inputs=None, parameters=None, outputs=None):
         super(ProcessingUnit, self).__init__(inputs, parameters, outputs)
-        if __debug__:
-            from ..core.core_element import CoreElement
-            assert isinstance(element, CoreElement)
         self.element = element
         self.calculated = False
 
@@ -263,7 +253,7 @@ class ProcessingUnit(DataSet):
         return self.element.actual_processing_unit is self
 
     def ready_to_execute(self):
-        return all(d.ready() for d in itervalues(self.inputs))
+        return all(d.ready() for d in self.inputs.values())
 
     def data_changed(self, data):
         if self.calculated:

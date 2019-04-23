@@ -1,8 +1,5 @@
-# -*- coding: utf-8 -*-
-
-from __future__ import unicode_literals
-
 from .base import *
+
 
 class OpenCVCanny(NormalElement):
     name = "Canny transform"
@@ -30,4 +27,4 @@ class OpenCVCanny(NormalElement):
         outputs["output"] = Data(output)
 
 
-register_elements_auto(__name__, locals(), "Edges", 5)
+register_elements_auto(__name__, locals(), "Features 2D", 5)

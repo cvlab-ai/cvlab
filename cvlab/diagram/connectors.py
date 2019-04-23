@@ -1,8 +1,4 @@
-from __future__ import unicode_literals
-from builtins import object
-
-
-class Input(object):
+class Input:
     def __init__(self, id, name=None, multiple=False, optional=False):
         super(Input, self).__init__()
         self.id = id
@@ -41,7 +37,7 @@ class Input(object):
         return self.hook.get_data()
 
 
-class Output(object):
+class Output:
     def __init__(self, id, name=None, desequencing=False):
         super(Output, self).__init__()
         self.id = id

@@ -1,9 +1,3 @@
-# -*- coding: utf-8 -*-
-
-from __future__ import division, unicode_literals
-from six import iteritems
-from builtins import zip, str, range
-
 import numpy as np
 
 from cvlab.diagram.elements.base import *
@@ -166,7 +160,7 @@ cross-validation:\t{}""".format(self.format_scores(*train_score),
         samples = len(responses)
         length = len(counter)
         sample_weights_map = {}
-        for class_, count in iteritems(counter):
+        for class_, count in counter.items():
             weight = float(samples)/(length * count)
             sample_weights_map[class_] = weight
         weights = []

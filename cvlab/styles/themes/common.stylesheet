@@ -28,19 +28,19 @@ QWidget#Element
 
 QLabel#PathParameterName
 {
-     margin-top: 5;
+     margin-top: 5px;
 }
 
 QLineEdit#PathParameterValue
 {
-    width: 78;
-    margin-top: 3;
+    width: 78px;
+    margin-top: 3px;
 }
 
 QPushButton#PathParameterButton
 {
-    padding: 2;
-    padding-bottom: 1
+    padding: 2px;
+    padding-bottom: 1px;
 }
 
 QWidget#InOutButton
@@ -49,16 +49,16 @@ QWidget#InOutButton
     border-style: solid;
     border-width: 1px;
     border-radius: 2px;
-    min-width: 14;
-    max-width: 14;
-    min-height: 14;
-    max-height: 14;
+    min-width: 14px;
+    max-width: 14px;
+    min-height: 14px;
+    max-height: 14px;
 }
 
 QLabel#ElementLabel
 {
     qproperty-alignment:    AlignLeft;
-    font-weight:    bold;
+    font-weight: bold;
     padding: 5px;
     padding-bottom: 6px;
     padding-left: 20px;
@@ -76,8 +76,8 @@ QLabel#ElementStatusLabel
 QLabel#OutputPreview
 {
     font-size: 10px;
-    padding-top: 6;
-    padding-bottom: 4;
+    padding-top: 6px;
+    padding-bottom: 4px;
 }
 
 QWidget#OutputsPreview
@@ -93,9 +93,9 @@ QPushButton {
     padding-left: 3px;
     padding-right: 3px;
     font-size: 12px;
-    height: 15;
-    width: 12;
-    margin-top: 1;  /* to align with combobox */
+    height: 15px;
+    width: 12px;
+    margin-top: 1px;  /* to align with combobox */
 }
 
 /* SpinBox params */
@@ -108,8 +108,8 @@ QSpinBox, QDoubleSpinBox
 }
 QSpinBox::up-button, QSpinBox::down-button, QDoubleSpinBox::up-button, QDoubleSpinBox::down-button
 {
-    height: 4;
-    width: 10;
+    height: 4px;
+    width: 10px;
     padding: 3px;
     background: transparent;
 }
@@ -128,19 +128,19 @@ QSpinBox::down-arrow, QDoubleSpinBox::down-arrow
 QComboBox, QWidget#Element QLineEdit
 {
     border: 1px solid;
-    border-radius: 2;
+    border-radius: 2px;
     padding: 2px;
     padding-left: 5px;
     padding-right: 5px;
     font-size: 12px;
-    height: 14;
+    height: 14px;
     combobox-popup: 0;  /* Seems to be required on Linux to prevent strange combobox popup lists */
 }
 QComboBox::drop-down
 {
     subcontrol-origin: padding;
     subcontrol-position: center right;
-    width: 7;
+    width: 7px;
     padding: 3px;
     background: transparent;
 }
@@ -173,7 +173,7 @@ QWidget#Toolbox
 QLabel#ToolboxTitle
 {
     padding: 8px;
-    border-bottom: 2 solid;
+    border-bottom: 2px solid;
     margin: 2px;
     font: bold;
     text-transform: uppercase;
@@ -186,7 +186,7 @@ QLineEdit
     padding-left: 6px;
     border-style: solid;
     border: 1px solid;
-    border-radius: 10;
+    border-radius: 10px;
     margin: 3px;
     margin-left: 5px;
     margin-right: 5px;
@@ -201,7 +201,7 @@ QTreeView#ToolboxTree
 /* Toolbox items */
 QTreeView#ToolboxTree:item
 {
-    padding: 6;
+    padding: 6px;
     border-bottom: 1px dotted gray;
 }
 
@@ -209,16 +209,16 @@ QTreeView#ToolboxTree:item
 QTreeView#ToolboxTree:item:hover, QTreeView#ToolboxTree:item:selected
 {
     border: 3px solid;
-    border-top-left-radius:10;
-    border-top-right-radius:10;
+    border-top-left-radius: 10px;
+    border-top-right-radius: 10px;
 }
 
 /* Toolbox tree interior */
 QAbstractItemView
 {
     background-color: transparent;
-    margin-left: 10;
-    margin-right: 10;
+    margin-left: 10px;
+    margin-right: 10px;
 }
 
 /*** Scrollbars ***/

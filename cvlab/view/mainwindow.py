@@ -1,13 +1,8 @@
-# -*- coding: utf-8 -*-
-
-from __future__ import unicode_literals, print_function
-from builtins import str
-
 import os
 
-from PyQt4 import QtGui
-from PyQt4.QtCore import Qt, pyqtSignal, QTimer
-from PyQt4.QtGui import QIcon, QApplication, QMessageBox, QPushButton
+from PyQt5.QtCore import Qt, pyqtSignal, QTimer
+from PyQt5.QtGui import *
+from PyQt5.QtWidgets import *
 
 from ..core.update import Updater, parse_version
 from .diagram_manager import DiagramManager
@@ -20,12 +15,12 @@ from .styles import StyleManager
 
 LOAD_LAST_DIAGRAMS = True
 LOAD_DEFAULT_DIAGRAM = True
-DEFAULT_DIAGRAM_PATH = "default.json"
+DEFAULT_DIAGRAM_PATH = "default.cvlab"
 ICON_PATH = os.path.dirname(__file__) + "/../images/icon.png"
 FONT_PATH = os.path.dirname(__file__) + "/../styles/fonts/Carlito-Regular.ttf"
 
 
-class MainWindow(QtGui.QMainWindow):
+class MainWindow(QMainWindow):
     update_available = pyqtSignal(bool, str)
 
     def __init__(self, application):
@@ -41,7 +36,7 @@ class MainWindow(QtGui.QMainWindow):
 
         icon = QIcon(ICON_PATH)
         application.setWindowIcon(icon)
-        QtGui.QFontDatabase.addApplicationFont(FONT_PATH)
+        QFontDatabase.addApplicationFont(FONT_PATH)
         self.style_manager = StyleManager(self)
 
         self.toolbox = Toolbox()
@@ -50,7 +45,7 @@ class MainWindow(QtGui.QMainWindow):
         self.tabs_container.diagram_manager = self.diagram_manager
         MenuBar(self)
 
-        layout = QtGui.QGridLayout()
+        layout = QGridLayout()
         layout.setContentsMargins(0, 0, 0, 0)
         layout.setSpacing(0)
         layout.addWidget(self.toolbox, 0, 0)
@@ -60,7 +55,7 @@ class MainWindow(QtGui.QMainWindow):
         layout.setColumnStretch(0, 1)
         layout.setColumnStretch(1, 6)
 
-        central = QtGui.QWidget()
+        central = QWidget()
         central.setLayout(layout)
         self.setCentralWidget(central)
         self.showMaximized()
@@ -99,11 +94,11 @@ class MainWindow(QtGui.QMainWindow):
             self.tabs_container.keyPressEvent(event)
 
     def closeEvent(self, event):
-        QtGui.QMainWindow.closeEvent(self, event)
+        QMainWindow.closeEvent(self, event)
         self.diagram_manager.save_to_settings(self.settings)
         self.diagram_manager.close_all_diagrams()
         # Close any remaining windows:
-        for window in [x for x in QtGui.QApplication.topLevelWidgets() if x.isWindow() and x != self and x.parent() is None and x.isVisible()]:
+        for window in [x for x in QApplication.topLevelWidgets() if x.isWindow() and x != self and x.parent() is None and x.isVisible()]:
             window.close()
 
     def show_update_info(self, can_update, newest_version):

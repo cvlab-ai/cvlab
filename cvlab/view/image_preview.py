@@ -1,13 +1,6 @@
-# -*- coding: utf-8 -*-
-
-from __future__ import print_function, unicode_literals, division
-
 import json
 import os
 from datetime import datetime, timedelta
-
-import six
-from six import itervalues
 
 import threading
 from os import path
@@ -15,13 +8,12 @@ from threading import Lock, Event, Thread
 import numpy as np
 import cv2 as cv
 
-from PyQt4.QtCore import Qt, QObject, pyqtSlot, pyqtSignal, QSize, QTimer
-from PyQt4.QtGui import QContextMenuEvent, QFileDialog, QKeyEvent, QLabel, QMenu, QMessageBox, \
-    QMouseEvent, QPixmap, QScrollArea, QSizePolicy, QWheelEvent, QApplication, QTransform, QCursor, QImage, \
-    QGraphicsDropShadowEffect, QWidget, QGridLayout, QFrame
+from PyQt5.QtCore import Qt, QObject, pyqtSlot, pyqtSignal, QSize, QTimer
+from PyQt5.QtGui import *
+from PyQt5.QtWidgets import *
 
 
-class Keys(object):
+class Keys:
     NONE = -1
     MOUSE = -2
 
@@ -529,7 +521,6 @@ class PreviewWindow(QFrame):
         self.scrollarea.setFocusPolicy(Qt.NoFocus)
 
         layout = QGridLayout()
-        layout.setMargin(0)
         layout.setContentsMargins(0,0,0,0)
         self.setLayout(layout)
         layout.addWidget(self.scrollarea, 0, 0)
@@ -596,7 +587,7 @@ class PreviewWindow(QFrame):
         if blink:
             self.blink(True)
         if show:
-            self.setShown(True)
+            self.show()
             if self.raise_window:
                 self.raise_()
 
@@ -655,7 +646,7 @@ class PreviewWindow(QFrame):
         assert isinstance(event, QWheelEvent)
         event.accept()
 
-        if event.delta() > 0:
+        if event.angleDelta().y() > 0:
             s = 1.1
         else:
             s = 1 / 1.1
@@ -839,7 +830,7 @@ class WindowManager(QObject):
             self.key_lock.notify()
 
     def find_best_place(self):
-        positions_x = [w.frameGeometry().x()+w.width() for w in itervalues(self.windows) if w.isVisible()]
+        positions_x = [w.frameGeometry().x()+w.width() for w in self.windows.values() if w.isVisible()]
         if not positions_x: return None
         x = max(positions_x) + 4
         y = 50
@@ -867,7 +858,7 @@ class WindowManager(QObject):
             return
         path = os.path.expanduser(self.positions_file)
         with self.lock:
-            for name, window in six.iteritems(self.windows):
+            for name, window in self.windows.items():
                 assert isinstance(window, PreviewWindow)
                 self.positions[name] = window.x(), window.y()
         with open(path, 'w') as f:
@@ -916,7 +907,7 @@ class ManagerThread(Thread):
         return self.manager.moveWindow(winname, x, y)
 
 
-class Manager(object):
+class Manager:
     def __init__(self):
         self._manager = None
         self.lock = Lock()

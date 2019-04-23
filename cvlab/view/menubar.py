@@ -1,18 +1,13 @@
-# -*- coding: utf-8 -*-
-
-from __future__ import unicode_literals
-
 from distutils.util import strtobool
 
-from PyQt4 import QtGui
-from PyQt4.QtCore import Qt
-from PyQt4.QtCore import pyqtSlot
-from PyQt4.QtGui import QMessageBox
+from PyQt5.QtCore import Qt, pyqtSlot
+from PyQt5.QtGui import *
+from PyQt5.QtWidgets import *
 
 from . import config
 
 
-class MenuBar(QtGui.QMenuBar):
+class MenuBar(QMenuBar):
     def __init__(self, parent):
         super(MenuBar, self).__init__(parent)
         main_window = parent
@@ -32,11 +27,12 @@ class MenuBar(QtGui.QMenuBar):
         view_menu.addAction(HighQualityAction(view_menu, main_window))
         view_menu.addAction(LivePreviewsAction(view_menu, main_window))
         view_menu.addAction(PreviewOnTopAction(view_menu, main_window))
+        view_menu.addAction(ResetZoomAction(view_menu, main_window))
 
         view_menu.addAction(ExperimentalElementsAction(view_menu, main_window))
 
 
-class Action(QtGui.QAction):
+class Action(QAction):
     def __init__(self, name, parent, main_window):
         super(Action, self).__init__(name, parent)
         self.main_window = main_window
@@ -46,7 +42,7 @@ class Action(QtGui.QAction):
 class NewAction(Action):
     def __init__(self, parent, main_window):
         super(NewAction, self).__init__('&New', parent, main_window)
-        self.setShortcut(QtGui.QKeySequence(Qt.CTRL + Qt.Key_N))
+        self.setShortcut(QKeySequence(Qt.CTRL + Qt.Key_N))
         self.triggered.connect(self.open_new)
 
     @pyqtSlot()
@@ -57,7 +53,7 @@ class NewAction(Action):
 class OpenAction(Action):
     def __init__(self, parent, main_window):
         super(OpenAction, self).__init__('&Open...', parent, main_window)
-        self.setShortcut(QtGui.QKeySequence(Qt.CTRL + Qt.Key_O))
+        self.setShortcut(QKeySequence(Qt.CTRL + Qt.Key_O))
         self.triggered.connect(self.open)
 
     @pyqtSlot()
@@ -68,7 +64,7 @@ class OpenAction(Action):
 class SaveAsAction(Action):
     def __init__(self, parent, main_window):
         super(SaveAsAction, self).__init__('&Save as...', parent, main_window)
-        self.setShortcut(QtGui.QKeySequence(Qt.CTRL + Qt.SHIFT + Qt.Key_S))
+        self.setShortcut(QKeySequence(Qt.CTRL + Qt.SHIFT + Qt.Key_S))
         self.triggered.connect(self.save_as)
 
     @pyqtSlot()
@@ -79,7 +75,7 @@ class SaveAsAction(Action):
 class SaveAction(Action):
     def __init__(self, parent, main_window):
         super(SaveAction, self).__init__('Save', parent, main_window)
-        self.setShortcut(QtGui.QKeySequence(Qt.CTRL + Qt.Key_S))
+        self.setShortcut(QKeySequence(Qt.CTRL + Qt.Key_S))
         self.triggered.connect(self.save)
 
     @pyqtSlot()
@@ -90,7 +86,7 @@ class SaveAction(Action):
 class CloseDiagramAction(Action):
     def __init__(self, parent, main_window):
         super(CloseDiagramAction, self).__init__('Close diagram', parent, main_window)
-        self.setShortcut(QtGui.QKeySequence(Qt.CTRL + Qt.Key_W))
+        self.setShortcut(QKeySequence(Qt.CTRL + Qt.Key_W))
         self.triggered.connect(self.close)
 
     @pyqtSlot()
@@ -101,7 +97,7 @@ class CloseDiagramAction(Action):
 class CloseAppAction(Action):
     def __init__(self, parent, main_window):
         super(CloseAppAction, self).__init__('E&xit', parent, main_window)
-        self.setShortcut(QtGui.QKeySequence(Qt.ALT + Qt.Key_F4))
+        self.setShortcut(QKeySequence(Qt.ALT + Qt.Key_F4))
         self.triggered.connect(self.exit)
 
     @pyqtSlot()
@@ -110,7 +106,7 @@ class CloseAppAction(Action):
         self.main_window.application.quit()
 
 
-class ColorThemeMenu(QtGui.QMenu):
+class ColorThemeMenu(QMenu):
     def __init__(self, parent, main_window):
         super(ColorThemeMenu, self).__init__("&Set color theme", parent)
         self.main_window = main_window
@@ -186,6 +182,19 @@ class PreviewOnTopAction(Action):
         self.value = not self.value
         self.setChecked(self.value)
         self.settings.set(config.VIEW_SECTION, config.PREVIEW_ON_TOP_OPTION, self.value)
+
+
+class ResetZoomAction(Action):
+    def __init__(self, parent, main_window):
+        super(ResetZoomAction, self).__init__('Reset zoom', parent, main_window)
+        self.setShortcut(QKeySequence(Qt.CTRL + Qt.Key_0))
+        self.triggered.connect(self.reset_zoom)
+
+    @pyqtSlot()
+    def reset_zoom(self):
+        workarea = self.main_window.diagram_manager.current_workarea()
+        if workarea:
+            workarea.workarea.zoom(1.0)
 
 
 class ExperimentalElementsAction(Action):

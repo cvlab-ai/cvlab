@@ -1,7 +1,4 @@
-from cvlab.diagram.elements import register_elements_auto
-from cvlab.diagram.elements.base import NormalElement, Input, Output, IntParameter, Data
-import cv2 as cv
-import numpy as np
+from .base import *
 
 
 class Rotate(NormalElement):
@@ -43,4 +40,4 @@ class Rotate(NormalElement):
         outputs["output"] = Data(out)
 
 
-register_elements_auto(__name__, locals(), "Affine transformations", 5)
+register_elements_auto(__name__, locals(), "Transforms", 5)

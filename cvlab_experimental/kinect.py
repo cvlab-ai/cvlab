@@ -1,16 +1,12 @@
-from __future__ import print_function, unicode_literals
-
 import os
 if os.name != 'nt': raise ImportError("Kinect module only work on Windows")
 
 from datetime import datetime, timedelta, time
 from threading import Event
 
-from builtins import range
-
 from cvlab.diagram.elements.base import *
 
-from cvlab.thirdparty.pykinect import nui
+from .thirdparty.pykinect import nui
 
 
 class Kinect(NormalElement):

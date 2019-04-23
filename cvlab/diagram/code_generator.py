@@ -1,8 +1,3 @@
-# -*- coding: utf-8 -*-
-
-from __future__ import unicode_literals
-from builtins import str, object
-
 from ..core.core_element import CoreElement
 from .connectors import Input, Output
 
@@ -10,11 +5,10 @@ data_header = """\
 
 from collections import defaultdict
 from copy import copy
-from exceptions import TypeError
 from threading import Lock, RLock
 
 
-class Data(object):
+class Data:
     NONE = 0
     SEQUENCE = 1
     IMAGE = 2
@@ -211,7 +205,6 @@ def ImageData(value=None):
 
 file_template = """\
 #!/usr/bin/env python
-# -*- coding: utf-8 -*-
 #
 # Code generated with CV Lab
 # https://github.com/cvlab-ai/cvlab
@@ -219,10 +212,6 @@ file_template = """\
 
 
 ### imports ###
-
-from __future__ import print_function, unicode_literals
-
-from six import iteritems, itervalues, iterkeys
 
 {imports}
 
@@ -255,7 +244,7 @@ if __name__ == "__main__":
 """
 
 
-class CodeGenerator(object):
+class CodeGenerator:
     def __init__(self, element):
         self.base_element = element
         self.functions = {}  # code -> name

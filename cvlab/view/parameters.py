@@ -1,22 +1,17 @@
-# -*- coding: utf-8 -*-
-
-from __future__ import division, unicode_literals
-from builtins import str, range
-
-import itertools
-
-from PyQt4 import QtGui, QtCore
-from PyQt4.QtCore import pyqtSlot
+from PyQt5 import QtCore
+from PyQt5.QtCore import pyqtSlot
+from PyQt5.QtGui import *
+from PyQt5.QtWidgets import *
 
 from ..diagram.parameters import *
 from .highlighter import Highlighter
 
 
-class GuiButtonParameter(QtGui.QHBoxLayout):
+class GuiButtonParameter(QHBoxLayout):
     def __init__(self, parameter):
         super(GuiButtonParameter, self).__init__()
         self.parameter = parameter
-        self.button = QtGui.QPushButton(self.parameter.name)
+        self.button = QPushButton(self.parameter.name)
         self.button.setObjectName("ButtonParameterButton")
         self.button.clicked.connect(self.clicked)
         self.addWidget(self.button)
@@ -26,17 +21,17 @@ class GuiButtonParameter(QtGui.QHBoxLayout):
         self.parameter.clicked()
 
 
-class GuiPathParameter(QtGui.QHBoxLayout):
+class GuiPathParameter(QHBoxLayout):
     def __init__(self, parameter):
         super(GuiPathParameter, self).__init__()
         self.parameter = parameter
-        self.label = QtGui.QLabel(self.parameter.name)
+        self.label = QLabel(self.parameter.name)
         self.label.setObjectName("PathParameterName")
-        self.path = QtGui.QLineEdit()
+        self.path = QLineEdit()
         self.path.setObjectName("PathParameterValue")
         self.path.setEnabled(False)
         self.path.setToolTip(self.path.text())
-        self.browse = QtGui.QPushButton("...")
+        self.browse = QPushButton("...")
         self.browse.setObjectName("PathParameterButton")
         self.browse.clicked.connect(self.choose_path)
         self.addWidget(self.label)
@@ -58,9 +53,9 @@ class GuiPathParameter(QtGui.QHBoxLayout):
     @pyqtSlot()
     def choose_path(self):
         if self.parameter.save_mode:
-            path = QtGui.QFileDialog.getSaveFileName(self.browse, "Save file...", self.parameter.get())
+            path, _ = QFileDialog.getSaveFileName(self.browse, "Save file...", self.parameter.get())
         else:
-            path = QtGui.QFileDialog.getOpenFileName(self.browse, "Open file...", self.parameter.get())
+            path, _ = QFileDialog.getOpenFileName(self.browse, "Open file...", self.parameter.get())
         self.set_path_(str(path))
 
 
@@ -81,8 +76,7 @@ class GuiMultiPathParameter(GuiPathParameter):
 
     @pyqtSlot()
     def choose_path(self):
-        paths = QtGui.QFileDialog.getOpenFileNames(self.browse, "Open multiple files...",
-                                                   self.parameter.get()[0])
+        paths, _ = QFileDialog.getOpenFileNames(self.browse, "Open multiple files...", self.parameter.get()[0])
         self.set_paths_([str(p) for p in paths])
 
 
@@ -90,12 +84,12 @@ class GuiMultiPathParameter(GuiPathParameter):
 class GuiDirectoryParameter(GuiPathParameter):
     @pyqtSlot()
     def choose_path(self):
-        path = QtGui.QFileDialog.getExistingDirectory(self.browse, "Open directory...", self.parameter.get())
+        path = QFileDialog.getExistingDirectory(self.browse, "Open directory...", self.parameter.get())
         self.set_path_(str(path))
 
 
 
-class GuiTextParameter(QtGui.QHBoxLayout):
+class GuiTextParameter(QHBoxLayout):
     def __init__(self, parameter, element):
         super(GuiTextParameter, self).__init__()
         assert isinstance(parameter, TextParameter)
@@ -103,34 +97,37 @@ class GuiTextParameter(QtGui.QHBoxLayout):
         self.element = element
         self.highlighter = None
 
-        self.label = QtGui.QLabel(self.parameter.name)
+        self.label = QLabel(self.parameter.name)
         self.label.setObjectName("TextParameterName")
 
-        self.button = QtGui.QPushButton("Edit code...")
+        self.button = QPushButton("Edit code...")
         self.button.setObjectName("TextParameterButton")
         self.button.clicked.connect(self.edit_code)
         self.addWidget(self.label)
         self.addWidget(self.button)
 
-        self.wnd = QtGui.QDialog(self.element)
+        self.wnd = QDialog(self.element)
         self.wnd.setModal(False)
-        self.wnd.setLayout(QtGui.QVBoxLayout())
+        self.wnd.setLayout(QVBoxLayout())
         self.wnd.setObjectName("CodeDialog")
         self.wnd.setWindowTitle(parameter.window_title)
+        desktop = QApplication.instance().desktop()
+        self.wnd.resize(desktop.screenGeometry(desktop.screenNumber(self.element)).width() // 2,
+                        desktop.screenGeometry(desktop.screenNumber(self.element)).height() // 2)
         self.wnd.finished.connect(self.actualize)
         self.wnd_geometry = None
 
         if parameter.window_content:
-            self.wnd.layout().addWidget(QtGui.QLabel(parameter.window_content))
+            self.wnd.layout().addWidget(QLabel(parameter.window_content))
 
-        self.textedit = QtGui.QPlainTextEdit()
+        self.textedit = QPlainTextEdit()
         self.textedit.setLineWrapMode(self.textedit.NoWrap)
-        self.textedit.setWordWrapMode(QtGui.QTextOption.NoWrap)
+        self.textedit.setWordWrapMode(QTextOption.NoWrap)
         if parameter.live:
             self.textedit.textChanged.connect(self.actualize)
         self.wnd.layout().addWidget(self.textedit)
 
-        ok_button = QtGui.QPushButton()
+        ok_button = QPushButton()
         ok_button.setText("OK")
         ok_button.clicked.connect(self.close_but_press)
         self.wnd.layout().addWidget(ok_button)
@@ -138,12 +135,13 @@ class GuiTextParameter(QtGui.QHBoxLayout):
     @pyqtSlot()
     def edit_code(self):
         self.textedit.setPlainText(self.parameter.get())
-        tab_width = QtGui.QFontMetrics(self.textedit.font()).width("    ")
+        tab_width = QFontMetrics(self.textedit.font()).width("    ")
         self.textedit.setTabStopWidth(tab_width)
         self.highlighter = Highlighter(self.textedit.document())
 
         if self.wnd_geometry:
             self.wnd.setGeometry(self.wnd_geometry)
+
         self.wnd.show()
 
     @pyqtSlot()
@@ -156,16 +154,16 @@ class GuiTextParameter(QtGui.QHBoxLayout):
         self.wnd.accept()
 
 
-class GuiIntParameter(QtGui.QHBoxLayout):
+class GuiIntParameter(QHBoxLayout):
     def __init__(self, parameter, element):
         super(GuiIntParameter, self).__init__()
         self.parameter = parameter
         self.element = element
-        self.label = QtGui.QLabel(self.parameter.name)
+        self.label = QLabel(self.parameter.name)
         self.addWidget(self.label)
 
-        self.slider = QtGui.QSlider(QtCore.Qt.Horizontal)
-        self.slider.setTickPosition(QtGui.QSlider.TicksBelow)
+        self.slider = QSlider(QtCore.Qt.Horizontal)
+        self.slider.setTickPosition(QSlider.TicksBelow)
         self.slider.setVisible(False)
         self.slider.setRange(parameter.min, parameter.max)
         self.slider.setSingleStep(parameter.step)
@@ -174,7 +172,7 @@ class GuiIntParameter(QtGui.QHBoxLayout):
         self.addWidget(self.slider)
         element.param_sliders.append(self.slider)
 
-        self.spin = QtGui.QSpinBox()
+        self.spin = QSpinBox()
         self.spin.setRange(parameter.min, parameter.max)
         self.spin.setSingleStep(parameter.step)
         self.spin.setValue(parameter.get())
@@ -198,18 +196,18 @@ class GuiIntParameter(QtGui.QHBoxLayout):
             self.slider.setValue(value)
 
 
-class GuiFloatParameter(QtGui.QHBoxLayout):
+class GuiFloatParameter(QHBoxLayout):
     def __init__(self, parameter, element):
         super(GuiFloatParameter, self).__init__()
         self.parameter = parameter
         self.element = element
         self.changing = False
 
-        self.label = QtGui.QLabel(self.parameter.name)
+        self.label = QLabel(self.parameter.name)
         self.addWidget(self.label)
 
-        self.slider = QtGui.QSlider(QtCore.Qt.Horizontal)
-        self.slider.setTickPosition(QtGui.QSlider.TicksBelow)
+        self.slider = QSlider(QtCore.Qt.Horizontal)
+        self.slider.setTickPosition(QSlider.TicksBelow)
         self.slider.setVisible(False)
         self.slider.setRange(0, 1000)
         self.slider.setSingleStep(1)
@@ -218,7 +216,7 @@ class GuiFloatParameter(QtGui.QHBoxLayout):
         self.addWidget(self.slider)
         element.param_sliders.append(self.slider)
 
-        self.spin = QtGui.QDoubleSpinBox()
+        self.spin = QDoubleSpinBox()
         self.spin.setRange(parameter.min, parameter.max)
         self.spin.setSingleStep(parameter.step)
         self.spin.setDecimals(6)
@@ -231,11 +229,11 @@ class GuiFloatParameter(QtGui.QHBoxLayout):
         self.ignore_changes = False
 
     def stepBy(self, steps):
-        shift_pressed = (int(QtGui.QApplication.keyboardModifiers()) & QtCore.Qt.ShiftModifier) != 0
+        shift_pressed = (int(QApplication.keyboardModifiers()) & QtCore.Qt.ShiftModifier) != 0
         if shift_pressed:
-            QtGui.QDoubleSpinBox.stepBy(self.spin, steps * 100)
+            QDoubleSpinBox.stepBy(self.spin, steps * 100)
         else:
-            QtGui.QDoubleSpinBox.stepBy(self.spin, steps)
+            QDoubleSpinBox.stepBy(self.spin, steps)
 
     @pyqtSlot()
     def on_value_changed(self):
@@ -270,68 +268,65 @@ class GuiFloatParameter(QtGui.QHBoxLayout):
         self.ignore_changes = False
 
 
-class GuiTwoIntsParameter(QtGui.QHBoxLayout):
-    def __init__(self, parameter, element):
-        super(GuiTwoIntsParameter, self).__init__()
+class GuiMultiNumberParameter(QHBoxLayout):
+    def __init__(self, parameter, element, count, type):
+        super().__init__()
 
         self.parameter = parameter
         self.element = element
+        self.count = count
+        self.type = type
 
-        self.label = QtGui.QLabel(self.parameter.name)
+        self.label = QLabel(self.parameter.name)
         self.addWidget(self.label)
 
-        min_val = self.parameter.min_val
-        max_val = self.parameter.max_val
-        self.spin1 = QtGui.QSpinBox()
-        self.spin1.setRange(min_val, max_val)
-        self.addWidget(self.spin1)
-        self.spin2 = QtGui.QSpinBox()
-        self.spin2.setRange(min_val, max_val)
-        self.addWidget(self.spin2)
+        min_ = self.parameter.min
+        max_ = self.parameter.max
+
+        self.spins = []
+        for i in range(count):
+            spin = QSpinBox()
+            spin.setRange(min_, max_)
+            self.addWidget(spin)
+            self.spins.append(spin)
+
         self.on_value_changed()
 
-        #zdarzenie jest generowane od razu, wiec caly obiekt musi juz byc gotowy
-        self.spin1.valueChanged.connect(self.spin1_value_changed)
-        self.spin2.valueChanged.connect(self.spin2_value_changed)
+        # event is generated instantly, so the whole object must be ready
+        for spin in self.spins:
+            spin.valueChanged.connect(self.spin_value_changed)
+
         self.parameter.value_changed.connect(self.on_value_changed)
 
     def gui_value(self):
-        return int(self.spin1.value()), int(self.spin2.value())
-
-    def is_value_outdated(self):
-        return self.parameter.get() != self.gui_value()
+        return tuple(self.type(spin.value()) for spin in self.spins)
 
     @pyqtSlot()
-    def spin1_value_changed(self):
-        value = self.parameter.get()
-        if value[0] != self.spin1.value():
-            new_value = (self.spin1.value(), value[1])
-            self.parameter.set(new_value)
-
-    @pyqtSlot()
-    def spin2_value_changed(self):
-        value = self.parameter.get()
-        if value[1] != self.spin2.value():
-            new_value = (value[0], self.spin2.value())
-            self.parameter.set(new_value)
+    def spin_value_changed(self):
+        parameter_value = self.parameter.get()
+        spin_value = self.gui_value()
+        if parameter_value != spin_value:
+            self.parameter.set(spin_value)
 
     @pyqtSlot()
     def on_value_changed(self):
-        if self.is_value_outdated():
-            self.spin1.setValue(self.parameter.get()[0])
-            self.spin2.setValue(self.parameter.get()[1])
+        value = self.parameter.get()
+        gui_value = self.gui_value()
+        if value != gui_value:
+            for spin, value in zip(self.spins, value):
+                spin.setValue(value)
 
 
-class GuiComboboxParameter(QtGui.QHBoxLayout):
+class GuiComboboxParameter(QHBoxLayout):
     def __init__(self, parameter, element):
         super(GuiComboboxParameter, self).__init__()
         self.parameter = parameter
         self.element = element
 
-        self.label = QtGui.QLabel(self.parameter.name)
+        self.label = QLabel(self.parameter.name)
         self.addWidget(self.label)
 
-        self.combobox = QtGui.QComboBox()
+        self.combobox = QComboBox()
         for text, value in parameter.values.items():
             self.combobox.addItem(text, value)
         self.combobox.currentIndexChanged.connect(self.combobox_value_changed)
@@ -369,13 +364,13 @@ class GuiComboboxParameter(QtGui.QHBoxLayout):
             return -1
 
 #
-# class GuiMatrixParameter(QtGui.QHBoxLayout):
+# class GuiMatrixParameter(QHBoxLayout):
 #
-#     class Button(QtGui.QLabel):
+#     class Button(QLabel):
 #         pixel_size = (64, 64)
 #
 #         def __init__(self, parameter, x, y, step):
-#             QtGui.QLabel.__init__(self)
+#             QLabel.__init__(self)
 #             self.parameter = parameter
 #             self.matrix_x = x
 #             self.matrix_y = y
@@ -416,18 +411,18 @@ class GuiComboboxParameter(QtGui.QHBoxLayout):
 #         self.parameter = parameter
 #         self.element = element
 #
-#         self.label = QtGui.QLabel(self.parameter.name)
+#         self.label = QLabel(self.parameter.name)
 #         self.label.setObjectName("MatrixParameterName")
 #
-#         self.button = QtGui.QPushButton("Edit matrix...")
+#         self.button = QPushButton("Edit matrix...")
 #         self.button.setObjectName("MatrixParameterButton")
 #         self.button.clicked.connect(self.edit_code)
 #         self.addWidget(self.label)
 #         self.addWidget(self.button)
 #
-#         self.wnd = QtGui.QDialog(self.element)
+#         self.wnd = QDialog(self.element)
 #         self.wnd.setModal(True)
-#         self.wnd.setLayout(QtGui.QVBoxLayout())
+#         self.wnd.setLayout(QVBoxLayout())
 #         self.wnd.setObjectName("MatrixDialog")
 #         self.wnd.setWindowTitle(parameter.window_title)
 #         self.wnd.finished.connect(self.actualize)
@@ -435,18 +430,18 @@ class GuiComboboxParameter(QtGui.QHBoxLayout):
 #
 #         self.size = (7,7)
 #
-#         self.edit_widget = QtGui.QWidget()
-#         self.edit_widget.setLayout(QtGui.QGridLayout())
+#         self.edit_widget = QWidget()
+#         self.edit_widget.setLayout(QGridLayout())
 #         self.recreate_editor()
 #
-#         ok_button = QtGui.QPushButton()
+#         ok_button = QPushButton()
 #         ok_button.setText("OK")
 #         ok_button.clicked.connect(self.close_but_press)
 #         self.wnd.layout().addWidget(ok_button)
 #
 #     def recreate_editor(self):
-#         QtGui.QWidget().setLayout(self.edit_widget.layout())
-#         layout = QtGui.QGridLayout()
+#         QWidget().setLayout(self.edit_widget.layout())
+#         layout = QGridLayout()
 #         self.edit_widget.setLayout(layout)
 #         w, h = self.last_parameters["size"]
 #         dtype = self.last_parameters["type"]
@@ -461,7 +456,7 @@ class GuiComboboxParameter(QtGui.QHBoxLayout):
 #     @pyqtSlot()
 #     def edit_code(self):
 #         self.textedit.setPlainText(self.parameter.get())
-#         tab_width = QtGui.QFontMetrics(self.textedit.font()).width("    ")
+#         tab_width = QFontMetrics(self.textedit.font()).width("    ")
 #         self.textedit.setTabStopWidth(tab_width)
 #         if self.wnd_geometry:
 #             self.wnd.setGeometry(self.wnd_geometry)

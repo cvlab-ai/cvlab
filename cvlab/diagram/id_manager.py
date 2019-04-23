@@ -1,6 +1,3 @@
-from __future__ import unicode_literals
-from builtins import range
-
 import random
 import string
 from threading import RLock

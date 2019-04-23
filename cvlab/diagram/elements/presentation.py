@@ -1,7 +1,3 @@
-# -*- coding: utf-8 -*-
-
-from __future__ import division, unicode_literals
-
 from matplotlib.figure import Figure
 from mpl_toolkits.mplot3d import Axes3D
 from matplotlib.backends.backend_qt4agg import FigureCanvasQTAgg
@@ -11,7 +7,7 @@ from .base import *
 
 class ImagePreview(NormalElement):
     name = "Image preview"
-    comment = "Forwards input to output"
+    comment = "Shows an image using selected presentation method"
 
     def get_attributes(self):
         return [Input("input")], \
@@ -68,6 +64,30 @@ class ImagePreview(NormalElement):
         outputs["output"] = Data(o)
 
 
+class ImagePreview3D(ImagePreview):
+    name = "Image preview 3D"
+    comment = "Shows selected slice from 3D image"
+
+    def get_attributes(self):
+        attributes = super(ImagePreview3D, self).get_attributes()
+        attributes[2].append(ComboboxParameter("axis", [("Z",0),("Y",1),("X",2)]))
+        attributes[2].append(FloatParameter("slice", min_=0, max_=1, step=0.01))
+        return attributes
+    
+    def process_inputs(self, inputs, outputs, parameters):
+        image = inputs["input"].value
+        axis = parameters["axis"]
+        slice = int(round(parameters["slice"] * (image.shape[axis]-1)))
+
+        if axis == 0: slice = image[slice, ...]
+        elif axis == 1: slice = image[:, slice, ...]
+        elif axis == 2: slice = image[:, :, slice, ...]
+        else: raise Exception("Unknown 'axis' parameter")
+
+        inputs["input"].value = slice
+        super(ImagePreview3D, self).process_inputs(inputs, outputs, parameters)
+
+
 class Plot3d(NormalElement):
     name = "Plot 3D (wireframe)"
     comment = "Simple plot of 3D wireframe"
@@ -76,7 +96,7 @@ class Plot3d(NormalElement):
         super(Plot3d, self).__init__()
         self.figure = Figure(figsize=(4, 4), dpi=90, facecolor=(1, 1, 1), edgecolor=(0, 0, 0))
         self.axes = self.figure.add_subplot(111, projection='3d')
-        self.axes.hold(False)
+        # self.axes.hold(False)
         self.plot_widget = FigureCanvasQTAgg(self.figure)
         self.axes.mouse_init()
         self.layout().addWidget(self.plot_widget)
@@ -96,4 +116,4 @@ class Plot3d(NormalElement):
         self.plot_widget.updateGeometry()
 
 
-register_elements_auto(__name__, locals(), "Data presentation", 3)
+register_elements_auto(__name__, locals(), "Visualization", 3)

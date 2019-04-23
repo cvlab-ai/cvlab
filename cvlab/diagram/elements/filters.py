@@ -1,8 +1,3 @@
-# -*- coding: utf-8 -*-
-
-
-from __future__ import unicode_literals
-
 from .base import *
 
 
@@ -98,4 +93,4 @@ class OpenCVErode(NormalElement):
         outputs["output"] = Data(image)
 
 
-register_elements_auto(__name__, locals(), "Basic filters", 5)
+register_elements_auto(__name__, locals(), "Filters", 5)

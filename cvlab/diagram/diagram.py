@@ -1,19 +1,16 @@
-from __future__ import unicode_literals
-from future import standard_library
-standard_library.install_aliases()
-from builtins import map, str, object
 from _thread import get_ident
 
 import itertools
 
-from PyQt4.QtCore import pyqtSignal, QObject, QReadWriteLock, QTimer
+from PyQt5.QtCore import pyqtSignal, QObject, QReadWriteLock, QTimer, pyqtSlot
 
 from .element import *
 from .errors import ConnectError, GeneralException
 from .serialization import ComplexJsonEncoder, ComplexJsonDecoder
+from ..version import __version__
 
 
-class ReadLocker(object):
+class ReadLocker:
     def __init__(self, parent):
         assert isinstance(parent, DiagramLock)
         self.parent = parent
@@ -29,7 +26,7 @@ class ReadLocker(object):
         self.parent.unlock()
 
 
-class WriteLocker(object):
+class WriteLocker:
     def __init__(self, parent):
         assert isinstance(parent, DiagramLock)
         self.parent = parent
@@ -87,7 +84,7 @@ class Diagram(QObject):
         self.element_added.emit(e, position)
 
     def delete_element(self, e):
-        # todo: jesli usuniemy element, do ktorego chca sie dostac inne elementy, to bedziemy mieli problem!
+        # todo: if we remove element, to which other elements try to access, we gonna have trouble
         with self.diagram_lock.writer:
             to_connect = []
             if len(e.inputs) == 1 and len(e.outputs) == 1:
@@ -125,8 +122,9 @@ class Diagram(QObject):
                 input_ = o2
                 output = o1
             if Diagram.makes_loop(output, input_):
-                # print "Loop: {}:{} -> {}:{}".format(output.parent.name, output.name, input_.parent.name, input_.name)
-                raise ConnectError("This connection would create an infinite loop!")
+                print("WARNING Connection loop: {}:{} -> {}:{}".format(output.parent.name, output.name, input_.parent.name, input_.name))
+                # raise ConnectError("This connection would create an infinite loop!")
+                return
             input_.connect(output)
             output.connect(input_)
             if output.desequencing:
@@ -177,7 +175,7 @@ class Diagram(QObject):
         self.painter = painter
 
     def save_to_json(self):
-        return ComplexJsonEncoder(indent=4, sort_keys=True).encode(self)
+        return ComplexJsonEncoder(indent=2, sort_keys=True).encode(self)
 
     def load_from_json(self, ascii_data):
         if not self.painter:
@@ -228,8 +226,10 @@ class Diagram(QObject):
                 })
                 # connected_params.append([par_id, param_ids[to]])
 
+        filetype = "CV-Lab diagram save file. See: https://github.com/cvlab-ai/cvlab "
+
         return {"_type": "diagram", "elements": elements, "wires": wires, "params": connected_params,
-                "zoom_level": self.zoom_level}
+                "zoom_level": self.zoom_level, "_version": __version__, "_filetype": filetype}
 
     def from_json(self, data):
         #TODO: catch json parsing errors and present proper message
@@ -266,7 +266,6 @@ class Diagram(QObject):
             for con in data['params']:
                 from_ = con['from']
                 to_ = con['to']
-                # print "Lacze", from_, "do", to_
                 param_ids[from_].connect_child(param_ids[to_])
 
-        self.zoom_level = 1.0 if "zoom_level" not in data else data["zoom_level"]
+        self.zoom_level = data.get("zoom_level", 1.0)

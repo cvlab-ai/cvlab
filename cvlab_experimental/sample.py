@@ -1,21 +1,20 @@
-# -*- coding: utf-8 -*-
-
 #
 # Creating your own Element for CV Lab
 #
 
 # import whatever libraries you want
-from __future__ import unicode_literals
+
 import cv2 as cv
 
 # also import this
-from ..base import *
+from cvlab.diagram.elements.base import *
 
 
 # create a class which inherits NormalElement
 class MySampleElement(NormalElement):
     name = "My sample element"
     comment = "My first self-created element, hurray! :)"
+    package = "My private elements"
 
     def get_attributes(self):
         return [Input("input", name="Input")], \

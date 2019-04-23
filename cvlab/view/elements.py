@@ -1,10 +1,5 @@
-# -*- coding: utf-8 -*-
-
-from __future__ import division, unicode_literals
-from builtins import zip
-
-from PyQt4.QtCore import pyqtSignal
-from PyQt4.QtGui import QApplication
+from PyQt5.QtCore import pyqtSignal
+from PyQt5.QtWidgets import QApplication
 
 from ..diagram import code_generator
 from ..diagram.element import Element
@@ -57,9 +52,9 @@ class GuiElement(Element, StyledWidget):
 
     def create_label(self, layout):
         if SHOW_ELEMENT_ID:
-            self.label = QtGui.QLabel("{} #{}".format(self.name, self.unique_id))
+            self.label = QLabel("{} #{}".format(self.name, self.unique_id))
         else:
-            self.label = QtGui.QLabel("{}".format(self.name))
+            self.label = QLabel("{}".format(self.name))
         self.label.setObjectName("ElementLabel")
         self.label.setMinimumWidth(100)  # workaround for drag problems - with pixmap width < 100 and adjusted HotSpot
         layout.addWidget(self.label)
@@ -84,7 +79,9 @@ class GuiElement(Element, StyledWidget):
             elif isinstance(param, ComboboxParameter):
                 layout.addLayout(GuiComboboxParameter(param, self))
             elif isinstance(param, SizeParameter) or isinstance(param, PointParameter):
-                layout.addLayout(GuiTwoIntsParameter(param, self))
+                layout.addLayout(GuiMultiNumberParameter(param, self, 2, int))
+            elif isinstance(param, ScalarParameter):
+                layout.addLayout(GuiMultiNumberParameter(param, self, 4, float))
             elif isinstance(param, TextParameter):
                 layout.addLayout(GuiTextParameter(param, self))
 
@@ -111,59 +108,59 @@ class GuiElement(Element, StyledWidget):
         layout.addWidget(self.preview)
 
     def create_switch_params_action(self):
-        action = QtGui.QAction('Show p&arams', self)
+        action = QAction('Show p&arams', self)
         action.triggered.connect(self.switch_params)
         action.setCheckable(True)
         self.standard_actions.append(action)
         self.addAction(action)
 
     def create_switch_preview_action(self):
-        action = QtGui.QAction('Show &preview\t[Double click]', self)
+        action = QAction('Show &preview\t[Double click]', self)
         action.triggered.connect(self.switch_preview)
         action.setCheckable(True)
         self.standard_actions.append(action)
         self.addAction(action)
 
     def create_switch_sliders_action(self):
-        action = QtGui.QAction('Show &sliders', self)
+        action = QAction('Show &sliders', self)
         action.triggered.connect(self.switch_sliders)
         action.setCheckable(True)
         self.standard_actions.append(action)
         self.addAction(action)
 
     def create_del_action(self):
-        del_action = QtGui.QAction('&Delete', self)
+        del_action = QAction('&Delete', self)
         del_action.triggered.connect(self.selfdestroy)
         self.standard_actions.append(del_action)
         self.addAction(del_action)
 
     def create_code_action(self):
-        code_action = QtGui.QAction('&Generate code', self)
+        code_action = QAction('&Generate code', self)
         code_action.triggered.connect(self.gen_code_action)
         self.standard_actions.append(code_action)
         self.addAction(code_action)
 
     def create_duplicate_action(self):
-        dup_action = QtGui.QAction('D&uplicate', self)
+        dup_action = QAction('D&uplicate', self)
         dup_action.triggered.connect(self.duplicate)
         self.standard_actions.append(dup_action)
         self.addAction(dup_action)
 
     def create_break_action(self):
-        action = QtGui.QAction('&Break connections', self)
+        action = QAction('&Break connections', self)
         action.triggered.connect(self.break_connections)
         self.standard_actions.append(action)
         self.addAction(action)
 
     def create_menu_separator(self):
-        separator = QtGui.QAction(self)
+        separator = QAction(self)
         separator.setSeparator(True)
         self.standard_actions.append(separator)
         self.addAction(separator)
 
     def recreate_group_actions(self):
         self.group_actions[:] = []
-        action = QtGui.QAction('&Delete selected', self)
+        action = QAction('&Delete selected', self)
         action.triggered.connect(self.workarea.selection_manager.delete_selected)
         self.group_actions.append(action)
         self.addAction(action)
@@ -183,8 +180,8 @@ class GuiElement(Element, StyledWidget):
     def gen_code_action(self):
         code = code_generator.generate(self)
         QApplication.instance().clipboard().setText(code)
-        msg = QtGui.QMessageBox(QtGui.QMessageBox.Information, "Code copied",
-                                "Code copied to system clipboard.\n\n" + code[:200] + "...", QtGui.QMessageBox.Ok, self)
+        msg = QMessageBox(QMessageBox.Information, "Code copied",
+                                "Code copied to system clipboard.\n\n" + code[:200] + "...", QMessageBox.Ok, self)
         msg.setModal(True)
         msg.show()
 
@@ -237,7 +234,7 @@ class GuiElement(Element, StyledWidget):
         if not NO_FOREGROUND_WIRES:
             self.workarea.wires_in_foreground.raise_()
         # see: WiresBase.__init__ comments!
-        # self.setGraphicsEffect(QtGui.QGraphicsOpacityEffect())
+        # self.setGraphicsEffect(QGraphicsOpacityEffect())
         self.hide_hints()
 
     def mouseDoubleClickEvent(self, e):
@@ -347,22 +344,30 @@ class GuiElement(Element, StyledWidget):
         options = data["gui_options"]
         self.switch_params(options['show_parameters'] is True)
         self.switch_sliders(options["show_sliders"])
-        if "preview_size" in options and options["preview_size"] and options[
-            "preview_size"] != self.preview.preview_size:
-            self.preview.preview_size = options["preview_size"]
+        if "preview_size" in options \
+            and options["preview_size"] \
+            and options["preview_size"] != self.preview.preview_size:
+                self.preview.preview_size = options["preview_size"]
         self.switch_preview(options["show_preview"])
         self.move(options["position"][0], options["position"][1])
         Element.from_json(self, data)
         self.update_id()
         self.preview.force_update()
 
-    def zoom(self, factor, origin_x, origin_y):
+    def zoom(self, factor, origin):
         assert isinstance(self.preview, PreviewsContainer)
+
+        # fixme: this is not accurate (elements are zoomed by top-left position, sizes and positions are integers...)
+
         factor = float(factor)
-        x, y = self.workarea.nearest_grid_point((self.x() - origin_x) * factor + origin_x, (self.y() - origin_y) * factor + origin_y)
+        origin_x, origin_y = origin
+
+        x, y = self.workarea.nearest_grid_point((self.x() - origin_x) * factor + origin_x,
+                                                (self.y() - origin_y) * factor + origin_y)
         self.move(x, y)
-        # fixme: tutaj bedzie sie rozjezdzac! przerobic na floaty!
+
         self.preview.resize_previews(self.preview.preview_size * factor)
+
         self.element_relocated.emit(self)
 
     def deleteLater(self):
@@ -374,18 +379,18 @@ class GuiElement(Element, StyledWidget):
 class FunctionGuiElement(GuiElement):
     def __init__(self):
         super(FunctionGuiElement, self).__init__()
-        vb_main = QtGui.QVBoxLayout()
-        hb_content = QtGui.QHBoxLayout()
-        hb_label = QtGui.QHBoxLayout()
-        vb_inputs = QtGui.QVBoxLayout()
-        vb_params = QtGui.QVBoxLayout()
-        vb_outputs = QtGui.QVBoxLayout()
+        vb_main = QVBoxLayout()
+        hb_content = QHBoxLayout()
+        hb_label = QHBoxLayout()
+        vb_inputs = QVBoxLayout()
+        vb_params = QVBoxLayout()
+        vb_outputs = QVBoxLayout()
         vb_inputs.setAlignment(QtCore.Qt.AlignTop)
         vb_outputs.setAlignment(QtCore.Qt.AlignTop)
 
-        w_params = QtGui.QWidget()
+        w_params = QWidget()
         w_params.setLayout(vb_params)
-        vb_params.setMargin(0)
+        vb_params.setContentsMargins(0,0,0,0)
 
         self.create_label(hb_label)
         self.create_params(w_params)
@@ -398,7 +403,7 @@ class FunctionGuiElement(GuiElement):
         vb_main.addLayout(hb_label)
         vb_main.addLayout(hb_content)
         vb_main.addWidget(self.status_bar)
-        vb_main.setSizeConstraint(QtGui.QLayout.SetFixedSize)
+        vb_main.setSizeConstraint(QLayout.SetFixedSize)
         vb_main.setContentsMargins(3, 3, 3, 3)
         self.setLayout(vb_main)
 
@@ -418,10 +423,10 @@ class FunctionGuiElement(GuiElement):
 class OperatorGuiElement(GuiElement):
     def __init__(self):
         super(OperatorGuiElement, self).__init__()
-        vb_main = QtGui.QVBoxLayout()
-        hb = QtGui.QHBoxLayout()
-        vb_inputs = QtGui.QVBoxLayout()
-        vb_outputs = QtGui.QVBoxLayout()
+        vb_main = QVBoxLayout()
+        hb = QHBoxLayout()
+        vb_inputs = QVBoxLayout()
+        vb_outputs = QVBoxLayout()
         vb_inputs.setAlignment(QtCore.Qt.AlignTop)
         vb_outputs.setAlignment(QtCore.Qt.AlignTop)
 
@@ -433,7 +438,7 @@ class OperatorGuiElement(GuiElement):
         hb.addLayout(vb_outputs)
         vb_main.addLayout(hb)
         vb_main.addWidget(self.status_bar)
-        vb_main.setSizeConstraint(QtGui.QLayout.SetFixedSize)
+        vb_main.setSizeConstraint(QLayout.SetFixedSize)
         vb_main.setContentsMargins(3, 3, 3, 3)
         self.create_preview(vb_main)
         self.setLayout(vb_main)
@@ -448,15 +453,15 @@ class OperatorGuiElement(GuiElement):
 class InputGuiElement(GuiElement):
     def __init__(self):
         super(InputGuiElement, self).__init__()
-        vb_main = QtGui.QVBoxLayout()
-        hb = QtGui.QHBoxLayout()
-        vb_params = QtGui.QVBoxLayout()
-        vb_outputs = QtGui.QVBoxLayout()
+        vb_main = QVBoxLayout()
+        hb = QHBoxLayout()
+        vb_params = QVBoxLayout()
+        vb_outputs = QVBoxLayout()
         vb_outputs.setAlignment(QtCore.Qt.AlignTop)
 
-        w_params = QtGui.QWidget()
+        w_params = QWidget()
         w_params.setLayout(vb_params)
-        vb_params.setMargin(0)
+        vb_params.setContentsMargins(0,0,0,0)
 
         self.create_label(vb_main)
         self.create_params(w_params)
@@ -465,7 +470,7 @@ class InputGuiElement(GuiElement):
         hb.addLayout(vb_outputs)
         vb_main.addLayout(hb)
         vb_main.addWidget(self.status_bar)
-        vb_main.setSizeConstraint(QtGui.QLayout.SetFixedSize)
+        vb_main.setSizeConstraint(QLayout.SetFixedSize)
         vb_main.setContentsMargins(3, 3, 3, 3)
         self.create_preview(vb_main)
         self.setLayout(vb_main)
