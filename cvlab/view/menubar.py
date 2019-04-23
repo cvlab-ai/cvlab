@@ -27,6 +27,7 @@ class MenuBar(QMenuBar):
         view_menu.addAction(HighQualityAction(view_menu, main_window))
         view_menu.addAction(LivePreviewsAction(view_menu, main_window))
         view_menu.addAction(PreviewOnTopAction(view_menu, main_window))
+        view_menu.addAction(ResetZoomAction(view_menu, main_window))
 
         view_menu.addAction(ExperimentalElementsAction(view_menu, main_window))
 
@@ -181,6 +182,19 @@ class PreviewOnTopAction(Action):
         self.value = not self.value
         self.setChecked(self.value)
         self.settings.set(config.VIEW_SECTION, config.PREVIEW_ON_TOP_OPTION, self.value)
+
+
+class ResetZoomAction(Action):
+    def __init__(self, parent, main_window):
+        super(ResetZoomAction, self).__init__('Reset zoom', parent, main_window)
+        self.setShortcut(QKeySequence(Qt.CTRL + Qt.Key_0))
+        self.triggered.connect(self.reset_zoom)
+
+    @pyqtSlot()
+    def reset_zoom(self):
+        workarea = self.main_window.diagram_manager.current_workarea()
+        if workarea:
+            workarea.workarea.zoom(1.0)
 
 
 class ExperimentalElementsAction(Action):

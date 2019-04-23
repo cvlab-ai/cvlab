@@ -344,22 +344,30 @@ class GuiElement(Element, StyledWidget):
         options = data["gui_options"]
         self.switch_params(options['show_parameters'] is True)
         self.switch_sliders(options["show_sliders"])
-        if "preview_size" in options and options["preview_size"] and options[
-            "preview_size"] != self.preview.preview_size:
-            self.preview.preview_size = options["preview_size"]
+        if "preview_size" in options \
+            and options["preview_size"] \
+            and options["preview_size"] != self.preview.preview_size:
+                self.preview.preview_size = options["preview_size"]
         self.switch_preview(options["show_preview"])
         self.move(options["position"][0], options["position"][1])
         Element.from_json(self, data)
         self.update_id()
         self.preview.force_update()
 
-    def zoom(self, factor, origin_x, origin_y):
+    def zoom(self, factor, origin):
         assert isinstance(self.preview, PreviewsContainer)
+
+        # fixme: this is not accurate (elements are zoomed by top-left position, sizes and positions are integers...)
+
         factor = float(factor)
-        x, y = self.workarea.nearest_grid_point((self.x() - origin_x) * factor + origin_x, (self.y() - origin_y) * factor + origin_y)
+        origin_x, origin_y = origin
+
+        x, y = self.workarea.nearest_grid_point((self.x() - origin_x) * factor + origin_x,
+                                                (self.y() - origin_y) * factor + origin_y)
         self.move(x, y)
-        # fixme: tutaj bedzie sie rozjezdzac! przerobic na floaty!
+
         self.preview.resize_previews(self.preview.preview_size * factor)
+
         self.element_relocated.emit(self)
 
     def deleteLater(self):

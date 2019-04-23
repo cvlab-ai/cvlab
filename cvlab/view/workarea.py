@@ -1,3 +1,4 @@
+import re
 from datetime import datetime, timedelta
 
 import numpy as np
@@ -24,7 +25,6 @@ class ScrolledWorkArea(QScrollArea):
         self.mouse_press_pos = None
         QTimer.singleShot(50, self.scroll_to_absolute_center)
 
-
     def load_diagram_from_json(self, ascii_data):
         self.diagram.load_from_json(ascii_data)
         QTimer.singleShot(100, self.scroll_to_upperleft)
@@ -46,10 +46,14 @@ class ScrolledWorkArea(QScrollArea):
     def wheelEvent(self, event):
         assert isinstance(event, QWheelEvent)
         if event.modifiers() in (Qt.ControlModifier, Qt.MetaModifier):
+
+            origin = (event.x() + self.horizontalScrollBar().value(),
+                      event.y() + self.verticalScrollBar().value())
+
             if event.angleDelta().y() < 0:
-                self.workarea.zoom(True)
+                self.workarea.zoom(index=-1, origin=origin)
             else:
-                self.workarea.zoom(False)
+                self.workarea.zoom(index=1, origin=origin)
             event.accept()
         else:
             super(ScrolledWorkArea, self).wheelEvent(event)
@@ -91,7 +95,7 @@ class UserActions(QObject):
 
 
 class WorkArea(QWidget):
-    zoom_levels = np.arange(0.1, 4.01, 0.1, dtype=np.float64).tolist()
+    zoom_levels = [0.25, 0.5, 0.75, 1.0]
     DEFAULT_POSITION_GRID = 20
 
     def __init__(self, diagram, style_manager):
@@ -100,6 +104,7 @@ class WorkArea(QWidget):
         self.setAcceptDrops(True)
         self.diagram = diagram
         self.user_actions = UserActions()
+        self.style_manager = style_manager
         self.wire_tools = WireTools(style_manager)
         self.wires_in_foreground = WiresForeground(self, self.user_actions, self.wire_tools)
         self.wires_in_background = WiresBackground(self, self.user_actions, self.wire_tools)
@@ -109,6 +114,7 @@ class WorkArea(QWidget):
         self.diagram.element_deleted.connect(self.on_element_deleted)
         self.element_move_start = None
         self.last_auto_scroll_time = datetime.now()
+        self.style_manager.style_changed.connect(self.actualize_style)
 
     @property
     def position_grid(self):
@@ -117,8 +123,8 @@ class WorkArea(QWidget):
     def mousePressEvent(self, e):
         if e.button() == Qt.LeftButton:
             self.selection_manager.on_workarea_mouse_left_pressed(e)
+            self.wires_in_background.mousePressEvent(e)
         e.ignore()
-        self.wires_in_background.mousePressEvent(e)
 
     def mouseMoveEvent(self, e):
         if e.buttons() & Qt.LeftButton:
@@ -209,7 +215,7 @@ class WorkArea(QWidget):
             self.user_actions.cursor_line_moved.emit(points)
 
     def sizeHint(self):
-        default_size = 10000
+        default_size = 30000
         layout = self.parent().parent()
         united = QtCore.QRect(QtCore.QPoint(0, 0), layout.maximumViewportSize())
         for e in self.children():
@@ -220,27 +226,58 @@ class WorkArea(QWidget):
                 united = united.united(rect)
         return QtCore.QSize(max(default_size, united.right()), max(default_size, united.bottom()))
 
-    def paintEvent(self, e):
-        #todo: it's very ineficient (paint event occurs very often)
-        self.adjustSize()
+    # def paintEvent(self, e):
+    #     # todo: it's very inefficient (paint event occurs very often)
+    #     self.adjustSize()
 
     def resizeEvent(self, e):
         self.wires_in_foreground.setGeometry(self.rect())
         self.wires_in_background.setGeometry(self.rect())
 
-    def zoom(self, out):
-        act_level = self.zoom_levels.index(self.diagram.zoom_level)  # todo: a jesli nie znajdziemy? bedzie wyjatek!
-        new_level = act_level + (-1 if out else 1)
-        if new_level < 0 or new_level >= len(self.zoom_levels):
-            return
-        new_zoom = self.zoom_levels[new_level]
-        factor = new_zoom/self.diagram.zoom_level
-        self.diagram.zoom_level = new_zoom
-        orig_x = min(e.pos().x() for e in self.diagram.elements)
-        orig_y = min(e.pos().y() for e in self.diagram.elements)
+    def zoom(self, level=None, index=None, origin=None):
+        assert (level is None and index is not None) or (level is not None and index is None)
+
+        if index is not None:
+            new_level = None
+            if index > 0:
+                for i in range(len(self.zoom_levels)):
+                    if self.zoom_levels[i] > self.diagram.zoom_level:
+                        new_level = i
+                        break
+            else:
+                for i in reversed(range(len(self.zoom_levels))):
+                    if self.zoom_levels[i] < self.diagram.zoom_level:
+                        new_level = i
+                        break
+            if new_level is None:
+                return
+
+            level = self.zoom_levels[new_level]
+
+        factor = level / self.diagram.zoom_level
+        self.diagram.zoom_level = level
+
+        origin = origin or (min(e.pos().x() for e in self.diagram.elements),
+                            min(e.pos().y() for e in self.diagram.elements))
+
         for e in self.diagram.elements:
             assert isinstance(e, GuiElement)
-            e.zoom(factor, orig_x, orig_y)
+            e.zoom(factor, origin)
+
+        self.actualize_style()
+
+    def actualize_style(self):
+        def sub(match):
+            value = int(match.group(1))
+            if value == 0:
+                return "0px"
+            value = int(round(value * self.diagram.zoom_level))
+            value = max(value, 1)
+            return str(value) + "px"
+
+        style = self.style_manager.main_window.styleSheet()
+        style = re.sub(r"(\d+)\s*px", sub, style)
+        self.setStyleSheet(style)
 
     def nearest_grid_point(self, x, y):
         return int(round(float(x)/self.position_grid) * self.position_grid), int(round(float(y)/self.position_grid) * self.position_grid)

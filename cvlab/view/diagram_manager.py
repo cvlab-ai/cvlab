@@ -57,6 +57,7 @@ class DiagramManager:
                 scrolled_wa.load_diagram_from_json(encoded)
                 full_path = os.path.abspath(str(path))
                 self.open_diagram(scrolled_wa, full_path)
+                scrolled_wa.workarea.actualize_style()
             except Exception as e:
                 print("Error: could not load diagram {} - {}".format(path, e))
 
@@ -85,7 +86,7 @@ class DiagramManager:
         if full_path is not None:
             self.tabs_container.setTabToolTip(idx, full_path)
         self.tabs_container.setCurrentIndex(idx)
-        for e in to_open.diagram.elements: #need to do this here, as we want to process repaint events
+        for e in to_open.diagram.elements:  # need to do this here, as we want to process repaint events
             e.state_changed.emit()
 
     def save_to_settings(self, settings):
@@ -107,7 +108,7 @@ class DiagramManager:
             self.tabs_container.setTabToolTip(tab_idx, str(path))
 
     def save_diagram(self, tab_idx=None):
-        tab_idx = tab_idx if tab_idx is not None else self.tabs_container.currentIndex()
+        tab_idx = tab_idx or self.tabs_container.currentIndex()
         path = self.tabs_container.tabToolTip(tab_idx)
         if not path or path == "":
             self.save_diagram_as(tab_idx)
@@ -129,6 +130,11 @@ class DiagramManager:
     def close_all_diagrams(self):
         while self.tabs_container.count():
             self.close_diagram()
+
+    def current_workarea(self):
+        tab_idx = self.tabs_container.currentIndex()
+        workarea = self.tabs_container.widget(tab_idx)
+        return workarea
 
 
 def get_file_name_from_path(path):

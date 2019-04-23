@@ -268,4 +268,4 @@ class Diagram(QObject):
                 to_ = con['to']
                 param_ids[from_].connect_child(param_ids[to_])
 
-        self.zoom_level = 1.0 if "zoom_level" not in data else data["zoom_level"]
+        self.zoom_level = data.get("zoom_level", 1.0)
