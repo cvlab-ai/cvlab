@@ -48,10 +48,18 @@ package_name = None
 exec(compile(open('cvlab/version.py').read(), 'cvlab/version.py', 'exec'))
 
 
+this_directory = os.path.abspath(os.path.dirname(__file__))
+with open(os.path.join(this_directory, 'README.md'), encoding='utf-8') as f:
+    long_description = f.read()
+
+description = long_description.splitlines()[0].strip()
+
 setup(
     name=package_name,
     version=__version__,
-    description='CV Lab - Computer Vision Laboratory - GUI for computer vision algorithm design, prototyping and implementation',
+    description=description,
+    long_description=long_description,
+    long_description_content_type='text/markdown',
     author='Adam Brzeski, Jan Cychnerski',
     author_email='adam.m.brzeski@gmail.com, jan.cychnerski@gmail.com',
     url='https://github.com/cvlab-ai/cvlab',
