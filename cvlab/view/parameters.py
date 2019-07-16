@@ -7,10 +7,17 @@ from ..diagram.parameters import *
 from .highlighter import Highlighter
 
 
-class GuiButtonParameter(QHBoxLayout):
+class GuiBaseParameter(QHBoxLayout):
     def __init__(self, parameter):
-        super(GuiButtonParameter, self).__init__()
+        super().__init__()
         self.parameter = parameter
+        self.setContentsMargins(0,0,0,0)
+        self.setSpacing(2)
+
+
+class GuiButtonParameter(GuiBaseParameter):
+    def __init__(self, parameter):
+        super().__init__(parameter)
         self.button = QPushButton(self.parameter.name)
         self.button.setObjectName("ButtonParameterButton")
         self.button.clicked.connect(self.clicked)
@@ -21,10 +28,9 @@ class GuiButtonParameter(QHBoxLayout):
         self.parameter.clicked()
 
 
-class GuiPathParameter(QHBoxLayout):
+class GuiPathParameter(GuiBaseParameter):
     def __init__(self, parameter):
-        super(GuiPathParameter, self).__init__()
-        self.parameter = parameter
+        super().__init__(parameter)
         self.label = QLabel(self.parameter.name)
         self.label.setObjectName("PathParameterName")
         self.path = QLineEdit()
@@ -61,7 +67,7 @@ class GuiPathParameter(QHBoxLayout):
 
 class GuiMultiPathParameter(GuiPathParameter):
     def __init__(self, parameter):
-        super(GuiMultiPathParameter, self).__init__(parameter)
+        super().__init__(parameter)
 
     @pyqtSlot()
     def on_value_changed(self):
@@ -80,7 +86,6 @@ class GuiMultiPathParameter(GuiPathParameter):
         self.set_paths_([str(p) for p in paths])
 
 
-
 class GuiDirectoryParameter(GuiPathParameter):
     @pyqtSlot()
     def choose_path(self):
@@ -88,12 +93,10 @@ class GuiDirectoryParameter(GuiPathParameter):
         self.set_path_(str(path))
 
 
-
-class GuiTextParameter(QHBoxLayout):
+class GuiTextParameter(GuiBaseParameter):
     def __init__(self, parameter, element):
-        super(GuiTextParameter, self).__init__()
+        super().__init__(parameter)
         assert isinstance(parameter, TextParameter)
-        self.parameter = parameter
         self.element = element
         self.highlighter = None
 
@@ -154,10 +157,9 @@ class GuiTextParameter(QHBoxLayout):
         self.wnd.accept()
 
 
-class GuiIntParameter(QHBoxLayout):
+class GuiIntParameter(GuiBaseParameter):
     def __init__(self, parameter, element):
-        super(GuiIntParameter, self).__init__()
-        self.parameter = parameter
+        super().__init__(parameter)
         self.element = element
         self.label = QLabel(self.parameter.name)
         self.addWidget(self.label)
@@ -196,10 +198,9 @@ class GuiIntParameter(QHBoxLayout):
             self.slider.setValue(value)
 
 
-class GuiFloatParameter(QHBoxLayout):
+class GuiFloatParameter(GuiBaseParameter):
     def __init__(self, parameter, element):
-        super(GuiFloatParameter, self).__init__()
-        self.parameter = parameter
+        super().__init__(parameter)
         self.element = element
         self.changing = False
 
@@ -268,11 +269,10 @@ class GuiFloatParameter(QHBoxLayout):
         self.ignore_changes = False
 
 
-class GuiMultiNumberParameter(QHBoxLayout):
+class GuiMultiNumberParameter(GuiBaseParameter):
     def __init__(self, parameter, element, count, type):
-        super().__init__()
+        super().__init__(parameter)
 
-        self.parameter = parameter
         self.element = element
         self.count = count
         self.type = type
@@ -317,10 +317,9 @@ class GuiMultiNumberParameter(QHBoxLayout):
                 spin.setValue(value)
 
 
-class GuiComboboxParameter(QHBoxLayout):
+class GuiComboboxParameter(GuiBaseParameter):
     def __init__(self, parameter, element):
-        super(GuiComboboxParameter, self).__init__()
-        self.parameter = parameter
+        super().__init__(parameter)
         self.element = element
 
         self.label = QLabel(self.parameter.name)
@@ -364,7 +363,7 @@ class GuiComboboxParameter(QHBoxLayout):
             return -1
 
 #
-# class GuiMatrixParameter(QHBoxLayout):
+# class GuiMatrixParameter(GuiBaseParameter):
 #
 #     class Button(QLabel):
 #         pixel_size = (64, 64)

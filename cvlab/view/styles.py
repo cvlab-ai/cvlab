@@ -2,7 +2,7 @@ import os
 from PyQt5.QtCore import QTimer, pyqtSignal, QObject
 from PyQt5.QtWidgets import *
 
-from cvlab.view.wires import WireStyle
+from .wires import WireStyle
 from . import config
 
 
@@ -14,12 +14,13 @@ class StyleManager(QObject):
 
     style_changed = pyqtSignal()
 
+    is_highdpi = QApplication.desktop().screenGeometry().width() > 2500
+
     def __init__(self, main_window):
         super(StyleManager, self).__init__()
         self.styles_dir = os.path.normpath(__file__ + "/../../styles/themes")
         self.main_window = main_window
         self.wire_style = None
-        self.is_highdpi = QApplication.desktop().screenGeometry().width() > 2500
         self.apply_default_stylesheet()
 
         # Only for developing stylesheets

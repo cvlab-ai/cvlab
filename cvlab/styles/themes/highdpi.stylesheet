@@ -87,6 +87,7 @@ QSpinBox, QDoubleSpinBox
     border-width: 2px;
     border-radius: 5px;
     padding-right: 3px;
+    height: 25px;
 }
 QSpinBox::up-button, QSpinBox::down-button, QDoubleSpinBox::up-button, QDoubleSpinBox::down-button
 {

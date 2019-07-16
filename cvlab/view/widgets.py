@@ -129,6 +129,7 @@ class PreviewsContainer(StyledWidget):
         self.outputs = outputs
         layout = QVBoxLayout()
         layout.setContentsMargins(0, 0, 0, 0)
+        layout.setSpacing(0)
         self.preview_size = 120
         self.setObjectName("OutputsPreview")
         self.setVisible(False)
@@ -211,6 +212,8 @@ class OutputPreview(QHBoxLayout):
         self.output = output
         self.previews_container = previews_container
         self.setAlignment(QtCore.Qt.AlignCenter)
+        self.setContentsMargins(0,0,0,0)
+        self.setSpacing(0)
         self.previews = []
         self.previews.append(ActionImage(self))
         self.img = self.default_image
@@ -268,6 +271,7 @@ class ActionImage(QLabel):
         self.image_dialog = None
         self.data_type = ActionImage.DATA_TYPE_IMAGE
         self.number_output_helper = NumberOutputHelper()
+        self.setMargin(0)
         self.prepare_actions()
         self.setObjectName("OutputPreview")
 
@@ -411,16 +415,20 @@ class ElementStatusBar(QWidget):
     def __init__(self, element):
         super(ElementStatusBar, self).__init__()
         self.element = element
+        # self.setSizePolicy(QSizePolicy.Ignored, QSizePolicy.Ignored)
         self.default_message = "Element unset."
         self.message = QLabel(self.default_message)
         self.message.setWordWrap(True)
         self.message.setObjectName("ElementStatusLabel")
+        # self.message.setSizePolicy(QSizePolicy.Ignored,QSizePolicy.Ignored)
         self.timings = QLabel("")
         self.timings.setVisible(False)
         self.timings.setObjectName("ElementStatusLabel")
         self.timings.setAlignment(QtCore.Qt.AlignRight)
+        # self.timings.setSizePolicy(QSizePolicy.Ignored,QSizePolicy.Ignored)
         hb = QHBoxLayout()
         hb.setContentsMargins(0, 0, 0, 0)
+        hb.setSpacing(0)
         hb.addWidget(self.message)
         hb.addWidget(self.timings)
         self.setLayout(hb)

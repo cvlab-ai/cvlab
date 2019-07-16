@@ -1,6 +1,7 @@
 QWidget
 {
     font-family: calibri, carlito;
+    font-size: 14px;
 }
 
 /*** Elements ***/
@@ -91,6 +92,7 @@ QSpinBox, QDoubleSpinBox
     border-radius: 3px;
     qproperty-alignment: AlignRight;
     padding-right: 2px;
+    height: 18px;
 }
 QSpinBox::up-button, QSpinBox::down-button, QDoubleSpinBox::up-button, QDoubleSpinBox::down-button
 {

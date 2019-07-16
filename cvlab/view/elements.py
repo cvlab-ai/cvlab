@@ -1,6 +1,7 @@
 from PyQt5.QtCore import pyqtSignal
 from PyQt5.QtWidgets import QApplication
 
+from .styles import StyleManager
 from ..diagram import code_generator
 from ..diagram.element import Element
 from .parameters import *
@@ -56,7 +57,6 @@ class GuiElement(Element, StyledWidget):
         else:
             self.label = QLabel("{}".format(self.name))
         self.label.setObjectName("ElementLabel")
-        self.label.setMinimumWidth(100)  # workaround for drag problems - with pixmap width < 100 and adjusted HotSpot
         layout.addWidget(self.label)
 
     def create_params(self, container):
@@ -330,26 +330,33 @@ class GuiElement(Element, StyledWidget):
 
     def to_json(self):
         parent_d = Element.to_json(self)
+
+        dpi_factor = 2 if StyleManager.is_highdpi else 1
+
         d = {
             "show_parameters": (self.params.isVisible() if self.params else None),
             "show_sliders": (self.param_sliders[0].isVisible() if self.param_sliders else None),
             "show_preview": (self.preview.isVisible() if self.preview else None),
-            "position": (self.pos().x(), self.pos().y()),
-            "preview_size": self.preview.preview_size,
+            "position": (self.pos().x()//dpi_factor, self.pos().y()//dpi_factor),
+            "preview_size": self.preview.preview_size//dpi_factor,
         }
         parent_d["gui_options"] = d
         return parent_d
 
     def from_json(self, data):
+        dpi_factor = 2 if StyleManager.is_highdpi else 1
+
         options = data["gui_options"]
         self.switch_params(options['show_parameters'] is True)
         self.switch_sliders(options["show_sliders"])
         if "preview_size" in options \
             and options["preview_size"] \
             and options["preview_size"] != self.preview.preview_size:
-                self.preview.preview_size = options["preview_size"]
+                self.preview.preview_size = options["preview_size"] * dpi_factor
         self.switch_preview(options["show_preview"])
-        self.move(options["position"][0], options["position"][1])
+
+        self.move(options["position"][0]*dpi_factor,options["position"][1]*dpi_factor)
+
         Element.from_json(self, data)
         self.update_id()
         self.preview.force_update()
@@ -391,6 +398,12 @@ class FunctionGuiElement(GuiElement):
         w_params = QWidget()
         w_params.setLayout(vb_params)
         vb_params.setContentsMargins(0,0,0,0)
+        vb_params.setSpacing(2)
+
+        # vb_inputs.setContentsMargins(0,0,0,0)
+        # vb_inputs.setSpacing(0)
+        # vb_outputs.setContentsMargins(0,0,0,0)
+        # vb_outputs.setSpacing(0)
 
         self.create_label(hb_label)
         self.create_params(w_params)
@@ -404,7 +417,8 @@ class FunctionGuiElement(GuiElement):
         vb_main.addLayout(hb_content)
         vb_main.addWidget(self.status_bar)
         vb_main.setSizeConstraint(QLayout.SetFixedSize)
-        vb_main.setContentsMargins(3, 3, 3, 3)
+        vb_main.setContentsMargins(1,1,1,1)
+        vb_main.setSpacing(1)
         self.setLayout(vb_main)
 
         self.create_preview(vb_main)
@@ -439,7 +453,8 @@ class OperatorGuiElement(GuiElement):
         vb_main.addLayout(hb)
         vb_main.addWidget(self.status_bar)
         vb_main.setSizeConstraint(QLayout.SetFixedSize)
-        vb_main.setContentsMargins(3, 3, 3, 3)
+        vb_main.setContentsMargins(1,1,1,1)
+        vb_main.setSpacing(1)
         self.create_preview(vb_main)
         self.setLayout(vb_main)
 
@@ -462,6 +477,7 @@ class InputGuiElement(GuiElement):
         w_params = QWidget()
         w_params.setLayout(vb_params)
         vb_params.setContentsMargins(0,0,0,0)
+        vb_params.setSpacing(1)
 
         self.create_label(vb_main)
         self.create_params(w_params)
@@ -471,7 +487,8 @@ class InputGuiElement(GuiElement):
         vb_main.addLayout(hb)
         vb_main.addWidget(self.status_bar)
         vb_main.setSizeConstraint(QLayout.SetFixedSize)
-        vb_main.setContentsMargins(3, 3, 3, 3)
+        vb_main.setContentsMargins(1,1,1,1)
+        vb_main.setSpacing(0)
         self.create_preview(vb_main)
         self.setLayout(vb_main)
 

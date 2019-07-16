@@ -10,6 +10,7 @@ from PyQt5.QtGui import *
 from ..diagram.element import Element
 from .elements import GuiElement
 from .mimedata import Mime
+from .styles import StyleManager
 from .wires import WiresForeground, NO_FOREGROUND_WIRES, WiresBackground, WireTools
 
 
@@ -215,16 +216,17 @@ class WorkArea(QWidget):
             self.user_actions.cursor_line_moved.emit(points)
 
     def sizeHint(self):
-        default_size = 30000
-        layout = self.parent().parent()
-        united = QtCore.QRect(QtCore.QPoint(0, 0), layout.maximumViewportSize())
-        for e in self.children():
-            if isinstance(e, Element):
-                rect = e.geometry()
-                rect.setWidth(rect.width() + 50)
-                rect.setHeight(rect.height() + 50)
-                united = united.united(rect)
-        return QtCore.QSize(max(default_size, united.right()), max(default_size, united.bottom()))
+        default_size = 100000
+        return QtCore.QSize(default_size,default_size)
+        # layout = self.parent().parent()
+        # united = QtCore.QRect(QtCore.QPoint(0, 0), layout.maximumViewportSize())
+        # for e in self.children():
+        #     if isinstance(e, Element):
+        #         rect = e.geometry()
+        #         rect.setWidth(rect.width() + 50)
+        #         rect.setHeight(rect.height() + 50)
+        #         united = united.united(rect)
+        # return QtCore.QSize(max(default_size, united.right()), max(default_size, united.bottom()))
 
     # def paintEvent(self, e):
     #     # todo: it's very inefficient (paint event occurs very often)
@@ -235,6 +237,7 @@ class WorkArea(QWidget):
         self.wires_in_background.setGeometry(self.rect())
 
     def zoom(self, level=None, index=None, origin=None):
+
         assert (level is None and index is not None) or (level is not None and index is None)
 
         if index is not None:
@@ -278,6 +281,26 @@ class WorkArea(QWidget):
         style = self.style_manager.main_window.styleSheet()
         style = re.sub(r"(\d+)\s*px", sub, style)
         self.setStyleSheet(style)
+
+        # adjust layout spacings, as they cannot be set in stylesheets (meh...)
+        for element in self.diagram.elements:
+            layouts = [element.layout()]
+            while layouts:
+                layout = layouts.pop()
+
+                dpi_factor = 2 if StyleManager.is_highdpi else 1
+
+                if layout.contentsMargins().left():
+                    margin = max(int(2 * self.diagram.zoom_level * dpi_factor),1)
+                    layout.setContentsMargins(margin,margin,margin,margin)
+
+                if layout.spacing():
+                    spacing = max(int(2 * self.diagram.zoom_level * dpi_factor),1)
+                    layout.setSpacing(spacing)
+
+                for child in layout.children():
+                    if isinstance(child, QLayout):
+                        layouts.append(child)
 
     def nearest_grid_point(self, x, y):
         return int(round(float(x)/self.position_grid) * self.position_grid), int(round(float(y)/self.position_grid) * self.position_grid)

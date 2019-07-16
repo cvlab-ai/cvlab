@@ -91,8 +91,10 @@ class ElementsList(QTreeView):
                 mime_data.setText(Mime.NEW_ELEMENT)
                 selected_class = self.class_mapper.to_class(str(selected.text()))
                 self.last_spawned_element = selected_class()
+                self.last_spawned_element.label.setMinimumWidth(100)  # workaround for drag problems - with pixmap width < 100 and adjusted HotSpot
                 self.last_spawned_element.setParent(self)
                 img = self.last_spawned_element.grab()
+                self.last_spawned_element.label.setMinimumWidth(0)
                 drag.setMimeData(mime_data)
                 drag.setPixmap(img)
                 drag.setHotSpot(QtCore.QPoint(img.width() / 2, img.height() / 2))

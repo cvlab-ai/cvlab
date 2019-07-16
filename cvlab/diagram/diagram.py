@@ -4,6 +4,7 @@ import itertools
 
 from PyQt5.QtCore import pyqtSignal, QObject, QReadWriteLock, QTimer, pyqtSlot
 
+from ..view.styles import StyleManager
 from .element import *
 from .errors import ConnectError, GeneralException
 from .serialization import ComplexJsonEncoder, ComplexJsonDecoder
@@ -238,6 +239,12 @@ class Diagram(QObject):
 
         for e_order in sorted_orders:
             e = data["elements"][str(e_order)]
+
+            # workaround for old versions, where hidpi was ignored in saved diagrams
+            if StyleManager.is_highdpi and data.get("_version","") < "1.2.1":
+                e.move(e.pos().x()//2,e.pos().y()//2)
+                e.preview.preview_size //= 2
+
             self.add_element(e, (e.pos().x(), e.pos().y()))
             elements[e_order] = e
 
