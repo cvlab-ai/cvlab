@@ -3,6 +3,7 @@ from PyQt5.QtCore import pyqtSlot
 from PyQt5.QtGui import *
 from PyQt5.QtWidgets import *
 
+from cvlab.view.spin_widget import *
 from ..diagram.parameters import *
 from .highlighter import Highlighter
 
@@ -174,7 +175,7 @@ class GuiIntParameter(GuiBaseParameter):
         self.addWidget(self.slider)
         element.param_sliders.append(self.slider)
 
-        self.spin = QSpinBox()
+        self.spin = SpinBoxEx()
         self.spin.setRange(parameter.min, parameter.max)
         self.spin.setSingleStep(parameter.step)
         self.spin.setValue(parameter.get())
@@ -217,7 +218,7 @@ class GuiFloatParameter(GuiBaseParameter):
         self.addWidget(self.slider)
         element.param_sliders.append(self.slider)
 
-        self.spin = QDoubleSpinBox()
+        self.spin = DoubleSpinBoxEx()
         self.spin.setRange(parameter.min, parameter.max)
         self.spin.setSingleStep(parameter.step)
         self.spin.setDecimals(6)
@@ -285,7 +286,7 @@ class GuiMultiNumberParameter(GuiBaseParameter):
 
         self.spins = []
         for i in range(count):
-            spin = QSpinBox()
+            spin = SpinBoxEx()
             spin.setRange(min_, max_)
             self.addWidget(spin)
             self.spins.append(spin)
