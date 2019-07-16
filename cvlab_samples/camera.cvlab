@@ -1,17 +1,17 @@
 {
   "_filetype": "CV-Lab diagram save file. See: https://github.com/cvlab-ai/cvlab ",
   "_type": "diagram",
-  "_version": "1.1",
+  "_version": "1.2.1",
   "elements": {
     "1": {
       "_type": "element",
       "class": "OpenCVBlur",
       "gui_options": {
         "position": [
-          4180,
-          4300
+          2090,
+          2150
         ],
-        "preview_size": 216.243896484375,
+        "preview_size": 121.0,
         "show_parameters": true,
         "show_preview": true,
         "show_sliders": false
@@ -22,15 +22,15 @@
       },
       "unique_id": "964722"
     },
-    "4": {
+    "2": {
       "_type": "element",
       "class": "Camera",
       "gui_options": {
         "position": [
-          3660,
-          4300
+          1830,
+          2150
         ],
-        "preview_size": 493.1868807430146,
+        "preview_size": 246.0,
         "show_parameters": true,
         "show_preview": true,
         "show_sliders": false
@@ -45,15 +45,15 @@
       },
       "unique_id": "661532"
     },
-    "5": {
+    "3": {
       "_type": "element",
       "class": "AbsDiffOperator",
       "gui_options": {
         "position": [
-          5080,
-          4300
+          2540,
+          2150
         ],
-        "preview_size": 554.8352408358915,
+        "preview_size": 277.0,
         "show_parameters": true,
         "show_preview": true,
         "show_sliders": null
@@ -62,15 +62,15 @@
       "parameters": {},
       "unique_id": "249233"
     },
-    "9": {
+    "4": {
       "_type": "element",
       "class": "DelayLine",
       "gui_options": {
         "position": [
-          4580,
-          4300
+          2290,
+          2150
         ],
-        "preview_size": 106.66666666666669,
+        "preview_size": 59.0,
         "show_parameters": true,
         "show_preview": true,
         "show_sliders": null
@@ -79,15 +79,15 @@
       "parameters": {},
       "unique_id": "669123"
     },
-    "16": {
+    "5": {
       "_type": "element",
       "class": "Accumulator",
       "gui_options": {
         "position": [
-          4580,
-          5120
+          2290,
+          2560
         ],
-        "preview_size": 170.859375,
+        "preview_size": 85.0,
         "show_parameters": true,
         "show_preview": true,
         "show_sliders": false
@@ -103,15 +103,15 @@
       },
       "unique_id": "865120"
     },
-    "19": {
+    "8": {
       "_type": "element",
       "class": "AbsDiffOperator",
       "gui_options": {
         "position": [
-          5080,
-          5020
+          2540,
+          2510
         ],
-        "preview_size": 554.8352408358915,
+        "preview_size": 277.0,
         "show_parameters": true,
         "show_preview": true,
         "show_sliders": null
@@ -124,51 +124,51 @@
   "params": [],
   "wires": {
     "0": {
-      "from_element": 9,
+      "from_element": 4,
       "from_output": "o1",
-      "to_element": 5,
+      "to_element": 3,
       "to_input": "1"
     },
     "1": {
-      "from_element": 9,
+      "from_element": 4,
       "from_output": "o2",
-      "to_element": 5,
+      "to_element": 3,
       "to_input": "2"
     },
     "2": {
       "from_element": 1,
       "from_output": "output",
-      "to_element": 9,
+      "to_element": 4,
       "to_input": "input"
     },
     "3": {
-      "from_element": 4,
+      "from_element": 2,
       "from_output": "output",
       "to_element": 1,
       "to_input": "input"
     },
     "4": {
-      "from_element": 9,
+      "from_element": 4,
       "from_output": "o1",
-      "to_element": 16,
+      "to_element": 5,
       "to_input": "input"
     },
     "5": {
-      "from_element": 16,
+      "from_element": 5,
       "from_output": "output",
-      "to_element": 19,
+      "to_element": 8,
       "to_input": "2"
     },
     "6": {
       "from_element": 1,
       "from_output": "output",
-      "to_element": 16,
+      "to_element": 5,
       "to_input": "input"
     },
     "7": {
       "from_element": 1,
       "from_output": "output",
-      "to_element": 19,
+      "to_element": 8,
       "to_input": "1"
     }
   },

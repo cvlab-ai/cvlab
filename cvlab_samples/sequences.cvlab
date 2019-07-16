@@ -1,17 +1,17 @@
 {
   "_filetype": "CV-Lab diagram save file. See: https://github.com/cvlab-ai/cvlab ",
   "_type": "diagram",
-  "_version": "1.1",
+  "_version": "1.2.1",
   "elements": {
     "1": {
       "_type": "element",
       "class": "ImageSequenceLoader",
       "gui_options": {
         "position": [
-          3940,
-          4380
+          1970,
+          2190
         ],
-        "preview_size": 170.859375,
+        "preview_size": 85.0,
         "show_parameters": true,
         "show_preview": true,
         "show_sliders": null
@@ -25,34 +25,15 @@
       },
       "unique_id": "721059"
     },
-    "3": {
-      "_type": "element",
-      "class": "ImageLoader",
-      "gui_options": {
-        "position": [
-          3940,
-          4800
-        ],
-        "preview_size": 243.27438354492188,
-        "show_parameters": true,
-        "show_preview": true,
-        "show_sliders": null
-      },
-      "module": "cvlab.diagram.elements.image_io",
-      "parameters": {
-        "path": "images/default.png"
-      },
-      "unique_id": "515277"
-    },
-    "5": {
+    "2": {
       "_type": "element",
       "class": "Resizer",
       "gui_options": {
         "position": [
-          4340,
-          4380
+          2170,
+          2190
         ],
-        "preview_size": 170.859375,
+        "preview_size": 85.0,
         "show_parameters": true,
         "show_preview": true,
         "show_sliders": false
@@ -64,15 +45,53 @@
       },
       "unique_id": "299525"
     },
-    "8": {
+    "3": {
+      "_type": "element",
+      "class": "OpenCVBlur",
+      "gui_options": {
+        "position": [
+          2370,
+          2190
+        ],
+        "preview_size": 96.0,
+        "show_parameters": true,
+        "show_preview": true,
+        "show_sliders": false
+      },
+      "module": "cvlab.diagram.elements.blur",
+      "parameters": {
+        "ratio": 8
+      },
+      "unique_id": "294025"
+    },
+    "7": {
+      "_type": "element",
+      "class": "ImageLoader",
+      "gui_options": {
+        "position": [
+          1960,
+          2400
+        ],
+        "preview_size": 121.0,
+        "show_parameters": true,
+        "show_preview": true,
+        "show_sliders": null
+      },
+      "module": "cvlab.diagram.elements.image_io",
+      "parameters": {
+        "path": "images/default.png"
+      },
+      "unique_id": "515277"
+    },
+    "9": {
       "_type": "element",
       "class": "Resizer",
       "gui_options": {
         "position": [
-          4340,
-          4800
+          2160,
+          2400
         ],
-        "preview_size": 170.859375,
+        "preview_size": 85.0,
         "show_parameters": false,
         "show_preview": true,
         "show_sliders": false
@@ -84,34 +103,15 @@
       },
       "unique_id": "160547"
     },
-    "11": {
-      "_type": "element",
-      "class": "OpenCVBlur",
-      "gui_options": {
-        "position": [
-          4740,
-          4380
-        ],
-        "preview_size": 192.216796875,
-        "show_parameters": true,
-        "show_preview": true,
-        "show_sliders": false
-      },
-      "module": "cvlab.diagram.elements.blur",
-      "parameters": {
-        "ratio": 8
-      },
-      "unique_id": "294025"
-    },
-    "14": {
+    "10": {
       "_type": "element",
       "class": "MaxOperator",
       "gui_options": {
         "position": [
-          5160,
-          4800
+          2580,
+          2400
         ],
-        "preview_size": 216.243896484375,
+        "preview_size": 108.0,
         "show_parameters": true,
         "show_preview": true,
         "show_sliders": null
@@ -120,15 +120,15 @@
       "parameters": {},
       "unique_id": "054495"
     },
-    "17": {
+    "13": {
       "_type": "element",
       "class": "MinOperator",
       "gui_options": {
         "position": [
-          5640,
-          4800
+          2820,
+          2400
         ],
-        "preview_size": 389.6785230562091,
+        "preview_size": 194.0,
         "show_parameters": true,
         "show_preview": true,
         "show_sliders": null
@@ -140,63 +140,63 @@
   },
   "params": [
     {
-      "from": 2,
-      "to": 4
-    },
-    {
-      "from": 3,
+      "from": 1,
       "to": 5
     },
     {
-      "from": 4,
-      "to": 2
+      "from": 2,
+      "to": 6
     },
     {
       "from": 5,
-      "to": 3
+      "to": 1
+    },
+    {
+      "from": 6,
+      "to": 2
     }
   ],
   "wires": {
     "0": {
       "from_element": 1,
       "from_output": "output",
-      "to_element": 5,
+      "to_element": 2,
       "to_input": "input"
     },
     "1": {
       "from_element": 1,
       "from_output": "output",
-      "to_element": 8,
+      "to_element": 9,
       "to_input": "input"
     },
     "2": {
-      "from_element": 3,
+      "from_element": 7,
       "from_output": "output",
-      "to_element": 8,
+      "to_element": 9,
       "to_input": "input"
     },
     "3": {
-      "from_element": 5,
+      "from_element": 2,
       "from_output": "output",
-      "to_element": 11,
+      "to_element": 3,
       "to_input": "input"
     },
     "4": {
-      "from_element": 11,
+      "from_element": 3,
       "from_output": "output",
-      "to_element": 14,
+      "to_element": 10,
       "to_input": "inputs"
     },
     "5": {
-      "from_element": 8,
+      "from_element": 9,
       "from_output": "output",
-      "to_element": 14,
+      "to_element": 10,
       "to_input": "inputs"
     },
     "6": {
-      "from_element": 14,
+      "from_element": 10,
       "from_output": "output",
-      "to_element": 17,
+      "to_element": 13,
       "to_input": "inputs"
     }
   },

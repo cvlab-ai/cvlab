@@ -1,17 +1,17 @@
 {
   "_filetype": "CV-Lab diagram save file. See: https://github.com/cvlab-ai/cvlab ",
   "_type": "diagram",
-  "_version": "1.1",
+  "_version": "1.2.1",
   "elements": {
     "1": {
       "_type": "element",
       "class": "CodeElementEx",
       "gui_options": {
         "position": [
-          4240,
-          4340
+          2120,
+          2170
         ],
-        "preview_size": 192.216796875,
+        "preview_size": 67.0,
         "show_parameters": true,
         "show_preview": true,
         "show_sliders": null
@@ -31,10 +31,10 @@
       "class": "CodeElementEx",
       "gui_options": {
         "position": [
-          4700,
-          4340
+          2350,
+          2170
         ],
-        "preview_size": 120,
+        "preview_size": 68.0,
         "show_parameters": true,
         "show_preview": true,
         "show_sliders": null
@@ -49,15 +49,15 @@
       },
       "unique_id": "948979"
     },
-    "11": {
+    "3": {
       "_type": "element",
       "class": "VideoLoader",
       "gui_options": {
         "position": [
-          3860,
-          4340
+          1930,
+          2170
         ],
-        "preview_size": 120,
+        "preview_size": 30,
         "show_parameters": true,
         "show_preview": false,
         "show_sliders": false
@@ -72,38 +72,15 @@
       },
       "unique_id": "486527"
     },
-    "21": {
+    "4": {
       "_type": "element",
       "class": "CodeElement",
       "gui_options": {
         "position": [
-          4700,
-          4980
+          2350,
+          2670
         ],
-        "preview_size": 120,
-        "show_parameters": true,
-        "show_preview": true,
-        "show_sliders": null
-      },
-      "module": "cvlab.diagram.elements.code",
-      "parameters": {
-        "code": "import cv2 as cv\nimport numpy as np\n\n# save a state of the code element\n\nif \"counter\" not in memory:\n\tmemory[\"counter\"] = 0\nelse:\n\tmemory[\"counter\"] += 1\n\n\ni = image + 0\ncv.putText(i, \"Frame \"+str(memory[\"counter\"]), (5,10), 0, 0.35, 255)\n\n\nreturn i",
-        "split_channels": {
-          "name": "Image",
-          "value": false
-        }
-      },
-      "unique_id": "847158"
-    },
-    "22": {
-      "_type": "element",
-      "class": "CodeElement",
-      "gui_options": {
-        "position": [
-          4700,
-          5340
-        ],
-        "preview_size": 120,
+        "preview_size": 97.0,
         "show_parameters": true,
         "show_preview": true,
         "show_sliders": null
@@ -117,6 +94,29 @@
         }
       },
       "unique_id": "381641"
+    },
+    "6": {
+      "_type": "element",
+      "class": "CodeElement",
+      "gui_options": {
+        "position": [
+          2350,
+          2470
+        ],
+        "preview_size": 97.0,
+        "show_parameters": true,
+        "show_preview": true,
+        "show_sliders": null
+      },
+      "module": "cvlab.diagram.elements.code",
+      "parameters": {
+        "code": "import cv2 as cv\nimport numpy as np\n\n# save a state of the code element\n\nif \"counter\" not in memory:\n\tmemory[\"counter\"] = 0\nelse:\n\tmemory[\"counter\"] += 1\n\n\ni = image + 0\ncv.putText(i, \"Frame \"+str(memory[\"counter\"]), (5,10), 0, 0.35, 255)\n\n\nreturn i",
+        "split_channels": {
+          "name": "Image",
+          "value": false
+        }
+      },
+      "unique_id": "847158"
     }
   },
   "params": [],
@@ -146,7 +146,7 @@
       "to_input": "in4"
     },
     "4": {
-      "from_element": 11,
+      "from_element": 3,
       "from_output": "output",
       "to_element": 1,
       "to_input": "in1"
@@ -154,13 +154,13 @@
     "5": {
       "from_element": 1,
       "from_output": "o4",
-      "to_element": 21,
+      "to_element": 6,
       "to_input": "input"
     },
     "6": {
       "from_element": 1,
       "from_output": "o4",
-      "to_element": 22,
+      "to_element": 4,
       "to_input": "input"
     }
   },
