@@ -82,6 +82,7 @@ class DiagramManager:
             name = "new*"
         else:
             name = get_file_name_from_path(full_path)
+            if name.endswith(".cvlab"): name = name[:-6]
         idx = self.tabs_container.addTab(to_open, name)
         if full_path is not None:
             self.tabs_container.setTabToolTip(idx, full_path)
@@ -138,8 +139,7 @@ class DiagramManager:
 
 
 def get_file_name_from_path(path):
-        head, tail = ntpath.split(str(path))
-        return tail
+    return os.path.basename(str(path))
 
 
 def save_diagram_to_file(diagram, path):
