@@ -4,6 +4,7 @@ from PyQt5.QtCore import Qt, pyqtSignal, QTimer
 from PyQt5.QtGui import *
 from PyQt5.QtWidgets import *
 
+from ..diagram.elements import plugin_callbacks
 from ..core.update import Updater, parse_version
 from .diagram_manager import DiagramManager
 from .menubar import MenuBar
@@ -61,7 +62,8 @@ class MainWindow(QMainWindow):
         self.showMaximized()
         self.raise_()   # bring to front on a Mac
 
-        QTimer.singleShot(100, self.load_diagrams)
+        QTimer.singleShot(100, self.process_plugins_callbacks)
+        QTimer.singleShot(200, self.load_diagrams)
 
         # Prevent automatic focus on toolbox search field
         self.toolbox.filter_input.clearFocus()
@@ -83,6 +85,10 @@ class MainWindow(QMainWindow):
             self.diagram_manager.open_diagram_from_path(DEFAULT_DIAGRAM_PATH)
         else:
             self.diagram_manager.open_diagram()
+
+    def process_plugins_callbacks(self):
+        for callback in plugin_callbacks:
+            callback(self)
 
     def keyPressEvent(self, event):
         key = event.key()
