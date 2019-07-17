@@ -86,6 +86,10 @@ QComboBox::down-arrow
 {
     border-image: url($CVLAB_DIR/styles/themes/dark/down.png);
 }
+QWidget#Element QLineEdit:disabled
+{
+    color: #b1b1b1;
+}
 
 
 /*** Toolbox ***/
