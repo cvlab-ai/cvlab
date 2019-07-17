@@ -173,8 +173,15 @@ class WorkArea(QWidget):
         element.set_workarea(self)
         element.element_relocated.connect(self.user_actions.element_relocated)
         self.adjustSize()
+
+        if os.name == "posix":
+            refresh_style_recursive(element)
+
+        element.actualize_style()
+
         if not NO_FOREGROUND_WIRES:
             self.wires_in_foreground.raise_()
+
         self.connectors_map.update(element.input_connectors)
         self.connectors_map.update(element.output_connectors)
 
@@ -291,25 +298,7 @@ class WorkArea(QWidget):
 
         # adjust layout spacings, as they cannot be set in stylesheets (meh...)
         for element in self.diagram.elements:
-            layouts = [element.layout()]
-            while layouts:
-                layout = layouts.pop()
-
-                dpi_factor = 2 if StyleManager.is_highdpi else 1
-
-                base_contents_margins = getattr(layout, "base_contents_margins", None)
-                if base_contents_margins:
-                    margins = (np.array(base_contents_margins) * dpi_factor * self.diagram.zoom_level).clip(1,1000).round().astype(int).tolist()
-                    layout.setContentsMargins(*margins)
-
-                base_spacing = getattr(layout, "base_spacing", None)
-                if base_spacing:
-                    spacing = max(int(base_spacing * self.diagram.zoom_level * dpi_factor),1)
-                    layout.setSpacing(spacing)
-
-                for child in layout.children():
-                    if isinstance(child, QLayout):
-                        layouts.append(child)
+            element.actualize_style()
 
     def nearest_grid_point(self, x, y):
         return int(round(float(x)/self.position_grid) * self.position_grid), int(round(float(y)/self.position_grid) * self.position_grid)
