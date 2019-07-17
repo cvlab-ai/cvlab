@@ -20,6 +20,7 @@ class OpenExampleAction(QAction):
 
 def add_samples(main_window):
     samples = glob(os.path.dirname(__file__) + "/*.cvlab")
+    samples.sort()
 
     print("Adding {} sample diagrams to main menu".format(len(samples)))
 
