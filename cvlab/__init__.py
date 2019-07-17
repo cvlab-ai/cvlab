@@ -13,12 +13,6 @@ def main(*args, **kwargs):
         sys.exit(-1)
     sys.excepthook = exception_hook
 
-    # todo: it's an ugly workaround for PyQt stylesheets relative paths
-    try:
-        os.chdir(os.path.dirname(__file__))
-    except Exception:
-        pass
-
     np.seterr(all='raise')
     sip.setdestroyonexit(False)
 

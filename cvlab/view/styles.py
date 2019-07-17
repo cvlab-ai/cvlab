@@ -18,9 +18,10 @@ class StyleManager(QObject):
 
     def __init__(self, main_window):
         super(StyleManager, self).__init__()
-        self.styles_dir = os.path.normpath(__file__ + "/../../styles/themes")
+        self.styles_dir = os.path.abspath(__file__ + "/../../styles/themes")
         self.main_window = main_window
         self.wire_style = None
+        self.stylesheet = ""
         self.apply_default_stylesheet()
 
         # Only for developing stylesheets
@@ -52,10 +53,14 @@ class StyleManager(QObject):
         except IOError:
             pass
 
+        cvlab_dir = os.path.abspath(__file__ + "/../../")
+        stylesheet = stylesheet.replace("$CVLAB_DIR", cvlab_dir)
+
         # Switch background for highdpi
         if self.is_highdpi:
             stylesheet = stylesheet.replace("background.png", "background-highdpi.png")
 
+        self.stylesheet = stylesheet
         self.main_window.setStyleSheet(stylesheet)
 
         # Load wires style

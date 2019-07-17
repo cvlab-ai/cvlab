@@ -13,7 +13,7 @@ QMainWindow, QDialog
 
 QScrollArea#ScrolledWorkArea
 {
-    background-image: url(styles/themes/dark/background.png);
+    background-image: url($CVLAB_DIR/styles/themes/dark/background.png);
 }
 
 QWidget
@@ -69,11 +69,11 @@ QSpinBox, QDoubleSpinBox
 }
 QSpinBox::up-arrow, QDoubleSpinBox::up-arrow
 {
-    border-image: url(styles/themes/dark/up.png);
+    border-image: url($CVLAB_DIR/styles/themes/dark/up.png);
 }
 QSpinBox::down-arrow, QDoubleSpinBox::down-arrow
 {
-    border-image: url(styles/themes/dark/down.png);
+    border-image: url($CVLAB_DIR/styles/themes/dark/down.png);
 }
 
 /* Combobox */
@@ -84,7 +84,7 @@ QComboBox, QWidget#Element QLineEdit
 }
 QComboBox::down-arrow
 {
-    border-image: url(styles/themes/dark/down.png);
+    border-image: url($CVLAB_DIR/styles/themes/dark/down.png);
 }
 
 
@@ -142,7 +142,6 @@ QScrollBar::handle
 {
      background: #252525;
 }
-
 
 /*** Tabs ***/
 
