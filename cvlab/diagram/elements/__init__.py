@@ -105,9 +105,10 @@ def load_plugins():
 def load_auto(path):
     modules = available_modules(path)
     package = path.replace("\\","/")
-    package = package[package.index("cvlab"):]
+    package = re.match(r".*(cvlab(_\w+)?/.+)", package).group(1)
     package = re.sub(r"/__init__\.py.*", "", package)
     package = package.replace("/",".")
+    package = package.replace("cvlab.cvlab","cvlab")
     package = package.replace("cvlab.cvlab","cvlab")
     load_modules(modules, package)
 
