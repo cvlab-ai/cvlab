@@ -1,4 +1,8 @@
+import os
+
 from .version import __version__
+
+CVLAB_DIR = os.path.abspath(__file__ + "/..").replace("\\","/")
 
 
 def main(*args, **kwargs):

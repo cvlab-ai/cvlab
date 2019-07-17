@@ -4,6 +4,7 @@ from PyQt5.QtCore import Qt, pyqtSignal, QTimer
 from PyQt5.QtGui import *
 from PyQt5.QtWidgets import *
 
+from .. import CVLAB_DIR
 from ..diagram.elements import plugin_callbacks
 from ..core.update import Updater, parse_version
 from .diagram_manager import DiagramManager
@@ -17,8 +18,8 @@ from .styles import StyleManager
 LOAD_LAST_DIAGRAMS = True
 LOAD_DEFAULT_DIAGRAM = True
 DEFAULT_DIAGRAM_PATH = "default.cvlab"
-ICON_PATH = os.path.dirname(__file__) + "/../images/icon.png"
-FONT_PATH = os.path.dirname(__file__) + "/../styles/fonts/Carlito-Regular.ttf"
+ICON_PATH = CVLAB_DIR + "/images/icon.png"
+FONT_PATH = CVLAB_DIR + "/styles/fonts/Carlito-Regular.ttf"
 
 
 class MainWindow(QMainWindow):

@@ -6,6 +6,7 @@ from PyQt5.QtCore import pyqtSlot
 from PyQt5.QtGui import *
 from PyQt5.QtWidgets import *
 
+from .. import CVLAB_DIR
 from ..diagram.interface import *
 from .mimedata import *
 from . import image_preview
@@ -206,7 +207,7 @@ class OutputPreview(QHBoxLayout):
     def __init__(self, output, previews_container):
         super(OutputPreview, self).__init__()
         if not self.default_image:
-            self.default_image = QPixmap("images/default.png")
+            self.default_image = QPixmap(CVLAB_DIR + "/images/default.png")
         self.output = output
         self.previews_container = previews_container
         self.setAlignment(QtCore.Qt.AlignCenter)

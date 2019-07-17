@@ -2,6 +2,7 @@ import os
 from PyQt5.QtCore import QTimer, pyqtSignal, QObject
 from PyQt5.QtWidgets import *
 
+from .. import CVLAB_DIR
 from .wires import WireStyle
 from . import config
 
@@ -18,7 +19,7 @@ class StyleManager(QObject):
 
     def __init__(self, main_window):
         super(StyleManager, self).__init__()
-        self.styles_dir = os.path.abspath(__file__ + "/../../styles/themes")
+        self.styles_dir = CVLAB_DIR + "/styles/themes"
         self.main_window = main_window
         self.wire_style = None
         self.stylesheet = ""
