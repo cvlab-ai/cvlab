@@ -53,7 +53,7 @@ class StyleManager(QObject):
         except IOError:
             pass
 
-        cvlab_dir = os.path.abspath(__file__ + "/../../")
+        cvlab_dir = os.path.abspath(__file__ + "/../../").replace("\\","/")
         stylesheet = stylesheet.replace("$CVLAB_DIR", cvlab_dir)
 
         # Switch background for highdpi
