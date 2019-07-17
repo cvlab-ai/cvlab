@@ -1,3 +1,4 @@
+import os
 import re
 from datetime import datetime, timedelta
 
@@ -7,10 +8,11 @@ from PyQt5.QtCore import pyqtSignal, pyqtSlot, QObject, Qt, QTimer
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
 
+from .widgets import StyledWidget
 from ..diagram.element import Element
 from .elements import GuiElement
 from .mimedata import Mime
-from .styles import StyleManager
+from .styles import StyleManager, refresh_style_recursive
 from .wires import WiresForeground, NO_FOREGROUND_WIRES, WiresBackground, WireTools
 
 
@@ -272,15 +274,20 @@ class WorkArea(QWidget):
     def actualize_style(self):
         def sub(match):
             value = int(match.group(1))
+            unit = match.group(2)
             if value == 0:
-                return "0px"
+                return "0" + unit
             value = int(round(value * self.diagram.zoom_level))
             value = max(value, 1)
-            return str(value) + "px"
+            return str(value) + unit
 
-        style = self.style_manager.main_window.styleSheet()
-        style = re.sub(r"(\d+)\s*px", sub, style)
+        style = self.style_manager.stylesheet
+        style = re.sub(r"(\d+)\s*(px|pt)", sub, style)
         self.setStyleSheet(style)
+
+        # workaround for styles not updating on linux
+        if os.name == 'posix':
+            refresh_style_recursive(self)
 
         # adjust layout spacings, as they cannot be set in stylesheets (meh...)
         for element in self.diagram.elements:
@@ -290,12 +297,14 @@ class WorkArea(QWidget):
 
                 dpi_factor = 2 if StyleManager.is_highdpi else 1
 
-                if layout.contentsMargins().left():
-                    margin = max(int(2 * self.diagram.zoom_level * dpi_factor),1)
-                    layout.setContentsMargins(margin,margin,margin,margin)
+                base_contents_margins = getattr(layout, "base_contents_margins", None)
+                if base_contents_margins:
+                    margins = (np.array(base_contents_margins) * dpi_factor * self.diagram.zoom_level).clip(1,1000).round().astype(int).tolist()
+                    layout.setContentsMargins(*margins)
 
-                if layout.spacing():
-                    spacing = max(int(2 * self.diagram.zoom_level * dpi_factor),1)
+                base_spacing = getattr(layout, "base_spacing", None)
+                if base_spacing:
+                    spacing = max(int(base_spacing * self.diagram.zoom_level * dpi_factor),1)
                     layout.setSpacing(spacing)
 
                 for child in layout.children():

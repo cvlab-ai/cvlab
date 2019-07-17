@@ -28,7 +28,6 @@ class MenuBar(QMenuBar):
         view_menu.addAction(LivePreviewsAction(view_menu, main_window))
         view_menu.addAction(PreviewOnTopAction(view_menu, main_window))
         view_menu.addAction(ResetZoomAction(view_menu, main_window))
-
         view_menu.addAction(ExperimentalElementsAction(view_menu, main_window))
 
 

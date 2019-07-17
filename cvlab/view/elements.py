@@ -86,8 +86,8 @@ class GuiElement(Element, StyledWidget):
                 layout.addLayout(GuiTextParameter(param, self))
 
     def create_inputs(self, layout):
-        layout.setContentsMargins(0, 3, 0, 3)
-        layout.setSpacing(7)
+        layout.base_contents_margins = [0,3,0,3]
+        layout.base_spacing = 7
         for input_ in self.inputs.values():
             is_input = True
             input_connector = InOutConnector(self, input_, is_input)
@@ -95,8 +95,8 @@ class GuiElement(Element, StyledWidget):
             self.input_connectors[input_] = input_connector
 
     def create_outputs(self, layout):
-        layout.setContentsMargins(0, 3, 0, 3)
-        layout.setSpacing(7)
+        layout.base_contents_margins = [0,3,0,3]
+        layout.base_spacing = 7
         for output in self.outputs.values():
             is_input = False
             output_connector = InOutConnector(self, output, is_input)
@@ -395,20 +395,25 @@ class FunctionGuiElement(GuiElement):
         vb_inputs.setAlignment(QtCore.Qt.AlignTop)
         vb_outputs.setAlignment(QtCore.Qt.AlignTop)
 
+        hb_label.setContentsMargins(0,0,0,0)
+        hb_label.setSpacing(0)
+
         w_params = QWidget()
         w_params.setLayout(vb_params)
         vb_params.setContentsMargins(0,0,0,0)
-        vb_params.setSpacing(2)
+        vb_params.setSpacing(1)
 
-        # vb_inputs.setContentsMargins(0,0,0,0)
-        # vb_inputs.setSpacing(0)
-        # vb_outputs.setContentsMargins(0,0,0,0)
-        # vb_outputs.setSpacing(0)
+        vb_inputs.base_contents_margins = [4, 4, 4, 4]
+        vb_inputs.base_spacing = 4
+        vb_outputs.base_contents_margins = [4, 4, 4, 4]
+        vb_outputs.base_spacing = 4
 
         self.create_label(hb_label)
         self.create_params(w_params)
         self.create_inputs(vb_inputs)
         self.create_outputs(vb_outputs)
+        hb_content.setSpacing(0)
+        hb_content.setContentsMargins(0,0,0,0)
         hb_content.addLayout(vb_inputs)
         hb_content.addWidget(w_params)
         hb_content.addStretch(1)
@@ -417,8 +422,8 @@ class FunctionGuiElement(GuiElement):
         vb_main.addLayout(hb_content)
         vb_main.addWidget(self.status_bar)
         vb_main.setSizeConstraint(QLayout.SetFixedSize)
-        vb_main.setContentsMargins(1,1,1,1)
-        vb_main.setSpacing(1)
+        vb_main.base_contents_margins = [0, 4, 0, 4]
+        vb_main.base_spacing = 4
         self.setLayout(vb_main)
 
         self.create_preview(vb_main)
@@ -453,8 +458,8 @@ class OperatorGuiElement(GuiElement):
         vb_main.addLayout(hb)
         vb_main.addWidget(self.status_bar)
         vb_main.setSizeConstraint(QLayout.SetFixedSize)
-        vb_main.setContentsMargins(1,1,1,1)
-        vb_main.setSpacing(1)
+        vb_main.base_contents_margins = [0, 4, 0, 4]
+        vb_main.base_spacing = 4
         self.create_preview(vb_main)
         self.setLayout(vb_main)
 
@@ -487,8 +492,8 @@ class InputGuiElement(GuiElement):
         vb_main.addLayout(hb)
         vb_main.addWidget(self.status_bar)
         vb_main.setSizeConstraint(QLayout.SetFixedSize)
-        vb_main.setContentsMargins(1,1,1,1)
-        vb_main.setSpacing(0)
+        vb_main.base_contents_margins = [0, 4, 0, 4]
+        vb_main.base_spacing = 0
         self.create_preview(vb_main)
         self.setLayout(vb_main)
 

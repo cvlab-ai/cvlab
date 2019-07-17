@@ -21,8 +21,10 @@ class GuiButtonParameter(GuiBaseParameter):
         super().__init__(parameter)
         self.button = QPushButton(self.parameter.name)
         self.button.setObjectName("ButtonParameterButton")
+        self.button.setSizePolicy(QSizePolicy.Ignored, QSizePolicy.Ignored)
         self.button.clicked.connect(self.clicked)
         self.addWidget(self.button)
+
 
     @pyqtSlot()
     def clicked(self):
@@ -327,8 +329,15 @@ class GuiComboboxParameter(GuiBaseParameter):
         self.addWidget(self.label)
 
         self.combobox = QComboBox()
+        self.combobox.setSizeAdjustPolicy(QComboBox.AdjustToContents)
+        self.combobox.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Ignored)
+        self.combobox.setContentsMargins(0,0,0,0)
+        self.combobox.setMinimumContentsLength(1)
+        self.combobox.view().setVerticalScrollBarPolicy(Qt.ScrollBarAsNeeded)
+
         for text, value in parameter.values.items():
             self.combobox.addItem(text, value)
+
         self.combobox.currentIndexChanged.connect(self.combobox_value_changed)
         self.addWidget(self.combobox)
 

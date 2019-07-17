@@ -15,12 +15,10 @@ ALLOW_UPSIZE = True
 
 
 class StyledWidget(QWidget):
-    def paintEvent(self, e):
-        # required for external stylesheet to work
-        o = QStyleOption()
-        o.initFrom(self)
-        p = QPainter(self)
-        self.style().drawPrimitive(QStyle.PE_Widget, o, p, self)
+    def __init__(self):
+        super().__init__()
+        self.setAttribute(QtCore.Qt.WA_StyledBackground)
+        self.setAttribute(QtCore.Qt.WA_StyleSheet)
 
 
 class InOutConnector(StyledWidget):
@@ -411,7 +409,7 @@ class NumberOutputHelper:
             return self.true_ if value else self.false_
 
 
-class ElementStatusBar(QWidget):
+class ElementStatusBar(StyledWidget):
     def __init__(self, element):
         super(ElementStatusBar, self).__init__()
         self.element = element

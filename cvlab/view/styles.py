@@ -62,6 +62,7 @@ class StyleManager(QObject):
 
         self.stylesheet = stylesheet
         self.main_window.setStyleSheet(stylesheet)
+        refresh_style_recursive(self.main_window)
 
         # Load wires style
         self.wire_style = WireStyle(stylesheet)
@@ -85,3 +86,13 @@ class StyleManager(QObject):
     def get_available_stylesheets(self):
         # Todo: fill this basing on 'themes' directory content
         return ["default", "dark"]
+
+
+def refresh_style_recursive(base_widget):
+    widgets = [base_widget]
+    while widgets:
+        widget = widgets.pop()
+        base_widget.style().polish(widget)
+        for child in widget.children():
+            if isinstance(child, QWidget):
+                widgets.append(child)
