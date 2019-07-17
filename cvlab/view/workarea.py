@@ -28,8 +28,8 @@ class ScrolledWorkArea(QScrollArea):
         self.mouse_press_pos = None
         QTimer.singleShot(50, self.scroll_to_absolute_center)
 
-    def load_diagram_from_json(self, ascii_data):
-        self.diagram.load_from_json(ascii_data)
+    def load_diagram_from_json(self, ascii_data, base_path):
+        self.diagram.load_from_json(ascii_data, base_path)
         QTimer.singleShot(100, self.scroll_to_upperleft)
 
     def element_z_index(self, element):

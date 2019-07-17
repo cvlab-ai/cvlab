@@ -18,11 +18,11 @@
       },
       "module": "cvlab.diagram.elements.image_io",
       "parameters": {
-        "path": "images/lena.jpg"
+        "path": "../cvlab/images/lena.jpg"
       },
       "unique_id": "905743"
     },
-    "3": {
+    "2": {
       "_type": "element",
       "class": "CodeElement",
       "gui_options": {
@@ -45,7 +45,7 @@
       },
       "unique_id": "355031"
     },
-    "6": {
+    "5": {
       "_type": "element",
       "class": "ScalarMultiplyOperator",
       "gui_options": {
@@ -64,7 +64,7 @@
       },
       "unique_id": "576682"
     },
-    "7": {
+    "8": {
       "_type": "element",
       "class": "PlusOperator",
       "gui_options": {
@@ -81,24 +81,33 @@
       "parameters": {},
       "unique_id": "504577"
     },
-    "10": {
+    "11": {
       "_type": "element",
-      "class": "OpenCVBlur",
+      "class": "OpenCVAuto2_GaussianBlur",
       "gui_options": {
         "position": [
-          2370,
+          2320,
           2310
         ],
-        "preview_size": 153.0,
+        "preview_size": 194.0,
         "show_parameters": true,
         "show_preview": true,
         "show_sliders": false
       },
-      "module": "cvlab.diagram.elements.blur",
+      "module": "cvlab_experimental.opencv_auto2",
       "parameters": {
-        "ratio": 40
+        "borderType": {
+          "name": "BORDER_CONSTANT",
+          "value": 0
+        },
+        "ksize": [
+          0,
+          0
+        ],
+        "sigmaX": 10.0,
+        "sigmaY": 0
       },
-      "unique_id": "785683"
+      "unique_id": "957464"
     }
   },
   "params": [],
@@ -106,37 +115,37 @@
     "0": {
       "from_element": 1,
       "from_output": "output",
-      "to_element": 7,
+      "to_element": 8,
       "to_input": "inputs"
     },
     "1": {
-      "from_element": 3,
+      "from_element": 2,
       "from_output": "output",
-      "to_element": 6,
+      "to_element": 5,
       "to_input": "input"
     },
     "2": {
-      "from_element": 6,
+      "from_element": 5,
       "from_output": "output",
-      "to_element": 7,
+      "to_element": 8,
       "to_input": "inputs"
     },
     "3": {
-      "from_element": 3,
+      "from_element": 1,
       "from_output": "output",
-      "to_element": 10,
+      "to_element": 2,
       "to_input": "input"
     },
     "4": {
-      "from_element": 1,
+      "from_element": 2,
       "from_output": "output",
-      "to_element": 3,
-      "to_input": "input"
+      "to_element": 11,
+      "to_input": "src"
     },
     "5": {
-      "from_element": 10,
-      "from_output": "output",
-      "to_element": 6,
+      "from_element": 11,
+      "from_output": "dst",
+      "to_element": 5,
       "to_input": "input"
     }
   },

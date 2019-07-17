@@ -1,24 +1,24 @@
 {
   "_filetype": "CV-Lab diagram save file. See: https://github.com/cvlab-ai/cvlab ",
   "_type": "diagram",
-  "_version": "1.1",
+  "_version": "1.2.1",
   "elements": {
     "1": {
       "_type": "element",
       "class": "VideoLoader",
       "gui_options": {
         "position": [
-          3660,
-          4300
+          1830,
+          2150
         ],
-        "preview_size": 493.1868807430146,
+        "preview_size": 246.0,
         "show_parameters": true,
         "show_preview": true,
         "show_sliders": false
       },
       "module": "cvlab.diagram.elements.video_io",
       "parameters": {
-        "device": "images/fractal.avi",
+        "device": "../cvlab/images/fractal.avi",
         "fps": 15,
         "height": 0,
         "pause": "",
@@ -31,17 +31,17 @@
       "class": "ImageLoader",
       "gui_options": {
         "position": [
-          3660,
-          5060
+          1830,
+          2530
         ],
-        "preview_size": 493.1868807430146,
+        "preview_size": 246.0,
         "show_parameters": true,
         "show_preview": true,
         "show_sliders": null
       },
       "module": "cvlab.diagram.elements.image_io",
       "parameters": {
-        "path": "images/lena.jpg"
+        "path": "../cvlab/images/lena.jpg"
       },
       "unique_id": "501918"
     },
@@ -50,10 +50,10 @@
       "class": "Resizer",
       "gui_options": {
         "position": [
-          4400,
-          5060
+          2200,
+          2530
         ],
-        "preview_size": 120,
+        "preview_size": 30,
         "show_parameters": true,
         "show_preview": true,
         "show_sliders": false
@@ -70,10 +70,10 @@
       "class": "Resizer",
       "gui_options": {
         "position": [
-          4400,
-          4300
+          2200,
+          2150
         ],
-        "preview_size": 120,
+        "preview_size": 30,
         "show_parameters": true,
         "show_preview": true,
         "show_sliders": false
@@ -90,10 +90,10 @@
       "class": "PlusOperator",
       "gui_options": {
         "position": [
-          4920,
-          4680
+          2460,
+          2340
         ],
-        "preview_size": 702.2133516829251,
+        "preview_size": 351.0,
         "show_parameters": true,
         "show_preview": true,
         "show_sliders": null

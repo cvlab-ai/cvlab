@@ -22,7 +22,7 @@
       },
       "unique_id": "964722"
     },
-    "2": {
+    "4": {
       "_type": "element",
       "class": "Camera",
       "gui_options": {
@@ -45,7 +45,7 @@
       },
       "unique_id": "661532"
     },
-    "3": {
+    "5": {
       "_type": "element",
       "class": "AbsDiffOperator",
       "gui_options": {
@@ -62,7 +62,7 @@
       "parameters": {},
       "unique_id": "249233"
     },
-    "4": {
+    "9": {
       "_type": "element",
       "class": "DelayLine",
       "gui_options": {
@@ -79,7 +79,7 @@
       "parameters": {},
       "unique_id": "669123"
     },
-    "5": {
+    "16": {
       "_type": "element",
       "class": "Accumulator",
       "gui_options": {
@@ -103,7 +103,7 @@
       },
       "unique_id": "865120"
     },
-    "8": {
+    "19": {
       "_type": "element",
       "class": "AbsDiffOperator",
       "gui_options": {
@@ -124,51 +124,51 @@
   "params": [],
   "wires": {
     "0": {
-      "from_element": 4,
+      "from_element": 9,
       "from_output": "o1",
-      "to_element": 3,
+      "to_element": 5,
       "to_input": "1"
     },
     "1": {
-      "from_element": 4,
+      "from_element": 9,
       "from_output": "o2",
-      "to_element": 3,
+      "to_element": 5,
       "to_input": "2"
     },
     "2": {
       "from_element": 1,
       "from_output": "output",
-      "to_element": 4,
+      "to_element": 9,
       "to_input": "input"
     },
     "3": {
-      "from_element": 2,
+      "from_element": 4,
       "from_output": "output",
       "to_element": 1,
       "to_input": "input"
     },
     "4": {
-      "from_element": 4,
+      "from_element": 9,
       "from_output": "o1",
-      "to_element": 5,
+      "to_element": 16,
       "to_input": "input"
     },
     "5": {
-      "from_element": 5,
+      "from_element": 16,
       "from_output": "output",
-      "to_element": 8,
+      "to_element": 19,
       "to_input": "2"
     },
     "6": {
       "from_element": 1,
       "from_output": "output",
-      "to_element": 5,
+      "to_element": 16,
       "to_input": "input"
     },
     "7": {
       "from_element": 1,
       "from_output": "output",
-      "to_element": 8,
+      "to_element": 19,
       "to_input": "1"
     }
   },

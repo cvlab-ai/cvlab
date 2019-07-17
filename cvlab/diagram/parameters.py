@@ -1,3 +1,4 @@
+import os
 import threading
 from collections import OrderedDict
 
@@ -57,9 +58,43 @@ class Parameter(QObject):
 
 
 class PathParameter(Parameter):
+    base_path = None
+
     def __init__(self, id, name=None, value="", save_mode=False, *args, **kwargs):
         super(PathParameter, self).__init__(id, name, value, *args, **kwargs)
         self.save_mode = save_mode
+
+    def to_json(self):
+        return self.to_json_relative(self.value)
+
+    def from_json(self, data):
+        self.set(self.from_json_relative(data))
+
+    @classmethod
+    def to_json_relative(cls, path):
+        abs_path = os.path.abspath(path).replace("\\","/")
+        base_path = os.path.abspath(cls.base_path).replace("\\","/")
+        up_base_path = os.path.dirname(base_path)
+        if abs_path.startswith(base_path):  # relative path
+            relative_path = abs_path[len(base_path):]
+            if relative_path.startswith("/"): relative_path = relative_path[1:]
+            return relative_path
+        elif abs_path.startswith(up_base_path):  # relative to parent directory
+            relative_path = abs_path[len(up_base_path):]
+            if relative_path.startswith("/"): relative_path = relative_path[1:]
+            relative_path = "../" + relative_path
+            return relative_path
+        else:  # absolute path
+            return abs_path
+
+    @classmethod
+    def from_json_relative(cls, path):
+        path = path.replace("\\","/")
+        if os.path.isabs(path):  # absolute path
+            return path
+        else:  # relative path
+            p = os.path.abspath(cls.base_path + "/" + path).replace("\\","/")
+            return p
 
 
 class SavePathParameter(PathParameter):
@@ -68,10 +103,14 @@ class SavePathParameter(PathParameter):
 
 
 class MultiPathParameter(Parameter):
-    pass
+    def to_json(self):
+        return [PathParameter.to_json_relative(path) for path in self.value]
+
+    def from_json(self, data):
+        self.set([PathParameter.from_json_relative(path) for path in data])
 
 
-class DirectoryParameter(Parameter):
+class DirectoryParameter(PathParameter):
     pass
 
 

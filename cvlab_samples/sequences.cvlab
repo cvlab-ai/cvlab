@@ -19,8 +19,8 @@
       "module": "cvlab.diagram.elements.image_io",
       "parameters": {
         "paths": [
-          "images/icon.png",
-          "images/lena.jpg"
+          "../cvlab/images/icon.png",
+          "../cvlab/images/lena.jpg"
         ]
       },
       "unique_id": "721059"
@@ -79,7 +79,7 @@
       },
       "module": "cvlab.diagram.elements.image_io",
       "parameters": {
-        "path": "images/default.png"
+        "path": "../cvlab//default.png"
       },
       "unique_id": "515277"
     },

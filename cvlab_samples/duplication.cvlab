@@ -31,7 +31,7 @@
       },
       "unique_id": "287958"
     },
-    "2": {
+    "4": {
       "_type": "element",
       "class": "OpenCVCanny",
       "gui_options": {
@@ -51,7 +51,7 @@
       },
       "unique_id": "315644"
     },
-    "3": {
+    "7": {
       "_type": "element",
       "class": "OpenCVCanny",
       "gui_options": {
@@ -71,7 +71,7 @@
       },
       "unique_id": "923166"
     },
-    "4": {
+    "10": {
       "_type": "element",
       "class": "OpenCVCanny",
       "gui_options": {
@@ -91,7 +91,7 @@
       },
       "unique_id": "596016"
     },
-    "9": {
+    "13": {
       "_type": "element",
       "class": "OpenCVMorphologyEx",
       "gui_options": {
@@ -119,7 +119,7 @@
       },
       "unique_id": "421948"
     },
-    "10": {
+    "16": {
       "_type": "element",
       "class": "ImageLoader",
       "gui_options": {
@@ -134,11 +134,11 @@
       },
       "module": "cvlab.diagram.elements.image_io",
       "parameters": {
-        "path": "images/lena.jpg"
+        "path": "../cvlab/images/lena.jpg"
       },
       "unique_id": "960511"
     },
-    "11": {
+    "17": {
       "_type": "element",
       "class": "ColorspaceExtractor",
       "gui_options": {
@@ -155,7 +155,7 @@
       "parameters": {},
       "unique_id": "961975"
     },
-    "24": {
+    "25": {
       "_type": "element",
       "class": "MinOperator",
       "gui_options": {
@@ -172,7 +172,7 @@
       "parameters": {},
       "unique_id": "733541"
     },
-    "27": {
+    "28": {
       "_type": "element",
       "class": "OpenCVMorphologyEx",
       "gui_options": {
@@ -236,11 +236,11 @@
     },
     {
       "from": 7,
-      "to": 9
+      "to": 5
     },
     {
       "from": 7,
-      "to": 5
+      "to": 9
     },
     {
       "from": 8,
@@ -284,92 +284,92 @@
     },
     {
       "from": 17,
-      "to": 2
-    },
-    {
-      "from": 17,
       "to": 12
     },
     {
-      "from": 18,
-      "to": 3
+      "from": 17,
+      "to": 2
     },
     {
       "from": 18,
       "to": 13
+    },
+    {
+      "from": 18,
+      "to": 3
     }
   ],
   "wires": {
     "0": {
-      "from_element": 10,
+      "from_element": 16,
       "from_output": "output",
-      "to_element": 11,
+      "to_element": 17,
       "to_input": "input"
     },
     "1": {
-      "from_element": 11,
+      "from_element": 17,
       "from_output": "R",
-      "to_element": 2,
-      "to_input": "input"
-    },
-    "2": {
-      "from_element": 11,
-      "from_output": "G",
-      "to_element": 3,
-      "to_input": "input"
-    },
-    "3": {
-      "from_element": 11,
-      "from_output": "B",
       "to_element": 4,
       "to_input": "input"
     },
+    "2": {
+      "from_element": 17,
+      "from_output": "G",
+      "to_element": 7,
+      "to_input": "input"
+    },
+    "3": {
+      "from_element": 17,
+      "from_output": "B",
+      "to_element": 10,
+      "to_input": "input"
+    },
     "4": {
-      "from_element": 2,
+      "from_element": 4,
       "from_output": "output",
-      "to_element": 9,
+      "to_element": 13,
       "to_input": "input"
     },
     "5": {
-      "from_element": 2,
+      "from_element": 4,
       "from_output": "output",
-      "to_element": 27,
+      "to_element": 28,
       "to_input": "input"
     },
     "6": {
-      "from_element": 3,
+      "from_element": 7,
       "from_output": "output",
-      "to_element": 27,
+      "to_element": 28,
       "to_input": "input"
     },
     "7": {
-      "from_element": 3,
+      "from_element": 7,
       "from_output": "output",
       "to_element": 1,
       "to_input": "input"
     },
     "8": {
-      "from_element": 4,
+      "from_element": 10,
       "from_output": "output",
       "to_element": 1,
       "to_input": "input"
     },
     "9": {
-      "from_element": 9,
+      "from_element": 13,
       "from_output": "output",
-      "to_element": 24,
+      "to_element": 25,
       "to_input": "inputs"
     },
     "10": {
-      "from_element": 27,
+      "from_element": 28,
       "from_output": "output",
-      "to_element": 24,
+      "to_element": 25,
       "to_input": "inputs"
     },
     "11": {
       "from_element": 1,
       "from_output": "output",
-      "to_element": 24,
+      "to_element": 25,
       "to_input": "inputs"
     }
   },

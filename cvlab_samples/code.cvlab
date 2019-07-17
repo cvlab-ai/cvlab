@@ -49,7 +49,7 @@
       },
       "unique_id": "948979"
     },
-    "3": {
+    "11": {
       "_type": "element",
       "class": "VideoLoader",
       "gui_options": {
@@ -64,7 +64,7 @@
       },
       "module": "cvlab.diagram.elements.video_io",
       "parameters": {
-        "device": "images/fractal.avi",
+        "device": "../cvlab/images/fractal.avi",
         "fps": 5.0,
         "height": 100,
         "pause": "",
@@ -72,7 +72,7 @@
       },
       "unique_id": "486527"
     },
-    "4": {
+    "12": {
       "_type": "element",
       "class": "CodeElement",
       "gui_options": {
@@ -95,7 +95,7 @@
       },
       "unique_id": "381641"
     },
-    "6": {
+    "15": {
       "_type": "element",
       "class": "CodeElement",
       "gui_options": {
@@ -146,7 +146,7 @@
       "to_input": "in4"
     },
     "4": {
-      "from_element": 3,
+      "from_element": 11,
       "from_output": "output",
       "to_element": 1,
       "to_input": "in1"
@@ -154,13 +154,13 @@
     "5": {
       "from_element": 1,
       "from_output": "o4",
-      "to_element": 6,
+      "to_element": 15,
       "to_input": "input"
     },
     "6": {
       "from_element": 1,
       "from_output": "o4",
-      "to_element": 4,
+      "to_element": 12,
       "to_input": "input"
     }
   },

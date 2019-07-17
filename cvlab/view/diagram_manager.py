@@ -54,7 +54,8 @@ class DiagramManager:
             try:
                 encoded = fp.read()
                 scrolled_wa = ScrolledWorkArea(Diagram(), self.style_manager)
-                scrolled_wa.load_diagram_from_json(encoded)
+                base_path = os.path.abspath(path + "/../").replace("\\","/")
+                scrolled_wa.load_diagram_from_json(encoded, base_path)
                 full_path = os.path.abspath(str(path))
                 self.open_diagram(scrolled_wa, full_path)
                 scrolled_wa.workarea.actualize_style()
@@ -143,6 +144,7 @@ def get_file_name_from_path(path):
 
 
 def save_diagram_to_file(diagram, path):
-        encoded = diagram.save_to_json()
-        with open(path, 'w') as fp:
-            fp.write(encoded)
+    base_path = os.path.abspath(path + "/../").replace("\\","/")
+    encoded = diagram.save_to_json(base_path)
+    with open(path, 'w') as fp:
+        fp.write(encoded)
