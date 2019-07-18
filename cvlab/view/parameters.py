@@ -3,16 +3,25 @@ from PyQt5.QtCore import pyqtSlot
 from PyQt5.QtGui import *
 from PyQt5.QtWidgets import *
 
+from cvlab.view.spin_widget import *
 from ..diagram.parameters import *
 from .highlighter import Highlighter
 
 
-class GuiButtonParameter(QHBoxLayout):
+class GuiBaseParameter(QHBoxLayout):
     def __init__(self, parameter):
-        super(GuiButtonParameter, self).__init__()
+        super().__init__()
         self.parameter = parameter
+        self.setContentsMargins(0,0,0,0)
+        self.setSpacing(2)
+
+
+class GuiButtonParameter(GuiBaseParameter):
+    def __init__(self, parameter):
+        super().__init__(parameter)
         self.button = QPushButton(self.parameter.name)
         self.button.setObjectName("ButtonParameterButton")
+        self.button.setSizePolicy(QSizePolicy.Ignored, QSizePolicy.Ignored)
         self.button.clicked.connect(self.clicked)
         self.addWidget(self.button)
 
@@ -21,10 +30,9 @@ class GuiButtonParameter(QHBoxLayout):
         self.parameter.clicked()
 
 
-class GuiPathParameter(QHBoxLayout):
+class GuiPathParameter(GuiBaseParameter):
     def __init__(self, parameter):
-        super(GuiPathParameter, self).__init__()
-        self.parameter = parameter
+        super().__init__(parameter)
         self.label = QLabel(self.parameter.name)
         self.label.setObjectName("PathParameterName")
         self.path = QLineEdit()
@@ -61,7 +69,7 @@ class GuiPathParameter(QHBoxLayout):
 
 class GuiMultiPathParameter(GuiPathParameter):
     def __init__(self, parameter):
-        super(GuiMultiPathParameter, self).__init__(parameter)
+        super().__init__(parameter)
 
     @pyqtSlot()
     def on_value_changed(self):
@@ -80,7 +88,6 @@ class GuiMultiPathParameter(GuiPathParameter):
         self.set_paths_([str(p) for p in paths])
 
 
-
 class GuiDirectoryParameter(GuiPathParameter):
     @pyqtSlot()
     def choose_path(self):
@@ -88,12 +95,10 @@ class GuiDirectoryParameter(GuiPathParameter):
         self.set_path_(str(path))
 
 
-
-class GuiTextParameter(QHBoxLayout):
+class GuiTextParameter(GuiBaseParameter):
     def __init__(self, parameter, element):
-        super(GuiTextParameter, self).__init__()
+        super().__init__(parameter)
         assert isinstance(parameter, TextParameter)
-        self.parameter = parameter
         self.element = element
         self.highlighter = None
 
@@ -154,10 +159,9 @@ class GuiTextParameter(QHBoxLayout):
         self.wnd.accept()
 
 
-class GuiIntParameter(QHBoxLayout):
+class GuiIntParameter(GuiBaseParameter):
     def __init__(self, parameter, element):
-        super(GuiIntParameter, self).__init__()
-        self.parameter = parameter
+        super().__init__(parameter)
         self.element = element
         self.label = QLabel(self.parameter.name)
         self.addWidget(self.label)
@@ -172,7 +176,7 @@ class GuiIntParameter(QHBoxLayout):
         self.addWidget(self.slider)
         element.param_sliders.append(self.slider)
 
-        self.spin = QSpinBox()
+        self.spin = SpinBoxEx()
         self.spin.setRange(parameter.min, parameter.max)
         self.spin.setSingleStep(parameter.step)
         self.spin.setValue(parameter.get())
@@ -196,10 +200,9 @@ class GuiIntParameter(QHBoxLayout):
             self.slider.setValue(value)
 
 
-class GuiFloatParameter(QHBoxLayout):
+class GuiFloatParameter(GuiBaseParameter):
     def __init__(self, parameter, element):
-        super(GuiFloatParameter, self).__init__()
-        self.parameter = parameter
+        super().__init__(parameter)
         self.element = element
         self.changing = False
 
@@ -216,7 +219,7 @@ class GuiFloatParameter(QHBoxLayout):
         self.addWidget(self.slider)
         element.param_sliders.append(self.slider)
 
-        self.spin = QDoubleSpinBox()
+        self.spin = DoubleSpinBoxEx()
         self.spin.setRange(parameter.min, parameter.max)
         self.spin.setSingleStep(parameter.step)
         self.spin.setDecimals(6)
@@ -268,11 +271,10 @@ class GuiFloatParameter(QHBoxLayout):
         self.ignore_changes = False
 
 
-class GuiMultiNumberParameter(QHBoxLayout):
+class GuiMultiNumberParameter(GuiBaseParameter):
     def __init__(self, parameter, element, count, type):
-        super().__init__()
+        super().__init__(parameter)
 
-        self.parameter = parameter
         self.element = element
         self.count = count
         self.type = type
@@ -285,7 +287,7 @@ class GuiMultiNumberParameter(QHBoxLayout):
 
         self.spins = []
         for i in range(count):
-            spin = QSpinBox()
+            spin = SpinBoxEx()
             spin.setRange(min_, max_)
             self.addWidget(spin)
             self.spins.append(spin)
@@ -317,18 +319,24 @@ class GuiMultiNumberParameter(QHBoxLayout):
                 spin.setValue(value)
 
 
-class GuiComboboxParameter(QHBoxLayout):
+class GuiComboboxParameter(GuiBaseParameter):
     def __init__(self, parameter, element):
-        super(GuiComboboxParameter, self).__init__()
-        self.parameter = parameter
+        super().__init__(parameter)
         self.element = element
 
         self.label = QLabel(self.parameter.name)
         self.addWidget(self.label)
 
         self.combobox = QComboBox()
+        self.combobox.setSizeAdjustPolicy(QComboBox.AdjustToContents)
+        self.combobox.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Ignored)
+        self.combobox.setContentsMargins(0,0,0,0)
+        self.combobox.setMinimumContentsLength(1)
+        self.combobox.view().setVerticalScrollBarPolicy(Qt.ScrollBarAsNeeded)
+
         for text, value in parameter.values.items():
             self.combobox.addItem(text, value)
+
         self.combobox.currentIndexChanged.connect(self.combobox_value_changed)
         self.addWidget(self.combobox)
 
@@ -364,7 +372,7 @@ class GuiComboboxParameter(QHBoxLayout):
             return -1
 
 #
-# class GuiMatrixParameter(QHBoxLayout):
+# class GuiMatrixParameter(GuiBaseParameter):
 #
 #     class Button(QLabel):
 #         pixel_size = (64, 64)

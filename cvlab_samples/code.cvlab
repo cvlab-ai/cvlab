@@ -1,17 +1,40 @@
 {
   "_filetype": "CV-Lab diagram save file. See: https://github.com/cvlab-ai/cvlab ",
   "_type": "diagram",
-  "_version": "1.1",
+  "_version": "1.2.1",
   "elements": {
     "1": {
+      "_type": "element",
+      "class": "VideoLoader",
+      "gui_options": {
+        "position": [
+          1880,
+          2160
+        ],
+        "preview_size": 30,
+        "show_parameters": true,
+        "show_preview": false,
+        "show_sliders": false
+      },
+      "module": "cvlab.diagram.elements.video_io",
+      "parameters": {
+        "device": "../cvlab/images/fractal.avi",
+        "fps": 5.0,
+        "height": 100,
+        "pause": "",
+        "width": 100
+      },
+      "unique_id": "486527"
+    },
+    "3": {
       "_type": "element",
       "class": "CodeElementEx",
       "gui_options": {
         "position": [
-          4240,
-          4340
+          2100,
+          2160
         ],
-        "preview_size": 192.216796875,
+        "preview_size": 67.0,
         "show_parameters": true,
         "show_preview": true,
         "show_sliders": null
@@ -26,15 +49,15 @@
       },
       "unique_id": "214253"
     },
-    "2": {
+    "12": {
       "_type": "element",
       "class": "CodeElementEx",
       "gui_options": {
         "position": [
-          4700,
-          4340
+          2380,
+          2160
         ],
-        "preview_size": 120,
+        "preview_size": 68.0,
         "show_parameters": true,
         "show_preview": true,
         "show_sliders": null
@@ -49,38 +72,15 @@
       },
       "unique_id": "948979"
     },
-    "11": {
-      "_type": "element",
-      "class": "VideoLoader",
-      "gui_options": {
-        "position": [
-          3860,
-          4340
-        ],
-        "preview_size": 120,
-        "show_parameters": true,
-        "show_preview": false,
-        "show_sliders": false
-      },
-      "module": "cvlab.diagram.elements.video_io",
-      "parameters": {
-        "device": "images/fractal.avi",
-        "fps": 5.0,
-        "height": 100,
-        "pause": "",
-        "width": 100
-      },
-      "unique_id": "486527"
-    },
     "21": {
       "_type": "element",
       "class": "CodeElement",
       "gui_options": {
         "position": [
-          4700,
-          4980
+          2380,
+          2520
         ],
-        "preview_size": 120,
+        "preview_size": 97.0,
         "show_parameters": true,
         "show_preview": true,
         "show_sliders": null
@@ -95,15 +95,15 @@
       },
       "unique_id": "847158"
     },
-    "22": {
+    "24": {
       "_type": "element",
       "class": "CodeElement",
       "gui_options": {
         "position": [
-          4700,
-          5340
+          2380,
+          2740
         ],
-        "preview_size": 120,
+        "preview_size": 97.0,
         "show_parameters": true,
         "show_preview": true,
         "show_sliders": null
@@ -122,45 +122,45 @@
   "params": [],
   "wires": {
     "0": {
-      "from_element": 1,
+      "from_element": 3,
       "from_output": "o1",
-      "to_element": 2,
+      "to_element": 12,
       "to_input": "in1"
     },
     "1": {
-      "from_element": 1,
+      "from_element": 3,
       "from_output": "o2",
-      "to_element": 2,
+      "to_element": 12,
       "to_input": "in2"
     },
     "2": {
-      "from_element": 1,
+      "from_element": 3,
       "from_output": "o3",
-      "to_element": 2,
+      "to_element": 12,
       "to_input": "in3"
     },
     "3": {
-      "from_element": 1,
+      "from_element": 3,
       "from_output": "o4",
-      "to_element": 2,
+      "to_element": 12,
       "to_input": "in4"
     },
     "4": {
-      "from_element": 11,
+      "from_element": 1,
       "from_output": "output",
-      "to_element": 1,
+      "to_element": 3,
       "to_input": "in1"
     },
     "5": {
-      "from_element": 1,
+      "from_element": 3,
       "from_output": "o4",
       "to_element": 21,
       "to_input": "input"
     },
     "6": {
-      "from_element": 1,
+      "from_element": 3,
       "from_output": "o4",
-      "to_element": 22,
+      "to_element": 24,
       "to_input": "input"
     }
   },

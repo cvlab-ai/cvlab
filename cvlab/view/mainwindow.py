@@ -4,6 +4,8 @@ from PyQt5.QtCore import Qt, pyqtSignal, QTimer
 from PyQt5.QtGui import *
 from PyQt5.QtWidgets import *
 
+from .. import CVLAB_DIR
+from ..diagram.elements import plugin_callbacks
 from ..core.update import Updater, parse_version
 from .diagram_manager import DiagramManager
 from .menubar import MenuBar
@@ -16,8 +18,8 @@ from .styles import StyleManager
 LOAD_LAST_DIAGRAMS = True
 LOAD_DEFAULT_DIAGRAM = True
 DEFAULT_DIAGRAM_PATH = "default.cvlab"
-ICON_PATH = os.path.dirname(__file__) + "/../images/icon.png"
-FONT_PATH = os.path.dirname(__file__) + "/../styles/fonts/Carlito-Regular.ttf"
+ICON_PATH = CVLAB_DIR + "/images/icon.png"
+FONT_PATH = CVLAB_DIR + "/styles/fonts/Carlito-Regular.ttf"
 
 
 class MainWindow(QMainWindow):
@@ -61,7 +63,8 @@ class MainWindow(QMainWindow):
         self.showMaximized()
         self.raise_()   # bring to front on a Mac
 
-        QTimer.singleShot(100, self.load_diagrams)
+        QTimer.singleShot(100, self.process_plugins_callbacks)
+        QTimer.singleShot(200, self.load_diagrams)
 
         # Prevent automatic focus on toolbox search field
         self.toolbox.filter_input.clearFocus()
@@ -83,6 +86,10 @@ class MainWindow(QMainWindow):
             self.diagram_manager.open_diagram_from_path(DEFAULT_DIAGRAM_PATH)
         else:
             self.diagram_manager.open_diagram()
+
+    def process_plugins_callbacks(self):
+        for callback in plugin_callbacks:
+            callback(self)
 
     def keyPressEvent(self, event):
         key = event.key()

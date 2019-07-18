@@ -6,6 +6,7 @@ import cv2 as cv
 
 from ...core.threaded_element import ThreadedElement
 from ...view.elements import *
+from ... import CVLAB_DIR
 from ..data import *
 from ..connectors import *
 from ..errors import *

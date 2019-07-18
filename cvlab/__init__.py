@@ -1,4 +1,8 @@
+import os
+
 from .version import __version__
+
+CVLAB_DIR = os.path.abspath(__file__ + "/..").replace("\\","/")
 
 
 def main(*args, **kwargs):
@@ -12,12 +16,6 @@ def main(*args, **kwargs):
         sys._excepthook(exctype, value, traceback)
         sys.exit(-1)
     sys.excepthook = exception_hook
-
-    # todo: it's an ugly workaround for PyQt stylesheets relative paths
-    try:
-        os.chdir(os.path.dirname(__file__))
-    except Exception:
-        pass
 
     np.seterr(all='raise')
     sip.setdestroyonexit(False)

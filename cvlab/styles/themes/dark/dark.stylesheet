@@ -1,17 +1,3 @@
-/******************************************************************************
-* This software and source code is proprietary and confidential.
-*
-* Unauthorized using, copying, distributing, sharing or modifying of this file,
-* via any medium and for any purpose is strictly prohibited.
-*
-* Authors & rights owners:
-*
-* Adam Brzeski <brzeski@eti.pg.gda.pl>
-* Jan Cychnerski <jan.cychnerski@eti.pg.gda.pl>
-*
-* Copyright (C) 2013-2016 All Rights Reserved
-******************************************************************************/
-
 /*
 Source:
 http://tech-artists.org/forum/showthread.php?2359-Release-Qt-dark-orange-stylesheet
@@ -27,7 +13,7 @@ QMainWindow, QDialog
 
 QScrollArea#ScrolledWorkArea
 {
-    background-image: url(styles/themes/dark/background.png);
+    background-image: url($CVLAB_DIR/styles/themes/dark/background.png);
 }
 
 QWidget
@@ -83,11 +69,11 @@ QSpinBox, QDoubleSpinBox
 }
 QSpinBox::up-arrow, QDoubleSpinBox::up-arrow
 {
-    border-image: url(styles/themes/dark/up.png);
+    border-image: url($CVLAB_DIR/styles/themes/dark/up.png);
 }
 QSpinBox::down-arrow, QDoubleSpinBox::down-arrow
 {
-    border-image: url(styles/themes/dark/down.png);
+    border-image: url($CVLAB_DIR/styles/themes/dark/down.png);
 }
 
 /* Combobox */
@@ -98,7 +84,11 @@ QComboBox, QWidget#Element QLineEdit
 }
 QComboBox::down-arrow
 {
-    border-image: url(styles/themes/dark/down.png);
+    border-image: url($CVLAB_DIR/styles/themes/dark/down.png);
+}
+QWidget#Element QLineEdit:disabled
+{
+    color: #b1b1b1;
 }
 
 
@@ -156,7 +146,6 @@ QScrollBar::handle
 {
      background: #252525;
 }
-
 
 /*** Tabs ***/
 

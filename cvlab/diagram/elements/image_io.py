@@ -6,7 +6,7 @@ class ImageLoader(InputElement):
     comment = "Loads the image from disk"
 
     def get_attributes(self):
-        return [], [Output("output")], [PathParameter("path", value="images/lena.jpg")]
+        return [], [Output("output")], [PathParameter("path", value=CVLAB_DIR+"/images/lena.jpg")]
 
     def process_inputs(self, inputs, outputs, parameters):
         d = cv.imread(parameters["path"])
@@ -20,7 +20,7 @@ class ImageSequenceLoader(InputElement):
     comment = "Loads a sequence of images from disk"
 
     def get_attributes(self):
-        return [], [Output("output", "Sequence")], [MultiPathParameter("paths", value=["images/lena.jpg"])]
+        return [], [Output("output", "Sequence")], [MultiPathParameter("paths", value=[CVLAB_DIR+"/images/lena.jpg"])]
 
     def process(self):
         paths = self.parameters["paths"].get()
@@ -39,7 +39,7 @@ class ImageLoader3D(InputElement):
     comment = "Loads multiple images as 3D image"
 
     def get_attributes(self):
-        return [], [Output("output")], [MultiPathParameter("paths", value=["images/lena.jpg"]*10)]
+        return [], [Output("output")], [MultiPathParameter("paths", value=[CVLAB_DIR+"/images/lena.jpg"]*10)]
 
     def process_inputs(self, inputs, outputs, parameters):
         paths = parameters["paths"]
@@ -112,7 +112,7 @@ class ArrayLoader(InputElement):
     comment = "Loads numpy array from disk"
 
     def get_attributes(self):
-        return [], [Output("output")], [PathParameter("path", value="images/default.npy")]
+        return [], [Output("output")], [PathParameter("path", value=CVLAB_DIR+"/images/default.npy")]
 
     def process_inputs(self, inputs, outputs, parameters):
         d = np.load(parameters["path"])

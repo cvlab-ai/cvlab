@@ -1,7 +1,19 @@
 import json
 
+from .parameters import PathParameter
+
 
 class ComplexJsonEncoder(json.JSONEncoder):
+    def __init__(self, base_path=None, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.base_path = base_path
+
+    def encode(self, o):
+        PathParameter.base_path = self.base_path
+        encoded = super().encode(o)
+        PathParameter.base_path = None
+        return encoded
+
     def default(self, o):
         if hasattr(o, 'to_json'):
                 return o.to_json()
@@ -10,9 +22,15 @@ class ComplexJsonEncoder(json.JSONEncoder):
 
 
 class ComplexJsonDecoder(json.JSONDecoder):
-    def __init__(self, diagram):
+    def __init__(self, diagram, base_path):
         json.JSONDecoder.__init__(self, object_hook=self.dict_to_object)
         self.diagram_instance = diagram
+        self.base_path = base_path
+
+    def decode(self, s):
+        PathParameter.base_path = self.base_path
+        super().decode(s)
+        PathParameter.base_path = None
 
     def dict_to_object(self, d):
         if "_type" in d and d["_type"] == "element":

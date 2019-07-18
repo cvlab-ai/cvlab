@@ -6,6 +6,7 @@ from PyQt5.QtCore import pyqtSlot
 from PyQt5.QtGui import *
 from PyQt5.QtWidgets import *
 
+from .. import CVLAB_DIR
 from ..diagram.interface import *
 from .mimedata import *
 from . import image_preview
@@ -15,19 +16,22 @@ ALLOW_UPSIZE = True
 
 
 class StyledWidget(QWidget):
-    def paintEvent(self, e):
-        # required for external stylesheet to work
-        o = QStyleOption()
-        o.initFrom(self)
-        p = QPainter(self)
-        self.style().drawPrimitive(QStyle.PE_Widget, o, p, self)
+    def __init__(self):
+        super().__init__()
+        self.setAttribute(QtCore.Qt.WA_StyledBackground)
+        self.setAttribute(QtCore.Qt.WA_StyleSheet)
 
 
 class InOutConnector(StyledWidget):
+    help = """\
+Input / output connector anchor
+Drag & drop to another element to connect their inputs/outputs"""
+
     def __init__(self, element, io_handle, is_input=False):
         super(InOutConnector, self).__init__()
         self.setObjectName("InOutButton")
         self.setAcceptDrops(True)
+        self.setToolTip(self.help)
         self.is_input = is_input
         self.io_handle = io_handle
         self.element = element
@@ -123,12 +127,18 @@ class InOutConnector(StyledWidget):
 
 
 class PreviewsContainer(StyledWidget):
+    help = """\
+Element outputs preview
+Mouse wheel - resize the previews
+Double click - open the preview in separate window"""
+
     def __init__(self, element, outputs):
         super(PreviewsContainer, self).__init__()
         self.element = element
         self.outputs = outputs
         layout = QVBoxLayout()
         layout.setContentsMargins(0, 0, 0, 0)
+        layout.setSpacing(0)
         self.preview_size = 120
         self.setObjectName("OutputsPreview")
         self.setVisible(False)
@@ -137,6 +147,7 @@ class PreviewsContainer(StyledWidget):
         self.setLayout(layout)
         self.element.state_changed.connect(self.update)
         self.image_dialogs_count = 0
+        self.setToolTip(self.help)
 
     def wheelEvent(self, event):
         assert isinstance(event, QWheelEvent)
@@ -207,10 +218,12 @@ class OutputPreview(QHBoxLayout):
     def __init__(self, output, previews_container):
         super(OutputPreview, self).__init__()
         if not self.default_image:
-            self.default_image = QPixmap("images/default.png")
+            self.default_image = QPixmap(CVLAB_DIR + "/images/default.png")
         self.output = output
         self.previews_container = previews_container
         self.setAlignment(QtCore.Qt.AlignCenter)
+        self.setContentsMargins(0,0,0,0)
+        self.setSpacing(0)
         self.previews = []
         self.previews.append(ActionImage(self))
         self.img = self.default_image
@@ -268,6 +281,7 @@ class ActionImage(QLabel):
         self.image_dialog = None
         self.data_type = ActionImage.DATA_TYPE_IMAGE
         self.number_output_helper = NumberOutputHelper()
+        self.setMargin(0)
         self.prepare_actions()
         self.setObjectName("OutputPreview")
 
@@ -407,20 +421,24 @@ class NumberOutputHelper:
             return self.true_ if value else self.false_
 
 
-class ElementStatusBar(QWidget):
+class ElementStatusBar(StyledWidget):
     def __init__(self, element):
         super(ElementStatusBar, self).__init__()
         self.element = element
+        # self.setSizePolicy(QSizePolicy.Ignored, QSizePolicy.Ignored)
         self.default_message = "Element unset."
         self.message = QLabel(self.default_message)
         self.message.setWordWrap(True)
         self.message.setObjectName("ElementStatusLabel")
+        # self.message.setSizePolicy(QSizePolicy.Ignored,QSizePolicy.Ignored)
         self.timings = QLabel("")
         self.timings.setVisible(False)
         self.timings.setObjectName("ElementStatusLabel")
         self.timings.setAlignment(QtCore.Qt.AlignRight)
+        # self.timings.setSizePolicy(QSizePolicy.Ignored,QSizePolicy.Ignored)
         hb = QHBoxLayout()
         hb.setContentsMargins(0, 0, 0, 0)
+        hb.setSpacing(0)
         hb.addWidget(self.message)
         hb.addWidget(self.timings)
         self.setLayout(hb)

@@ -23,7 +23,7 @@ class TabManager:
         idx = self.tab_bar.tabAt(point)
         if idx == -1:
             return
-        menu = QMenu()
+        menu = QMenu(self.tab_bar)
         menu.addAction(get_action(self.tab_bar, TabAction.CLOSE, idx))
         menu.addSeparator()
         menu.addAction(get_action(self.tab_bar, TabAction.SAVE, idx))
