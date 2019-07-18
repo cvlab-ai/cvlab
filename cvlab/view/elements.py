@@ -1,6 +1,7 @@
 from PyQt5.QtCore import pyqtSignal
 from PyQt5.QtWidgets import QApplication
 
+from .styles import StyleManager
 from ..diagram import code_generator
 from ..diagram.element import Element
 from .parameters import *
@@ -15,6 +16,11 @@ SHOW_ELEMENT_ID = False
 class GuiElement(Element, StyledWidget):
     state_changed = pyqtSignal()
     element_relocated = pyqtSignal(Element)
+
+    help = """\
+Right click - menu
+Double click - toggle previews 
+Drag & drop - move element around"""
 
     def __init__(self):
         super(GuiElement, self).__init__()
@@ -34,6 +40,7 @@ class GuiElement(Element, StyledWidget):
         self.workarea = None
         self.state_notified = False
         self.selected = False
+        self.setToolTip(self.name + "\n-------------------------\n" + self.help + "\n-------------------------\n" + self.comment)
 
     def set_selected(self, select):
         self.setProperty("selected", select)
@@ -50,13 +57,33 @@ class GuiElement(Element, StyledWidget):
             connector.set_workarea(workarea)
         self.recreate_group_actions()
 
+    def actualize_style(self):
+        layouts = [self.layout()]
+        while layouts:
+            layout = layouts.pop()
+
+            dpi_factor = 2 if StyleManager.is_highdpi else 1
+
+            base_contents_margins = getattr(layout, "base_contents_margins", None)
+            if base_contents_margins:
+                margins = (np.array(base_contents_margins) * dpi_factor * self.workarea.diagram.zoom_level).clip(1,1000).round().astype(int).tolist()
+                layout.setContentsMargins(*margins)
+
+            base_spacing = getattr(layout, "base_spacing", None)
+            if base_spacing:
+                spacing = max(int(base_spacing * self.workarea.diagram.zoom_level * dpi_factor),1)
+                layout.setSpacing(spacing)
+
+            for child in layout.children():
+                if isinstance(child, QLayout):
+                    layouts.append(child)
+
     def create_label(self, layout):
         if SHOW_ELEMENT_ID:
             self.label = QLabel("{} #{}".format(self.name, self.unique_id))
         else:
             self.label = QLabel("{}".format(self.name))
         self.label.setObjectName("ElementLabel")
-        self.label.setMinimumWidth(100)  # workaround for drag problems - with pixmap width < 100 and adjusted HotSpot
         layout.addWidget(self.label)
 
     def create_params(self, container):
@@ -86,8 +113,8 @@ class GuiElement(Element, StyledWidget):
                 layout.addLayout(GuiTextParameter(param, self))
 
     def create_inputs(self, layout):
-        layout.setContentsMargins(0, 3, 0, 3)
-        layout.setSpacing(7)
+        layout.base_contents_margins = [0,3,0,3]
+        layout.base_spacing = 7
         for input_ in self.inputs.values():
             is_input = True
             input_connector = InOutConnector(self, input_, is_input)
@@ -95,8 +122,8 @@ class GuiElement(Element, StyledWidget):
             self.input_connectors[input_] = input_connector
 
     def create_outputs(self, layout):
-        layout.setContentsMargins(0, 3, 0, 3)
-        layout.setSpacing(7)
+        layout.base_contents_margins = [0,3,0,3]
+        layout.base_spacing = 7
         for output in self.outputs.values():
             is_input = False
             output_connector = InOutConnector(self, output, is_input)
@@ -136,18 +163,20 @@ class GuiElement(Element, StyledWidget):
 
     def create_code_action(self):
         code_action = QAction('&Generate code', self)
+        code_action.setToolTip("Generates python code for executing the whole diagram up to this element")
         code_action.triggered.connect(self.gen_code_action)
         self.standard_actions.append(code_action)
         self.addAction(code_action)
 
     def create_duplicate_action(self):
         dup_action = QAction('D&uplicate', self)
+        dup_action.setToolTip("Duplicates the element.\nAll parameter values will be SHARED with the copy!")
         dup_action.triggered.connect(self.duplicate)
         self.standard_actions.append(dup_action)
         self.addAction(dup_action)
 
     def create_break_action(self):
-        action = QAction('&Break connections', self)
+        action = QAction('Disable parameter sharing', self)
         action.triggered.connect(self.break_connections)
         self.standard_actions.append(action)
         self.addAction(action)
@@ -330,26 +359,33 @@ class GuiElement(Element, StyledWidget):
 
     def to_json(self):
         parent_d = Element.to_json(self)
+
+        dpi_factor = 2 if StyleManager.is_highdpi else 1
+
         d = {
             "show_parameters": (self.params.isVisible() if self.params else None),
             "show_sliders": (self.param_sliders[0].isVisible() if self.param_sliders else None),
             "show_preview": (self.preview.isVisible() if self.preview else None),
-            "position": (self.pos().x(), self.pos().y()),
-            "preview_size": self.preview.preview_size,
+            "position": (self.pos().x()//dpi_factor, self.pos().y()//dpi_factor),
+            "preview_size": self.preview.preview_size//dpi_factor,
         }
         parent_d["gui_options"] = d
         return parent_d
 
     def from_json(self, data):
+        dpi_factor = 2 if StyleManager.is_highdpi else 1
+
         options = data["gui_options"]
         self.switch_params(options['show_parameters'] is True)
         self.switch_sliders(options["show_sliders"])
         if "preview_size" in options \
             and options["preview_size"] \
             and options["preview_size"] != self.preview.preview_size:
-                self.preview.preview_size = options["preview_size"]
+                self.preview.preview_size = options["preview_size"] * dpi_factor
         self.switch_preview(options["show_preview"])
-        self.move(options["position"][0], options["position"][1])
+
+        self.move(options["position"][0]*dpi_factor,options["position"][1]*dpi_factor)
+
         Element.from_json(self, data)
         self.update_id()
         self.preview.force_update()
@@ -388,14 +424,25 @@ class FunctionGuiElement(GuiElement):
         vb_inputs.setAlignment(QtCore.Qt.AlignTop)
         vb_outputs.setAlignment(QtCore.Qt.AlignTop)
 
+        hb_label.setContentsMargins(0,0,0,0)
+        hb_label.setSpacing(0)
+
         w_params = QWidget()
         w_params.setLayout(vb_params)
         vb_params.setContentsMargins(0,0,0,0)
+        vb_params.setSpacing(1)
+
+        vb_inputs.base_contents_margins = [4, 4, 4, 4]
+        vb_inputs.base_spacing = 4
+        vb_outputs.base_contents_margins = [4, 4, 4, 4]
+        vb_outputs.base_spacing = 4
 
         self.create_label(hb_label)
         self.create_params(w_params)
         self.create_inputs(vb_inputs)
         self.create_outputs(vb_outputs)
+        hb_content.setSpacing(0)
+        hb_content.setContentsMargins(0,0,0,0)
         hb_content.addLayout(vb_inputs)
         hb_content.addWidget(w_params)
         hb_content.addStretch(1)
@@ -404,7 +451,8 @@ class FunctionGuiElement(GuiElement):
         vb_main.addLayout(hb_content)
         vb_main.addWidget(self.status_bar)
         vb_main.setSizeConstraint(QLayout.SetFixedSize)
-        vb_main.setContentsMargins(3, 3, 3, 3)
+        vb_main.base_contents_margins = [0, 4, 0, 4]
+        vb_main.base_spacing = 4
         self.setLayout(vb_main)
 
         self.create_preview(vb_main)
@@ -439,7 +487,8 @@ class OperatorGuiElement(GuiElement):
         vb_main.addLayout(hb)
         vb_main.addWidget(self.status_bar)
         vb_main.setSizeConstraint(QLayout.SetFixedSize)
-        vb_main.setContentsMargins(3, 3, 3, 3)
+        vb_main.base_contents_margins = [0, 4, 0, 4]
+        vb_main.base_spacing = 4
         self.create_preview(vb_main)
         self.setLayout(vb_main)
 
@@ -462,6 +511,7 @@ class InputGuiElement(GuiElement):
         w_params = QWidget()
         w_params.setLayout(vb_params)
         vb_params.setContentsMargins(0,0,0,0)
+        vb_params.setSpacing(1)
 
         self.create_label(vb_main)
         self.create_params(w_params)
@@ -471,7 +521,8 @@ class InputGuiElement(GuiElement):
         vb_main.addLayout(hb)
         vb_main.addWidget(self.status_bar)
         vb_main.setSizeConstraint(QLayout.SetFixedSize)
-        vb_main.setContentsMargins(3, 3, 3, 3)
+        vb_main.base_contents_margins = [0, 4, 0, 4]
+        vb_main.base_spacing = 0
         self.create_preview(vb_main)
         self.setLayout(vb_main)
 

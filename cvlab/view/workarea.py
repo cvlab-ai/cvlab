@@ -1,3 +1,4 @@
+import os
 import re
 from datetime import datetime, timedelta
 
@@ -7,9 +8,11 @@ from PyQt5.QtCore import pyqtSignal, pyqtSlot, QObject, Qt, QTimer
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
 
+from .widgets import StyledWidget
 from ..diagram.element import Element
 from .elements import GuiElement
 from .mimedata import Mime
+from .styles import StyleManager, refresh_style_recursive
 from .wires import WiresForeground, NO_FOREGROUND_WIRES, WiresBackground, WireTools
 
 
@@ -25,8 +28,8 @@ class ScrolledWorkArea(QScrollArea):
         self.mouse_press_pos = None
         QTimer.singleShot(50, self.scroll_to_absolute_center)
 
-    def load_diagram_from_json(self, ascii_data):
-        self.diagram.load_from_json(ascii_data)
+    def load_diagram_from_json(self, ascii_data, base_path):
+        self.diagram.load_from_json(ascii_data, base_path)
         QTimer.singleShot(100, self.scroll_to_upperleft)
 
     def element_z_index(self, element):
@@ -98,6 +101,13 @@ class WorkArea(QWidget):
     zoom_levels = [0.25, 0.5, 0.75, 1.0]
     DEFAULT_POSITION_GRID = 20
 
+    help = """\
+Diagram work area
+
+Left click drag & drop - select elements
+Middle click drag & drop - move around the view
+Ctrl + mouse wheel - zoom in/out"""
+
     def __init__(self, diagram, style_manager):
         super(WorkArea, self).__init__()
         self.setObjectName("WorkArea")
@@ -115,6 +125,7 @@ class WorkArea(QWidget):
         self.element_move_start = None
         self.last_auto_scroll_time = datetime.now()
         self.style_manager.style_changed.connect(self.actualize_style)
+        self.setToolTip(self.help)
 
     @property
     def position_grid(self):
@@ -170,8 +181,15 @@ class WorkArea(QWidget):
         element.set_workarea(self)
         element.element_relocated.connect(self.user_actions.element_relocated)
         self.adjustSize()
+
+        if os.name == "posix":
+            refresh_style_recursive(element)
+
+        element.actualize_style()
+
         if not NO_FOREGROUND_WIRES:
             self.wires_in_foreground.raise_()
+
         self.connectors_map.update(element.input_connectors)
         self.connectors_map.update(element.output_connectors)
 
@@ -215,16 +233,17 @@ class WorkArea(QWidget):
             self.user_actions.cursor_line_moved.emit(points)
 
     def sizeHint(self):
-        default_size = 30000
-        layout = self.parent().parent()
-        united = QtCore.QRect(QtCore.QPoint(0, 0), layout.maximumViewportSize())
-        for e in self.children():
-            if isinstance(e, Element):
-                rect = e.geometry()
-                rect.setWidth(rect.width() + 50)
-                rect.setHeight(rect.height() + 50)
-                united = united.united(rect)
-        return QtCore.QSize(max(default_size, united.right()), max(default_size, united.bottom()))
+        default_size = 100000
+        return QtCore.QSize(default_size,default_size)
+        # layout = self.parent().parent()
+        # united = QtCore.QRect(QtCore.QPoint(0, 0), layout.maximumViewportSize())
+        # for e in self.children():
+        #     if isinstance(e, Element):
+        #         rect = e.geometry()
+        #         rect.setWidth(rect.width() + 50)
+        #         rect.setHeight(rect.height() + 50)
+        #         united = united.united(rect)
+        # return QtCore.QSize(max(default_size, united.right()), max(default_size, united.bottom()))
 
     # def paintEvent(self, e):
     #     # todo: it's very inefficient (paint event occurs very often)
@@ -235,6 +254,7 @@ class WorkArea(QWidget):
         self.wires_in_background.setGeometry(self.rect())
 
     def zoom(self, level=None, index=None, origin=None):
+
         assert (level is None and index is not None) or (level is not None and index is None)
 
         if index is not None:
@@ -269,15 +289,24 @@ class WorkArea(QWidget):
     def actualize_style(self):
         def sub(match):
             value = int(match.group(1))
+            unit = match.group(2)
             if value == 0:
-                return "0px"
+                return "0" + unit
             value = int(round(value * self.diagram.zoom_level))
             value = max(value, 1)
-            return str(value) + "px"
+            return str(value) + unit
 
-        style = self.style_manager.main_window.styleSheet()
-        style = re.sub(r"(\d+)\s*px", sub, style)
+        style = self.style_manager.stylesheet
+        style = re.sub(r"(\d+)\s*(px|pt)", sub, style)
         self.setStyleSheet(style)
+
+        # workaround for styles not updating on linux
+        if os.name == 'posix':
+            refresh_style_recursive(self)
+
+        # adjust layout spacings, as they cannot be set in stylesheets (meh...)
+        for element in self.diagram.elements:
+            element.actualize_style()
 
     def nearest_grid_point(self, x, y):
         return int(round(float(x)/self.position_grid) * self.position_grid), int(round(float(y)/self.position_grid) * self.position_grid)

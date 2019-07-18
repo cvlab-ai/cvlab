@@ -194,7 +194,7 @@ class VideoLoader(Camera):
     def get_attributes(self):
         params = super(VideoLoader, self).get_attributes()
         assert params[2][0].name == "device"
-        params[2][0] = PathParameter("device", "Path", value="images/fractal.avi")
+        params[2][0] = PathParameter("device", "Path", value=CVLAB_DIR+"/images/fractal.avi")
         return params
 
 

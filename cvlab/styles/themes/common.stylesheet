@@ -1,20 +1,7 @@
-/******************************************************************************
-* This software and source code is proprietary and confidential.
-* 
-* Unauthorized using, copying, distributing, sharing or modifying of this file,
-* via any medium and for any purpose is strictly prohibited.
-* 
-* Authors & rights owners:
-* 
-* Adam Brzeski <brzeski@eti.pg.gda.pl>
-* Jan Cychnerski <jan.cychnerski@eti.pg.gda.pl>
-* 
-* Copyright (C) 2013-2016 All Rights Reserved
-******************************************************************************/
-
 QWidget
 {
     font-family: calibri, carlito;
+    font-size: 14px;
 }
 
 /*** Elements ***/
@@ -71,6 +58,7 @@ QLabel#ElementLabel
 QLabel#ElementStatusLabel
 {
     font-size: 10px;
+    min-width: 0px;
 }
 
 QLabel#OutputPreview
@@ -105,6 +93,7 @@ QSpinBox, QDoubleSpinBox
     border-radius: 3px;
     qproperty-alignment: AlignRight;
     padding-right: 2px;
+    height: 18px;
 }
 QSpinBox::up-button, QSpinBox::down-button, QDoubleSpinBox::up-button, QDoubleSpinBox::down-button
 {
@@ -134,6 +123,8 @@ QComboBox, QWidget#Element QLineEdit
     padding-right: 5px;
     font-size: 12px;
     height: 14px;
+    max-height: 14px;
+    min-height: 14px;
     combobox-popup: 0;  /* Seems to be required on Linux to prevent strange combobox popup lists */
 }
 QComboBox::drop-down
@@ -149,7 +140,13 @@ QComboBox::down-arrow
     width: 4px;
     height: 4px;
 }
-
+QComboBox QAbstractItemView {
+    margin: 0;
+    padding: 0;
+    width: auto;
+    min-width: 0;
+    max-width: -1;
+}
 
 /*** Dialogs ***/
 
@@ -340,3 +337,4 @@ Wire
     pen-selected-bg-color: #bad4ed;
     pen-selected-bg-size: 8px
 }
+

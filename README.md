@@ -22,7 +22,7 @@ This command will install CV Lab (or update if you have already installed it). S
 Alternatively you can clone entire git repository:
 
 
-CV Lab requires: `PyQt5`, `OpenCV`, `numpy`, `scipy`, `pygments`, `tinycss2`.
+CV Lab requires: `PyQt5`, `OpenCV`, `numpy`, `scipy`, `pygments`, `tinycss2`, `matplotlib`.
 
 # DESCRIPTION
 
@@ -30,7 +30,7 @@ CV Lab enables convenient development of computer vision algorithms by means of 
 
 Instead, CV Lab offers interactive construction of the algorithms. OpenCV functions are available in a form of a palette of image processing blocks. They can be drag'n'dropped into a diagram and connected to each other for defining the data flow. Outputs of the functions in the diagram can be previewed. Parameters are available as convenient widgets like sliders or spinners. Therefore, any change in the diagram or parameter values can be instantly observed in the selected previews.
 
-**Homepage** on GitHub: https://github.com/cvlab-ai/cvlab
+**Homepage** on GitHub: https://github.com/cvlab-ai/cvlab  
 **PyPI** package: https://pypi.python.org/pypi/cvlab
     
 # USAGE
@@ -114,7 +114,7 @@ Please, forgive us.
 
                                  CV Lab
                       
-           Copyright (c) 2013-2017 Adam Brzeski, Jan Cychnerski
+           Copyright (c) 2013-2019 Adam Brzeski, Jan Cychnerski
                   
           This software is distributed under 'AGPL-3.0+' license,
            excluding cvlab/diagram/elements and cvlab/thirdparty

@@ -4,8 +4,9 @@ import itertools
 
 from PyQt5.QtCore import pyqtSignal, QObject, QReadWriteLock, QTimer, pyqtSlot
 
+from ..view.styles import StyleManager
 from .element import *
-from .errors import ConnectError, GeneralException
+from .errors import GeneralException
 from .serialization import ComplexJsonEncoder, ComplexJsonDecoder
 from ..version import __version__
 
@@ -174,13 +175,13 @@ class Diagram(QObject):
     def set_painter(self, painter):
         self.painter = painter
 
-    def save_to_json(self):
-        return ComplexJsonEncoder(indent=2, sort_keys=True).encode(self)
+    def save_to_json(self, base_path):
+        return ComplexJsonEncoder(indent=2, sort_keys=True, base_path=base_path).encode(self)
 
-    def load_from_json(self, ascii_data):
+    def load_from_json(self, ascii_data, base_path):
         if not self.painter:
             raise GeneralException("Diagram cannot be filled with data until the painter is set")
-        ComplexJsonDecoder(self).decode(ascii_data)
+        ComplexJsonDecoder(self,base_path).decode(ascii_data)
         QTimer.singleShot(100, self.update_previews)
 
     @pyqtSlot()
@@ -238,6 +239,12 @@ class Diagram(QObject):
 
         for e_order in sorted_orders:
             e = data["elements"][str(e_order)]
+
+            # workaround for old versions, where hidpi was ignored in saved diagrams
+            if StyleManager.is_highdpi and data.get("_version","") < "1.2.1":
+                e.move(e.pos().x()//2,e.pos().y()//2)
+                e.preview.preview_size //= 2
+
             self.add_element(e, (e.pos().x(), e.pos().y()))
             elements[e_order] = e
 
