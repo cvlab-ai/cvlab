@@ -5,11 +5,31 @@
   "elements": {
     "1": {
       "_type": "element",
+      "class": "Resizer",
+      "gui_options": {
+        "position": [
+          2140,
+          2140
+        ],
+        "preview_size": 30,
+        "show_parameters": true,
+        "show_preview": true,
+        "show_sliders": false
+      },
+      "module": "cvlab.diagram.elements.basic_transforms",
+      "parameters": {
+        "height": 200,
+        "width": 200
+      },
+      "unique_id": "007580"
+    },
+    "4": {
+      "_type": "element",
       "class": "VideoLoader",
       "gui_options": {
         "position": [
-          1830,
-          2150
+          1840,
+          2140
         ],
         "preview_size": 246.0,
         "show_parameters": true,
@@ -26,13 +46,13 @@
       },
       "unique_id": "022081"
     },
-    "2": {
+    "6": {
       "_type": "element",
       "class": "ImageLoader",
       "gui_options": {
         "position": [
-          1830,
-          2530
+          1840,
+          2520
         ],
         "preview_size": 246.0,
         "show_parameters": true,
@@ -45,13 +65,13 @@
       },
       "unique_id": "501918"
     },
-    "4": {
+    "8": {
       "_type": "element",
       "class": "Resizer",
       "gui_options": {
         "position": [
-          2200,
-          2530
+          2140,
+          2520
         ],
         "preview_size": 30,
         "show_parameters": true,
@@ -65,32 +85,12 @@
       },
       "unique_id": "017661"
     },
-    "7": {
-      "_type": "element",
-      "class": "Resizer",
-      "gui_options": {
-        "position": [
-          2200,
-          2150
-        ],
-        "preview_size": 30,
-        "show_parameters": true,
-        "show_preview": true,
-        "show_sliders": false
-      },
-      "module": "cvlab.diagram.elements.basic_transforms",
-      "parameters": {
-        "height": 200,
-        "width": 200
-      },
-      "unique_id": "007580"
-    },
-    "10": {
+    "11": {
       "_type": "element",
       "class": "PlusOperator",
       "gui_options": {
         "position": [
-          2460,
+          2420,
           2340
         ],
         "preview_size": 351.0,
@@ -105,51 +105,51 @@
   },
   "params": [
     {
-      "from": 6,
+      "from": 0,
       "to": 8
     },
     {
-      "from": 7,
+      "from": 1,
       "to": 9
     },
     {
       "from": 8,
-      "to": 6
+      "to": 0
     },
     {
       "from": 9,
-      "to": 7
+      "to": 1
     }
   ],
   "wires": {
     "0": {
-      "from_element": 1,
+      "from_element": 4,
       "from_output": "output",
-      "to_element": 7,
+      "to_element": 1,
       "to_input": "input"
     },
     "1": {
-      "from_element": 1,
+      "from_element": 4,
       "from_output": "output",
-      "to_element": 4,
+      "to_element": 8,
       "to_input": "input"
     },
     "2": {
-      "from_element": 2,
+      "from_element": 6,
       "from_output": "output",
-      "to_element": 4,
+      "to_element": 8,
       "to_input": "input"
     },
     "3": {
-      "from_element": 7,
+      "from_element": 1,
       "from_output": "output",
-      "to_element": 10,
+      "to_element": 11,
       "to_input": "inputs"
     },
     "4": {
-      "from_element": 4,
+      "from_element": 8,
       "from_output": "output",
-      "to_element": 10,
+      "to_element": 11,
       "to_input": "inputs"
     }
   },

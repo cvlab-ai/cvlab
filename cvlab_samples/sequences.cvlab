@@ -5,11 +5,50 @@
   "elements": {
     "1": {
       "_type": "element",
+      "class": "Resizer",
+      "gui_options": {
+        "position": [
+          2180,
+          2180
+        ],
+        "preview_size": 85.0,
+        "show_parameters": true,
+        "show_preview": true,
+        "show_sliders": false
+      },
+      "module": "cvlab.diagram.elements.basic_transforms",
+      "parameters": {
+        "height": 100,
+        "width": 100
+      },
+      "unique_id": "299525"
+    },
+    "2": {
+      "_type": "element",
+      "class": "ImageLoader",
+      "gui_options": {
+        "position": [
+          1960,
+          2400
+        ],
+        "preview_size": 121.0,
+        "show_parameters": true,
+        "show_preview": true,
+        "show_sliders": null
+      },
+      "module": "cvlab.diagram.elements.image_io",
+      "parameters": {
+        "path": "../cvlab/images/default.png"
+      },
+      "unique_id": "515277"
+    },
+    "4": {
+      "_type": "element",
       "class": "ImageSequenceLoader",
       "gui_options": {
         "position": [
-          1970,
-          2190
+          1960,
+          2180
         ],
         "preview_size": 85.0,
         "show_parameters": true,
@@ -25,33 +64,13 @@
       },
       "unique_id": "721059"
     },
-    "2": {
-      "_type": "element",
-      "class": "Resizer",
-      "gui_options": {
-        "position": [
-          2170,
-          2190
-        ],
-        "preview_size": 85.0,
-        "show_parameters": true,
-        "show_preview": true,
-        "show_sliders": false
-      },
-      "module": "cvlab.diagram.elements.basic_transforms",
-      "parameters": {
-        "height": 100,
-        "width": 100
-      },
-      "unique_id": "299525"
-    },
-    "3": {
+    "6": {
       "_type": "element",
       "class": "OpenCVBlur",
       "gui_options": {
         "position": [
-          2370,
-          2190
+          2380,
+          2180
         ],
         "preview_size": 96.0,
         "show_parameters": true,
@@ -64,31 +83,12 @@
       },
       "unique_id": "294025"
     },
-    "7": {
-      "_type": "element",
-      "class": "ImageLoader",
-      "gui_options": {
-        "position": [
-          1960,
-          2400
-        ],
-        "preview_size": 121.0,
-        "show_parameters": true,
-        "show_preview": true,
-        "show_sliders": null
-      },
-      "module": "cvlab.diagram.elements.image_io",
-      "parameters": {
-        "path": "../cvlab//default.png"
-      },
-      "unique_id": "515277"
-    },
     "9": {
       "_type": "element",
       "class": "Resizer",
       "gui_options": {
         "position": [
-          2160,
+          2180,
           2400
         ],
         "preview_size": 85.0,
@@ -108,7 +108,7 @@
       "class": "MaxOperator",
       "gui_options": {
         "position": [
-          2580,
+          2620,
           2400
         ],
         "preview_size": 108.0,
@@ -120,12 +120,12 @@
       "parameters": {},
       "unique_id": "054495"
     },
-    "13": {
+    "17": {
       "_type": "element",
       "class": "MinOperator",
       "gui_options": {
         "position": [
-          2820,
+          2880,
           2400
         ],
         "preview_size": 194.0,
@@ -140,49 +140,49 @@
   },
   "params": [
     {
-      "from": 1,
+      "from": 0,
       "to": 5
     },
     {
-      "from": 2,
+      "from": 1,
       "to": 6
     },
     {
       "from": 5,
-      "to": 1
+      "to": 0
     },
     {
       "from": 6,
-      "to": 2
+      "to": 1
     }
   ],
   "wires": {
     "0": {
-      "from_element": 1,
+      "from_element": 4,
       "from_output": "output",
-      "to_element": 2,
+      "to_element": 1,
       "to_input": "input"
     },
     "1": {
-      "from_element": 1,
+      "from_element": 4,
       "from_output": "output",
       "to_element": 9,
       "to_input": "input"
     },
     "2": {
-      "from_element": 7,
+      "from_element": 2,
       "from_output": "output",
       "to_element": 9,
       "to_input": "input"
     },
     "3": {
-      "from_element": 2,
+      "from_element": 1,
       "from_output": "output",
-      "to_element": 3,
+      "to_element": 6,
       "to_input": "input"
     },
     "4": {
-      "from_element": 3,
+      "from_element": 6,
       "from_output": "output",
       "to_element": 10,
       "to_input": "inputs"
@@ -196,7 +196,7 @@
     "6": {
       "from_element": 10,
       "from_output": "output",
-      "to_element": 13,
+      "to_element": 17,
       "to_input": "inputs"
     }
   },

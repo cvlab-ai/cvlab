@@ -8,8 +8,8 @@
       "class": "OpenCVMorphologyEx",
       "gui_options": {
         "position": [
-          2510,
-          2610
+          2480,
+          2340
         ],
         "preview_size": 86.0,
         "show_parameters": true,
@@ -31,101 +31,13 @@
       },
       "unique_id": "287958"
     },
-    "4": {
-      "_type": "element",
-      "class": "OpenCVCanny",
-      "gui_options": {
-        "position": [
-          2340,
-          2190
-        ],
-        "preview_size": 97.0,
-        "show_parameters": true,
-        "show_preview": true,
-        "show_sliders": false
-      },
-      "module": "cvlab.diagram.elements.edges",
-      "parameters": {
-        "thr1": 75,
-        "thr2": 205
-      },
-      "unique_id": "315644"
-    },
-    "7": {
-      "_type": "element",
-      "class": "OpenCVCanny",
-      "gui_options": {
-        "position": [
-          2340,
-          2400
-        ],
-        "preview_size": 96.0,
-        "show_parameters": true,
-        "show_preview": true,
-        "show_sliders": false
-      },
-      "module": "cvlab.diagram.elements.edges",
-      "parameters": {
-        "thr1": 75,
-        "thr2": 205
-      },
-      "unique_id": "923166"
-    },
-    "10": {
-      "_type": "element",
-      "class": "OpenCVCanny",
-      "gui_options": {
-        "position": [
-          2340,
-          2610
-        ],
-        "preview_size": 97.0,
-        "show_parameters": true,
-        "show_preview": true,
-        "show_sliders": false
-      },
-      "module": "cvlab.diagram.elements.edges",
-      "parameters": {
-        "thr1": 75,
-        "thr2": 205
-      },
-      "unique_id": "596016"
-    },
-    "13": {
-      "_type": "element",
-      "class": "OpenCVMorphologyEx",
-      "gui_options": {
-        "position": [
-          2510,
-          2190
-        ],
-        "preview_size": 86.0,
-        "show_parameters": true,
-        "show_preview": true,
-        "show_sliders": false
-      },
-      "module": "cvlab.diagram.elements.filters",
-      "parameters": {
-        "element size": 5,
-        "element type": {
-          "name": "MORPH_RECT",
-          "value": 0
-        },
-        "iterations": 1,
-        "operation": {
-          "name": "MORPH_GRADIENT",
-          "value": 4
-        }
-      },
-      "unique_id": "421948"
-    },
-    "16": {
+    "2": {
       "_type": "element",
       "class": "ImageLoader",
       "gui_options": {
         "position": [
-          1940,
-          2190
+          1820,
+          1820
         ],
         "preview_size": 194.0,
         "show_parameters": true,
@@ -138,13 +50,13 @@
       },
       "unique_id": "960511"
     },
-    "17": {
+    "3": {
       "_type": "element",
       "class": "ColorspaceExtractor",
       "gui_options": {
         "position": [
-          2160,
-          2190
+          2060,
+          1820
         ],
         "preview_size": 68.0,
         "show_parameters": true,
@@ -155,13 +67,13 @@
       "parameters": {},
       "unique_id": "961975"
     },
-    "25": {
+    "4": {
       "_type": "element",
       "class": "MinOperator",
       "gui_options": {
         "position": [
-          2770,
-          2390
+          2760,
+          2080
         ],
         "preview_size": 194.0,
         "show_parameters": true,
@@ -172,13 +84,13 @@
       "parameters": {},
       "unique_id": "733541"
     },
-    "28": {
+    "5": {
       "_type": "element",
       "class": "OpenCVMorphologyEx",
       "gui_options": {
         "position": [
-          2510,
-          2400
+          2480,
+          2080
         ],
         "preview_size": 86.0,
         "show_parameters": true,
@@ -199,177 +111,265 @@
         }
       },
       "unique_id": "047556"
+    },
+    "7": {
+      "_type": "element",
+      "class": "OpenCVCanny",
+      "gui_options": {
+        "position": [
+          2280,
+          1820
+        ],
+        "preview_size": 97.0,
+        "show_parameters": true,
+        "show_preview": true,
+        "show_sliders": false
+      },
+      "module": "cvlab.diagram.elements.edges",
+      "parameters": {
+        "thr1": 75,
+        "thr2": 205
+      },
+      "unique_id": "315644"
+    },
+    "8": {
+      "_type": "element",
+      "class": "OpenCVCanny",
+      "gui_options": {
+        "position": [
+          2280,
+          2340
+        ],
+        "preview_size": 97.0,
+        "show_parameters": true,
+        "show_preview": true,
+        "show_sliders": false
+      },
+      "module": "cvlab.diagram.elements.edges",
+      "parameters": {
+        "thr1": 75,
+        "thr2": 205
+      },
+      "unique_id": "596016"
+    },
+    "9": {
+      "_type": "element",
+      "class": "OpenCVCanny",
+      "gui_options": {
+        "position": [
+          2280,
+          2080
+        ],
+        "preview_size": 96.0,
+        "show_parameters": true,
+        "show_preview": true,
+        "show_sliders": false
+      },
+      "module": "cvlab.diagram.elements.edges",
+      "parameters": {
+        "thr1": 75,
+        "thr2": 205
+      },
+      "unique_id": "923166"
+    },
+    "29": {
+      "_type": "element",
+      "class": "OpenCVMorphologyEx",
+      "gui_options": {
+        "position": [
+          2480,
+          1820
+        ],
+        "preview_size": 86.0,
+        "show_parameters": true,
+        "show_preview": true,
+        "show_sliders": false
+      },
+      "module": "cvlab.diagram.elements.filters",
+      "parameters": {
+        "element size": 5,
+        "element type": {
+          "name": "MORPH_RECT",
+          "value": 0
+        },
+        "iterations": 1,
+        "operation": {
+          "name": "MORPH_GRADIENT",
+          "value": 4
+        }
+      },
+      "unique_id": "421948"
     }
   },
   "params": [
     {
       "from": 0,
-      "to": 15
-    },
-    {
-      "from": 1,
-      "to": 16
-    },
-    {
-      "from": 2,
-      "to": 17
-    },
-    {
-      "from": 3,
-      "to": 18
-    },
-    {
-      "from": 4,
-      "to": 6
-    },
-    {
-      "from": 5,
-      "to": 7
-    },
-    {
-      "from": 6,
-      "to": 4
-    },
-    {
-      "from": 6,
-      "to": 8
-    },
-    {
-      "from": 7,
       "to": 5
     },
     {
-      "from": 7,
-      "to": 9
-    },
-    {
-      "from": 8,
+      "from": 1,
       "to": 6
     },
     {
-      "from": 9,
+      "from": 2,
       "to": 7
     },
     {
-      "from": 10,
+      "from": 3,
+      "to": 8
+    },
+    {
+      "from": 5,
       "to": 15
     },
     {
-      "from": 11,
+      "from": 5,
+      "to": 0
+    },
+    {
+      "from": 6,
+      "to": 1
+    },
+    {
+      "from": 6,
       "to": 16
     },
     {
-      "from": 12,
+      "from": 7,
       "to": 17
     },
     {
-      "from": 13,
+      "from": 7,
+      "to": 2
+    },
+    {
+      "from": 8,
       "to": 18
     },
     {
-      "from": 15,
+      "from": 8,
+      "to": 3
+    },
+    {
+      "from": 9,
+      "to": 13
+    },
+    {
+      "from": 10,
+      "to": 14
+    },
+    {
+      "from": 11,
+      "to": 13
+    },
+    {
+      "from": 12,
+      "to": 14
+    },
+    {
+      "from": 13,
+      "to": 9
+    },
+    {
+      "from": 13,
+      "to": 11
+    },
+    {
+      "from": 14,
+      "to": 12
+    },
+    {
+      "from": 14,
       "to": 10
     },
     {
       "from": 15,
-      "to": 0
+      "to": 5
     },
     {
       "from": 16,
-      "to": 11
-    },
-    {
-      "from": 16,
-      "to": 1
+      "to": 6
     },
     {
       "from": 17,
-      "to": 12
-    },
-    {
-      "from": 17,
-      "to": 2
+      "to": 7
     },
     {
       "from": 18,
-      "to": 13
-    },
-    {
-      "from": 18,
-      "to": 3
+      "to": 8
     }
   ],
   "wires": {
     "0": {
-      "from_element": 16,
+      "from_element": 2,
       "from_output": "output",
-      "to_element": 17,
+      "to_element": 3,
       "to_input": "input"
     },
     "1": {
-      "from_element": 17,
+      "from_element": 3,
       "from_output": "R",
-      "to_element": 4,
-      "to_input": "input"
-    },
-    "2": {
-      "from_element": 17,
-      "from_output": "G",
       "to_element": 7,
       "to_input": "input"
     },
+    "2": {
+      "from_element": 3,
+      "from_output": "G",
+      "to_element": 9,
+      "to_input": "input"
+    },
     "3": {
-      "from_element": 17,
+      "from_element": 3,
       "from_output": "B",
-      "to_element": 10,
+      "to_element": 8,
       "to_input": "input"
     },
     "4": {
-      "from_element": 4,
+      "from_element": 7,
       "from_output": "output",
-      "to_element": 13,
+      "to_element": 29,
       "to_input": "input"
     },
     "5": {
-      "from_element": 4,
+      "from_element": 7,
       "from_output": "output",
-      "to_element": 28,
+      "to_element": 5,
       "to_input": "input"
     },
     "6": {
-      "from_element": 7,
+      "from_element": 9,
       "from_output": "output",
-      "to_element": 28,
+      "to_element": 5,
       "to_input": "input"
     },
     "7": {
-      "from_element": 7,
+      "from_element": 9,
       "from_output": "output",
       "to_element": 1,
       "to_input": "input"
     },
     "8": {
-      "from_element": 10,
+      "from_element": 8,
       "from_output": "output",
       "to_element": 1,
       "to_input": "input"
     },
     "9": {
-      "from_element": 13,
+      "from_element": 29,
       "from_output": "output",
-      "to_element": 25,
+      "to_element": 4,
       "to_input": "inputs"
     },
     "10": {
-      "from_element": 28,
+      "from_element": 5,
       "from_output": "output",
-      "to_element": 25,
+      "to_element": 4,
       "to_input": "inputs"
     },
     "11": {
       "from_element": 1,
       "from_output": "output",
-      "to_element": 25,
+      "to_element": 4,
       "to_input": "inputs"
     }
   },

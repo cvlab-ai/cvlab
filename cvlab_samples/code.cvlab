@@ -5,57 +5,11 @@
   "elements": {
     "1": {
       "_type": "element",
-      "class": "CodeElementEx",
-      "gui_options": {
-        "position": [
-          2120,
-          2170
-        ],
-        "preview_size": 67.0,
-        "show_parameters": true,
-        "show_preview": true,
-        "show_sliders": null
-      },
-      "module": "cvlab.diagram.elements.code",
-      "parameters": {
-        "code": "import cv2 as cv\nimport numpy as np\n#your code here\nreturn in1, 255-in1, in1.min(axis=2), in1.max(axis=2)",
-        "split_channels": {
-          "name": "Image",
-          "value": false
-        }
-      },
-      "unique_id": "214253"
-    },
-    "2": {
-      "_type": "element",
-      "class": "CodeElementEx",
-      "gui_options": {
-        "position": [
-          2350,
-          2170
-        ],
-        "preview_size": 68.0,
-        "show_parameters": true,
-        "show_preview": true,
-        "show_sliders": null
-      },
-      "module": "cvlab.diagram.elements.code",
-      "parameters": {
-        "code": "import cv2 as cv\nimport numpy as np\n\n# return image, string or bool\n\n\nreturn in1/2, \\\n       str(\"mean: \" + str(in2.mean(axis=(0,1)))), \\\n       bool(in3.mean() > 24)\n",
-        "split_channels": {
-          "name": "Image",
-          "value": false
-        }
-      },
-      "unique_id": "948979"
-    },
-    "11": {
-      "_type": "element",
       "class": "VideoLoader",
       "gui_options": {
         "position": [
-          1930,
-          2170
+          1880,
+          2160
         ],
         "preview_size": 30,
         "show_parameters": true,
@@ -72,36 +26,59 @@
       },
       "unique_id": "486527"
     },
-    "12": {
+    "3": {
       "_type": "element",
-      "class": "CodeElement",
+      "class": "CodeElementEx",
       "gui_options": {
         "position": [
-          2350,
-          2670
+          2100,
+          2160
         ],
-        "preview_size": 97.0,
+        "preview_size": 67.0,
         "show_parameters": true,
         "show_preview": true,
         "show_sliders": null
       },
       "module": "cvlab.diagram.elements.code",
       "parameters": {
-        "code": "import cv2 as cv\nimport numpy as np\n\n#this is a long loop...\n\nfor i in range(1000):\n\n\t# allow interruptions here\n\tintpoint()\n\n\tfor j in range(1000):\n\t\tpass\n\nreturn image / 255. * np.random.rand()",
+        "code": "import cv2 as cv\nimport numpy as np\n#your code here\nreturn in1, 255-in1, in1.min(axis=2), in1.max(axis=2)",
         "split_channels": {
           "name": "Image",
           "value": false
         }
       },
-      "unique_id": "381641"
+      "unique_id": "214253"
     },
-    "15": {
+    "12": {
+      "_type": "element",
+      "class": "CodeElementEx",
+      "gui_options": {
+        "position": [
+          2380,
+          2160
+        ],
+        "preview_size": 68.0,
+        "show_parameters": true,
+        "show_preview": true,
+        "show_sliders": null
+      },
+      "module": "cvlab.diagram.elements.code",
+      "parameters": {
+        "code": "import cv2 as cv\nimport numpy as np\n\n# return image, string or bool\n\n\nreturn in1/2, \\\n       str(\"mean: \" + str(in2.mean(axis=(0,1)))), \\\n       bool(in3.mean() > 24)\n",
+        "split_channels": {
+          "name": "Image",
+          "value": false
+        }
+      },
+      "unique_id": "948979"
+    },
+    "21": {
       "_type": "element",
       "class": "CodeElement",
       "gui_options": {
         "position": [
-          2350,
-          2470
+          2380,
+          2520
         ],
         "preview_size": 97.0,
         "show_parameters": true,
@@ -117,50 +94,73 @@
         }
       },
       "unique_id": "847158"
+    },
+    "24": {
+      "_type": "element",
+      "class": "CodeElement",
+      "gui_options": {
+        "position": [
+          2380,
+          2740
+        ],
+        "preview_size": 97.0,
+        "show_parameters": true,
+        "show_preview": true,
+        "show_sliders": null
+      },
+      "module": "cvlab.diagram.elements.code",
+      "parameters": {
+        "code": "import cv2 as cv\nimport numpy as np\n\n#this is a long loop...\n\nfor i in range(1000):\n\n\t# allow interruptions here\n\tintpoint()\n\n\tfor j in range(1000):\n\t\tpass\n\nreturn image / 255. * np.random.rand()",
+        "split_channels": {
+          "name": "Image",
+          "value": false
+        }
+      },
+      "unique_id": "381641"
     }
   },
   "params": [],
   "wires": {
     "0": {
-      "from_element": 1,
+      "from_element": 3,
       "from_output": "o1",
-      "to_element": 2,
+      "to_element": 12,
       "to_input": "in1"
     },
     "1": {
-      "from_element": 1,
+      "from_element": 3,
       "from_output": "o2",
-      "to_element": 2,
+      "to_element": 12,
       "to_input": "in2"
     },
     "2": {
-      "from_element": 1,
+      "from_element": 3,
       "from_output": "o3",
-      "to_element": 2,
+      "to_element": 12,
       "to_input": "in3"
     },
     "3": {
-      "from_element": 1,
+      "from_element": 3,
       "from_output": "o4",
-      "to_element": 2,
+      "to_element": 12,
       "to_input": "in4"
     },
     "4": {
-      "from_element": 11,
+      "from_element": 1,
       "from_output": "output",
-      "to_element": 1,
+      "to_element": 3,
       "to_input": "in1"
     },
     "5": {
-      "from_element": 1,
+      "from_element": 3,
       "from_output": "o4",
-      "to_element": 15,
+      "to_element": 21,
       "to_input": "input"
     },
     "6": {
-      "from_element": 1,
+      "from_element": 3,
       "from_output": "o4",
-      "to_element": 12,
+      "to_element": 24,
       "to_input": "input"
     }
   },
