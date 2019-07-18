@@ -6,6 +6,12 @@ from .mimedata import *
 
 
 class Toolbox(StyledWidget):
+    help = """\
+Element toolbox
+
+Drag & drop element name to add it to the active diagram"""
+    filter_help = """Search for the elements by part of the name"""
+
     def __init__(self):
         super(Toolbox, self).__init__()
         self.setObjectName("Toolbox")
@@ -15,6 +21,7 @@ class Toolbox(StyledWidget):
         elements_list.setObjectName("ToolboxTree")
         self.filter_input = QLineEdit()
         self.filter_input.setPlaceholderText("Search toolbox...")
+        self.filter_input.setToolTip(self.filter_help)
         self.filter_input.textChanged.connect(elements_list.filter_changed)
 
         layout = QVBoxLayout()
@@ -24,6 +31,8 @@ class Toolbox(StyledWidget):
         layout.addWidget(self.filter_input)
         layout.addWidget(elements_list)
         self.setLayout(layout)
+
+        self.setToolTip(self.help)
 
 
 class BoldElementGroupDelegate(QStyledItemDelegate):
@@ -66,6 +75,7 @@ class ElementsList(QTreeView):
                 row = [item,
                        QStandardItem(element.comment),
                        QStandardItem(self.class_mapper.to_string(element))]
+                item.setToolTip(element.name + "\n-----------------------------------------\n" + element.comment)
                 node.appendRow(row)
             model.appendRow(node)
         return model
@@ -122,6 +132,7 @@ class FilterProxy(QtCore.QSortFilterProxyModel):
                         return True
                 key = self.sourceModel().data(source_index, self.filterRole())
                 if hasattr(key, "toString"): key = str(key.toString())
+                print(self.filterRegExp(), key)
                 return self.filterRegExp().indexIn(key) >= 0
         return super(FilterProxy, self).filterAcceptsRow(source_row, source_parent)
 

@@ -25,7 +25,6 @@ class GuiButtonParameter(GuiBaseParameter):
         self.button.clicked.connect(self.clicked)
         self.addWidget(self.button)
 
-
     @pyqtSlot()
     def clicked(self):
         self.parameter.clicked()

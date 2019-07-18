@@ -30,6 +30,9 @@ class MenuBar(QMenuBar):
         view_menu.addAction(ResetZoomAction(view_menu, main_window))
         view_menu.addAction(ExperimentalElementsAction(view_menu, main_window))
 
+        help_menu = self.addMenu("&Help")
+        help_menu.addAction(AboutAction(help_menu, main_window))
+
 
 class Action(QAction):
     def __init__(self, name, parent, main_window):
@@ -209,4 +212,29 @@ class ExperimentalElementsAction(Action):
         self.value = not self.value
         self.setChecked(self.value)
         self.settings.set(config.ELEMENTS_SECTION, config.EXPERIMENTAL_ELEMENTS, self.value)
-        QMessageBox.information(None, "Information", "You must restart CV Lab to enable/disable experimental elements.")
+        QMessageBox.information(self.main_window, "Information", "You must restart CV Lab to enable/disable experimental elements.")
+
+
+class AboutAction(Action):
+    message = """\
+<h1>CV Lab - Computer Vision Laboratory</h1>
+<h3>A rapid prototyping tool for computer vision algorithms</h3>
+
+<p>
+Homepage on GitHub: <a href="https://github.com/cvlab-ai/cvlab">https://github.com/cvlab-ai/cvlab</a><br/>  
+PyPI package: <a href="https://pypi.python.org/pypi/cvlab">https://pypi.python.org/pypi/cvlab</a>
+</p>
+
+<p>
+<b>Authors:</b> Adam Brzeski, Jan Cychnerski<br/>
+<b>License:</b> AGPL-3.0+<br/><br/>
+<i>Copyright 2013-2019</i>
+</p>"""
+
+    def __init__(self, parent, main_window):
+        super().__init__("About", parent, main_window)
+        self.triggered.connect(self.execute)
+
+    @pyqtSlot()
+    def execute(self):
+        QMessageBox.about(self.main_window, self.main_window.windowTitle(), self.message)

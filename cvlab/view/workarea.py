@@ -101,6 +101,13 @@ class WorkArea(QWidget):
     zoom_levels = [0.25, 0.5, 0.75, 1.0]
     DEFAULT_POSITION_GRID = 20
 
+    help = """\
+Diagram work area
+
+Left click drag & drop - select elements
+Middle click drag & drop - move around the view
+Ctrl + mouse wheel - zoom in/out"""
+
     def __init__(self, diagram, style_manager):
         super(WorkArea, self).__init__()
         self.setObjectName("WorkArea")
@@ -118,6 +125,7 @@ class WorkArea(QWidget):
         self.element_move_start = None
         self.last_auto_scroll_time = datetime.now()
         self.style_manager.style_changed.connect(self.actualize_style)
+        self.setToolTip(self.help)
 
     @property
     def position_grid(self):

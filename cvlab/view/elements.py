@@ -17,6 +17,11 @@ class GuiElement(Element, StyledWidget):
     state_changed = pyqtSignal()
     element_relocated = pyqtSignal(Element)
 
+    help = """\
+Right click - menu
+Double click - toggle previews 
+Drag & drop - move element around"""
+
     def __init__(self):
         super(GuiElement, self).__init__()
         self.setObjectName("Element")
@@ -35,6 +40,7 @@ class GuiElement(Element, StyledWidget):
         self.workarea = None
         self.state_notified = False
         self.selected = False
+        self.setToolTip(self.name + "\n-------------------------\n" + self.help + "\n-------------------------\n" + self.comment)
 
     def set_selected(self, select):
         self.setProperty("selected", select)
@@ -157,18 +163,20 @@ class GuiElement(Element, StyledWidget):
 
     def create_code_action(self):
         code_action = QAction('&Generate code', self)
+        code_action.setToolTip("Generates python code for executing the whole diagram up to this element")
         code_action.triggered.connect(self.gen_code_action)
         self.standard_actions.append(code_action)
         self.addAction(code_action)
 
     def create_duplicate_action(self):
         dup_action = QAction('D&uplicate', self)
+        dup_action.setToolTip("Duplicates the element.\nAll parameter values will be SHARED with the copy!")
         dup_action.triggered.connect(self.duplicate)
         self.standard_actions.append(dup_action)
         self.addAction(dup_action)
 
     def create_break_action(self):
-        action = QAction('&Break connections', self)
+        action = QAction('Disable parameter sharing', self)
         action.triggered.connect(self.break_connections)
         self.standard_actions.append(action)
         self.addAction(action)

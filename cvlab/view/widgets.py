@@ -23,10 +23,15 @@ class StyledWidget(QWidget):
 
 
 class InOutConnector(StyledWidget):
+    help = """\
+Input / output connector anchor
+Drag & drop to another element to connect their inputs/outputs"""
+
     def __init__(self, element, io_handle, is_input=False):
         super(InOutConnector, self).__init__()
         self.setObjectName("InOutButton")
         self.setAcceptDrops(True)
+        self.setToolTip(self.help)
         self.is_input = is_input
         self.io_handle = io_handle
         self.element = element
@@ -122,6 +127,11 @@ class InOutConnector(StyledWidget):
 
 
 class PreviewsContainer(StyledWidget):
+    help = """\
+Element outputs preview
+Mouse wheel - resize the previews
+Double click - open the preview in separate window"""
+
     def __init__(self, element, outputs):
         super(PreviewsContainer, self).__init__()
         self.element = element
@@ -137,6 +147,7 @@ class PreviewsContainer(StyledWidget):
         self.setLayout(layout)
         self.element.state_changed.connect(self.update)
         self.image_dialogs_count = 0
+        self.setToolTip(self.help)
 
     def wheelEvent(self, event):
         assert isinstance(event, QWheelEvent)
