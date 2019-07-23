@@ -89,7 +89,7 @@ class MainWindow(QMainWindow):
 
     def process_plugins_callbacks(self):
         for callback in plugin_callbacks:
-            callback(self)
+            callback(main_window=self)
 
     def keyPressEvent(self, event):
         key = event.key()
