@@ -21,6 +21,7 @@ This command will install CV Lab (or update if you have already installed it). S
 
 Alternatively you can clone entire git repository:
 
+    git clone https://github.com/cvlab-ai/cvlab.git
 
 CV Lab requires: `PyQt5`, `OpenCV`, `numpy`, `scipy`, `pygments`, `tinycss2`, `matplotlib`.
 
@@ -33,6 +34,16 @@ Instead, CV Lab offers interactive construction of the algorithms. OpenCV functi
 **Homepage** on GitHub: https://github.com/cvlab-ai/cvlab  
 **PyPI** package: https://pypi.python.org/pypi/cvlab
     
+# PLUGINS
+
+CV Lab is equipped with simple plugin system. All available Python modules with name starting with `cvlab_` are automatically loaded at the startup of CV Lab.
+
+Currently, few plugins are available:
+
+* `cvlab_samples` - few sample diagrams, demonstrating CV Lab functionality    
+* `cvlab_experimental` - 100+ additional image processing elements, including: OpenCV functions, Hugin, GPhoto and more
+* [`cvlab_medical`](https://github.com/cvlab-ai/cvlab_medical) - toolbox for medical image processing and a bunch of examples
+
 # USAGE
 
 To run CV Lab just write in console:
@@ -46,7 +57,7 @@ or:
 or:
 
     python3 -O cvlab/__main__.py
-    
+        
 ### Creating image processing diagram
 
 1. Drag&drop processing elements from the palette to diagram area
@@ -122,7 +133,7 @@ Please, forgive us.
               Files in directory cvlab/diagram/elements are
                      distributed under 'MIT License'.
          
-                  Files in directory cvlab/thirdparty are
+           Files in directory cvlab_experimental/thirdparty are
                  distributed under their specific licenses.
                  
                  
