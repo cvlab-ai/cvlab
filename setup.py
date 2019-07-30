@@ -75,4 +75,18 @@ setup(
     license="AGPL-3.0+",
     python_requires='>=3.3',
     install_requires=requirements,
+    classifiers=[
+        "Development Status :: 5 - Production/Stable",
+        "Intended Audience :: Science/Research",
+        "Intended Audience :: Developers",
+        "Intended Audience :: Education",
+        "License :: OSI Approved :: GNU Affero General Public License v3 or later (AGPLv3+)",
+        "Natural Language :: English",
+        "Operating System :: OS Independent",
+        "Programming Language :: Python :: 3",
+        "Topic :: Scientific/Engineering :: Image Recognition",
+        "Topic :: Scientific/Engineering :: Visualization",
+        "Topic :: Scientific/Engineering :: Artificial Intelligence",
+        "Topic :: Software Development :: Code Generators",
+    ],
 )
