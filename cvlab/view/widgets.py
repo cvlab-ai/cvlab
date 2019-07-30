@@ -223,7 +223,7 @@ class OutputPreview(QHBoxLayout):
         self.previews_container = previews_container
         self.setAlignment(QtCore.Qt.AlignCenter)
         self.setContentsMargins(0,0,0,0)
-        self.setSpacing(0)
+        self.base_spacing = 4
         self.previews = []
         self.previews.append(ActionImage(self))
         self.img = self.default_image

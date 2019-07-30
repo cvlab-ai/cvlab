@@ -58,25 +58,24 @@ Drag & drop - move element around"""
         self.recreate_group_actions()
 
     def actualize_style(self):
-        layouts = [self.layout()]
-        while layouts:
-            layout = layouts.pop()
+        dpi_factor = 2 if StyleManager.is_highdpi else 1
 
-            dpi_factor = 2 if StyleManager.is_highdpi else 1
+        objects = [self]
+        while objects:
+            object = objects.pop()
 
-            base_contents_margins = getattr(layout, "base_contents_margins", None)
-            if base_contents_margins:
-                margins = (np.array(base_contents_margins) * dpi_factor * self.workarea.diagram.zoom_level).clip(1,1000).round().astype(int).tolist()
-                layout.setContentsMargins(*margins)
+            if isinstance(object, QLayout):
+                base_contents_margins = getattr(object, "base_contents_margins", None)
+                if base_contents_margins:
+                    margins = (np.array(base_contents_margins) * dpi_factor * self.workarea.diagram.zoom_level).clip(1,1000).round().astype(int).tolist()
+                    object.setContentsMargins(*margins)
 
-            base_spacing = getattr(layout, "base_spacing", None)
-            if base_spacing:
-                spacing = max(int(base_spacing * self.workarea.diagram.zoom_level * dpi_factor),1)
-                layout.setSpacing(spacing)
+                base_spacing = getattr(object, "base_spacing", None)
+                if base_spacing:
+                    spacing = max(int(base_spacing * self.workarea.diagram.zoom_level * dpi_factor),1)
+                    object.setSpacing(spacing)
 
-            for child in layout.children():
-                if isinstance(child, QLayout):
-                    layouts.append(child)
+            objects.extend(object.children())
 
     def create_label(self, layout):
         if SHOW_ELEMENT_ID:

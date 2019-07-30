@@ -13,7 +13,7 @@ class GuiBaseParameter(QHBoxLayout):
         super().__init__()
         self.parameter = parameter
         self.setContentsMargins(0,0,0,0)
-        self.setSpacing(2)
+        self.base_spacing = 8
 
 
 class GuiButtonParameter(GuiBaseParameter):
