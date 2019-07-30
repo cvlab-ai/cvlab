@@ -122,7 +122,7 @@ class WiresBackground(WiresBase):
                 wire.selected = True
                 e.accept()
                 if e.button() == QtCore.Qt.RightButton:
-                    menu = QMenu()
+                    menu = QMenu(self)
                     action = menu.addAction("&Delete")
                     action.triggered.connect(wire.selfdestroy)
                     menu.exec_(QtCore.QPoint(e.globalX(), e.globalY()))

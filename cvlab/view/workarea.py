@@ -145,6 +145,7 @@ Ctrl + mouse wheel - zoom in/out"""
     def mousePressEvent(self, e):
         if e.button() == Qt.LeftButton:
             self.selection_manager.on_workarea_mouse_left_pressed(e)
+        if e.button() in (Qt.LeftButton, Qt.RightButton):
             self.wires_in_background.mousePressEvent(e)
         e.ignore()
 
