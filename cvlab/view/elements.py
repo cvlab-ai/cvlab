@@ -392,16 +392,13 @@ Drag & drop - move element around"""
         self.update_id()
         self.preview.force_update()
 
-    def zoom(self, factor, origin):
+    def zoom(self, factor):
         assert isinstance(self.preview, PreviewsContainer)
 
-        # fixme: this is not accurate (elements are zoomed by top-left position, sizes and positions are integers...)
-
         factor = float(factor)
-        origin_x, origin_y = origin
 
-        x, y = self.workarea.nearest_grid_point((self.x() - origin_x) * factor + origin_x,
-                                                (self.y() - origin_y) * factor + origin_y)
+        x, y = int(self.x() * factor), int(self.y() * factor)
+        x, y = self.workarea.nearest_grid_point(x,y)
         self.move(x, y)
 
         self.preview.resize_previews(self.preview.preview_size * factor)

@@ -197,6 +197,7 @@ class ResetZoomAction(Action):
         workarea = self.main_window.diagram_manager.current_workarea()
         if workarea:
             workarea.workarea.zoom(1.0)
+            workarea.scroll_to_upperleft()
 
 
 class ExperimentalElementsAction(Action):
@@ -217,7 +218,8 @@ class ExperimentalElementsAction(Action):
 
 class AboutAction(Action):
     message = """\
-<h1>CV Lab - Computer Vision Laboratory</h1>
+<h1>CV Lab</h1>
+<h2>Computer Vision Laboratory</h2>
 <h3>A rapid prototyping tool for computer vision algorithms</h3>
 
 <p>
