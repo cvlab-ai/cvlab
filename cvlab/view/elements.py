@@ -109,6 +109,8 @@ Drag & drop - move element around"""
                 layout.addLayout(GuiMultiNumberParameter(param, self, 2, int))
             elif isinstance(param, ScalarParameter):
                 layout.addLayout(GuiMultiNumberParameter(param, self, 4, float))
+            elif isinstance(param, TwoFloatsParameter):
+                layout.addLayout(GuiMultiNumberParameter(param, self, 2, float))
             elif isinstance(param, TextParameter):
                 layout.addLayout(GuiTextParameter(param, self))
 

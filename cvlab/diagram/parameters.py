@@ -168,6 +168,16 @@ class PointParameter(Parameter):
         Parameter.set(self, tuple(value))
 
 
+class TwoFloatsParameter(Parameter):
+    def __init__(self, id, name=None, value=(0., 0.), min_=-1000, max_=1000):
+        super().__init__(id, name, value)
+        self.min = min_
+        self.max = max_
+
+    def set(self, value):
+        Parameter.set(self, tuple(value))
+
+
 class ScalarParameter(Parameter):
     def __init__(self, id, name=None, value=(0, 0, 0, 0), min_=-1000, max_=1000):
         super(ScalarParameter, self).__init__(id, name, value)

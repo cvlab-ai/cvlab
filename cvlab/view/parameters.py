@@ -21,7 +21,6 @@ class GuiButtonParameter(GuiBaseParameter):
         super().__init__(parameter)
         self.button = QPushButton(self.parameter.name)
         self.button.setObjectName("ButtonParameterButton")
-        self.button.setSizePolicy(QSizePolicy.Ignored, QSizePolicy.Ignored)
         self.button.clicked.connect(self.clicked)
         self.addWidget(self.button)
 
@@ -287,7 +286,10 @@ class GuiMultiNumberParameter(GuiBaseParameter):
 
         self.spins = []
         for i in range(count):
-            spin = SpinBoxEx()
+            if self.type == float:
+                spin = DoubleSpinBoxEx()
+            else:
+                spin = SpinBoxEx()
             spin.setRange(min_, max_)
             self.addWidget(spin)
             self.spins.append(spin)
