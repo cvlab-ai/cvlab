@@ -9,11 +9,10 @@ from glob import glob
 
 
 data_files = glob("cvlab/images/*.*") + \
-             glob("cvlab/styles/*/*.*") + \
-             glob("cvlab/styles/*/*/*.*")
+             glob("cvlab/styles/**/*.*", recursive=True)
 data_files = list(map(lambda x:x[6:], data_files))
 
-sample_files = glob("cvlab_samples/*.cvlab")
+sample_files = glob("cvlab_samples/*.cvlab") + glob("cvlab_samples/images/*.*")
 sample_files = list(map(lambda x:x[14:], sample_files))
 
 if sys.version_info.major <= 2:

@@ -3,7 +3,7 @@ import re
 from datetime import datetime, timedelta
 
 from PyQt5 import QtCore
-from PyQt5.QtCore import pyqtSignal, pyqtSlot, QObject, Qt, QTimer
+from PyQt5.QtCore import pyqtSignal, pyqtSlot, QObject, Qt, QTimer, QPoint
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
 
@@ -78,7 +78,7 @@ class ScrolledWorkArea(QScrollArea):
         for e in self.diagram.elements:
             n += 1
             pos += e.pos() + QtCore.QPoint(e.width()//2, e.height()//2)
-        pos //= n
+        pos /= n
         pos -= QtCore.QPoint(self.width()//2, self.height()//2)
         self.horizontalScrollBar().setValue(pos.x())
         self.verticalScrollBar().setValue(pos.y())
@@ -306,6 +306,16 @@ Ctrl + mouse wheel - zoom in/out"""
     def nearest_grid_point(self, x, y):
         return int(round(float(x)/self.position_grid) * self.position_grid), int(round(float(y)/self.position_grid) * self.position_grid)
 
+    def center_elements(self):
+        pos = QPoint(0, 0)
+        for e in self.diagram.elements:
+            pos += e.pos() + QPoint(e.width()//2, e.height()//2)
+        pos /= len(self.diagram.elements)
+        pos = QPoint(self.width()//2, self.height()//2) - pos
+        for e in self.diagram.elements:
+            e.move(e.pos() + pos)
+            e.element_relocated.emit(e)
+
 
 class SelectionManager:
 
@@ -383,6 +393,11 @@ class SelectionManager:
         if not element.selected:
             self.selected_elements.append(element)
             element.set_selected(True)
+
+    def select_all_elements(self):
+        self.clear_selection()
+        for e in self.workarea.diagram.elements:
+            self.select_element(e)
 
     def unselect_element(self, element):
         if element.selected:

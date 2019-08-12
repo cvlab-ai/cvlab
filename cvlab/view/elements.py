@@ -137,6 +137,7 @@ Drag & drop - move element around"""
 
     def create_switch_params_action(self):
         action = QAction('Show p&arams', self)
+        StyleManager.icons.set_icon(action, "settings 3")
         action.triggered.connect(self.switch_params)
         action.setCheckable(True)
         self.standard_actions.append(action)
@@ -144,6 +145,7 @@ Drag & drop - move element around"""
 
     def create_switch_preview_action(self):
         action = QAction('Show &preview\t[Double click]', self)
+        StyleManager.icons.set_icon(action, "layout 2")
         action.triggered.connect(self.switch_preview)
         action.setCheckable(True)
         self.standard_actions.append(action)
@@ -151,6 +153,7 @@ Drag & drop - move element around"""
 
     def create_switch_sliders_action(self):
         action = QAction('Show &sliders', self)
+        StyleManager.icons.set_icon(action,"list")
         action.triggered.connect(self.switch_sliders)
         action.setCheckable(True)
         self.standard_actions.append(action)
@@ -158,6 +161,7 @@ Drag & drop - move element around"""
 
     def create_del_action(self):
         del_action = QAction('&Delete', self)
+        StyleManager.icons.set_icon(del_action,"multiply")
         del_action.triggered.connect(self.selfdestroy)
         self.standard_actions.append(del_action)
         self.addAction(del_action)
@@ -172,12 +176,14 @@ Drag & drop - move element around"""
     def create_duplicate_action(self):
         dup_action = QAction('D&uplicate', self)
         dup_action.setToolTip("Duplicates the element.\nAll parameter values will be SHARED with the copy!")
+        StyleManager.icons.set_icon(dup_action,"pic 3")
         dup_action.triggered.connect(self.duplicate)
         self.standard_actions.append(dup_action)
         self.addAction(dup_action)
 
     def create_break_action(self):
         action = QAction('Disable parameter sharing', self)
+        StyleManager.icons.set_icon(action,"network")
         action.triggered.connect(self.break_connections)
         self.standard_actions.append(action)
         self.addAction(action)
@@ -191,6 +197,7 @@ Drag & drop - move element around"""
     def recreate_group_actions(self):
         self.group_actions[:] = []
         action = QAction('&Delete selected', self)
+        StyleManager.icons.set_icon(action,"multiply")
         action.triggered.connect(self.workarea.selection_manager.delete_selected)
         self.group_actions.append(action)
         self.addAction(action)

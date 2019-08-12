@@ -1,5 +1,8 @@
 import os
-from PyQt5.QtCore import QTimer, pyqtSignal, QObject
+from weakref import WeakKeyDictionary
+
+from PyQt5.QtCore import QTimer, pyqtSignal, QObject, QRect
+from PyQt5.QtGui import QIcon, QPixmap, QColor, QPainter
 from PyQt5.QtWidgets import *
 
 from .. import CVLAB_DIR
@@ -16,13 +19,16 @@ class StyleManager(QObject):
     style_changed = pyqtSignal()
 
     is_highdpi = QApplication.desktop().screenGeometry().width() > 2500
+    icons = None
 
     def __init__(self, main_window):
         super(StyleManager, self).__init__()
         self.styles_dir = CVLAB_DIR + "/styles/themes"
         self.main_window = main_window
         self.wire_style = None
+        self.style_name = "default"
         self.stylesheet = ""
+        StyleManager.icons = Icons(self)
         self.apply_default_stylesheet()
 
         # Only for developing stylesheets
@@ -61,6 +67,7 @@ class StyleManager(QObject):
         if self.is_highdpi:
             stylesheet = stylesheet.replace("background.png", "background-highdpi.png")
 
+        self.style_name = style_name
         self.stylesheet = stylesheet
         self.main_window.setStyleSheet(stylesheet)
         refresh_style_recursive(self.main_window)
@@ -97,3 +104,54 @@ def refresh_style_recursive(base_widget):
         for child in widget.children():
             if isinstance(child, QWidget):
                 widgets.append(child)
+
+
+class Icons:
+    def __init__(self, style_manager):
+        self.style_manager = style_manager
+        self.buffer = {}
+        self.objects = WeakKeyDictionary()
+        self.style_manager.style_changed.connect(self.actualize_style)
+
+    def actualize_style(self):
+        for name, old_icon in self.buffer.items():
+            new_icon = self.get_no_buffer(name)
+            old_icon.swap(new_icon)
+
+        for object, name in self.objects.items():
+            new_icon = self.get(name)
+            object.setIcon(new_icon)
+
+    def get_no_buffer(self, name):
+        cvlab_dir = CVLAB_DIR
+        style = self.style_manager.style_name
+        path = "{cvlab_dir}/styles/themes/{style}/icons/{name}.png".format(**locals())
+
+        if os.path.isfile(path):
+            icon = QIcon()
+
+            pixmap = QPixmap(path)
+            icon.addPixmap(pixmap.copy(), QIcon.Normal, QIcon.Off)
+
+            painter = QPainter(pixmap)
+            rect = QRect(pixmap.width()*2//3,pixmap.height()*2//3, pixmap.width()//3, pixmap.height()//3)
+            painter.fillRect(rect, QColor.fromRgb(64, 115, 178))
+            painter.end()
+            icon.addPixmap(pixmap, QIcon.Normal, QIcon.On)
+
+        else:
+            print("WARNING: Cannot find icon:", name)
+            icon = QIcon()
+
+        return icon
+
+    def get(self, name):
+        if name not in self.buffer:
+            self.buffer[name] = self.get_no_buffer(name)
+        return self.buffer[name]
+
+    def set_icon(self, object, icon):
+        if isinstance(icon, str):
+            self.objects[object] = icon  # object -> icon name
+            icon = self.get(icon)
+        object.setIcon(icon)
