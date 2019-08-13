@@ -1,9 +1,25 @@
 import os
 from glob import glob
 
-from PyQt5.QtWidgets import QAction
+from PyQt5.QtWidgets import QAction, QMenu
 
 from cvlab.diagram.elements import add_plugin_callback
+
+
+def get_menu(main_window, title):
+    titles = title.split("/")
+
+    menu = main_window.menuBar()
+
+    for title in titles:
+        for child in menu.findChildren(QMenu):
+            if child.title() == title:
+                menu = child
+                break
+        else:
+            menu = menu.addMenu(title)
+
+    return menu
 
 
 class OpenExampleAction(QAction):
@@ -22,14 +38,12 @@ def add_samples(main_window):
     samples = glob(os.path.dirname(__file__) + "/*.cvlab")
     samples.sort()
 
-    print("Adding {} sample diagrams to main menu".format(len(samples)))
+    print("Adding {} sample diagrams to 'Examples' menu".format(len(samples)))
 
-    menu = main_window.menuBar()
-
-    samples_menu = menu.addMenu('E&xamples')
+    menu = get_menu(main_window, 'Examples/Basics')
 
     for sample in samples:
-        samples_menu.addAction(OpenExampleAction(main_window, sample))
+        menu.addAction(OpenExampleAction(main_window, sample))
 
 
 add_plugin_callback(add_samples)
