@@ -43,6 +43,7 @@ Currently, few plugins are available:
 * `cvlab_samples` - few sample diagrams, demonstrating CV Lab functionality    
 * `cvlab_experimental` - 100+ additional image processing elements, including: OpenCV functions, Hugin, GPhoto and more
 * [`cvlab_medical`](https://github.com/cvlab-ai/cvlab_medical) - toolbox for medical image processing and a bunch of examples
+* [`cvlab_aug`](https://github.com/cvlab-ai/cvlab_aug) - wrapper for image augmentation library [`aug`](https://github.com/cta-ai/aug) 
 
 # USAGE
 
