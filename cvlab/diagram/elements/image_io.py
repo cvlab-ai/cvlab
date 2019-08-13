@@ -6,10 +6,14 @@ class ImageLoader(InputElement):
     comment = "Loads the image from disk"
 
     def get_attributes(self):
-        return [], [Output("output")], [PathParameter("path", value=CVLAB_DIR+"/images/lena.jpg")]
+        return [], [Output("output")], [PathParameter("path", value="lena.jpg")]
 
     def process_inputs(self, inputs, outputs, parameters):
-        d = cv.imread(parameters["path"])
+        path = parameters["path"]
+        if path.endswith('lena.jpg'):
+            path = CVLAB_DIR + "/images/lena.jpg"
+
+        d = cv.imread(path)
         if d is not None:
             self.may_interrupt()
             outputs["output"] = Data(d)
