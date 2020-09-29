@@ -11,17 +11,24 @@ class ColorNormalizer(NormalElement):
                [FloatParameter("mean", value=128, min_=-255, max_=255),
                 FloatParameter("std dev", value=64, min_=-255, max_=255)]
 
-    def process_channels(self, inputs, outputs, parameters):
+    def process_inputs(self, inputs, outputs, parameters):
         image = inputs["input"].value
         outmean = parameters["mean"]
         outstddev = parameters["std dev"]
 
         mean, stddev = cv.meanStdDev(image)
-        if stddev == 0: stddev = 1
+        mean = mean.reshape(-1)
+        stddev = stddev.reshape(-1)
+        stddev[stddev == 0] = 1
 
         output = (image.astype(np.float32) - mean) * (outstddev/stddev) + outmean
 
-        outputs["output"] = Data(np.clip(output, 0, 255).astype(image.dtype))
+        if image.dtype == np.uint8: np.clip(output, 0, 255, output)
+        elif image.dtype == np.int8: np.clip(output, -128, 127, output)
+        elif image.dtype == np.uint16: np.clip(output, 0, 65535, output)
+        elif image.dtype == np.int16: np.clip(output, -32768, 32767, output)
+
+        outputs["output"] = Data(output.astype(image.dtype))
 
 
 class OpenCVInRange(NormalElement):
