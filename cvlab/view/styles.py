@@ -118,9 +118,17 @@ class Icons:
             new_icon = self.get_no_buffer(name)
             old_icon.swap(new_icon)
 
+        errors = set()
+
         for object, name in self.objects.items():
-            new_icon = self.get(name)
-            object.setIcon(new_icon)
+            try:
+                new_icon = self.get(name)
+                object.setIcon(new_icon)
+            except Exception:
+                errors.add(object)
+
+        for object in errors:
+            del self.objects[object]
 
     def get_no_buffer(self, name):
         cvlab_dir = CVLAB_DIR
