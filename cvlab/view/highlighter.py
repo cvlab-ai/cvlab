@@ -7,10 +7,12 @@ from pygments.lexers.python import PythonLexer
 
 class Highlighter(QSyntaxHighlighter):
 
+    style_name = "solarized-dark"
+
     def __init__(self, parent):
         QSyntaxHighlighter.__init__(self, parent)
 
-        self.formatter = Formatter()
+        self.formatter = Formatter(style=self.style_name)
         self.lexer = PythonLexer()
         self.style = {}
         for token, style in self.formatter.style:
