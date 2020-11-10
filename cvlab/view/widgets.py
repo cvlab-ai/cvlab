@@ -165,8 +165,8 @@ Double click - open the preview in separate window"""
         event.accept()
 
     def resize_previews(self, new_size):
-        out_size = np.clip(int(new_size), 16, 2048)
-        self.preview_size = new_size
+        out_size = np.clip(int(new_size), 64, 2048)
+        self.preview_size = out_size
         for preview in self.previews:
             preview.preview_size = out_size
         self.update()
