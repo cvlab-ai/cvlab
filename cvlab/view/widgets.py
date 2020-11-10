@@ -173,6 +173,8 @@ Double click - open the preview in separate window"""
 
     def create_previews(self, layout):
         for output in self.outputs:
+            if not output.preview_enabled:
+                continue
             preview = OutputPreview(output, self)
             self.previews.append(preview)
             layout.addLayout(preview)

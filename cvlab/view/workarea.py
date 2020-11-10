@@ -207,9 +207,13 @@ Ctrl + mouse wheel - zoom in/out"""
 
     @pyqtSlot(Element)
     def on_element_deleted(self, element):
-        for connector in list(element.outputs.values()) + list(element.inputs.values()):
+        # Todo: potential memory leak - see: http://stackoverflow.com/questions/5899826/pyqt-how-to-remove-a-widget
+        for connector in list(element.outputs.values()):
+            if connector.preview_only:  # preview only - no InOutConnecotr is created - nothing to delete
+                continue
             del self.connectors_map[connector]
-            # Todo: potential memory leak - see: http://stackoverflow.com/questions/5899826/pyqt-how-to-remove-a-widget
+        for connector in list(element.inputs.values()):
+            del self.connectors_map[connector]
         element.setParent(None)
         element.deleteLater()
 

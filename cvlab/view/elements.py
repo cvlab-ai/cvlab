@@ -128,6 +128,8 @@ Drag & drop - move element around"""
         layout.base_contents_margins = [0,3,0,3]
         layout.base_spacing = 7
         for output in self.outputs.values():
+            if output.preview_only:
+                continue
             is_input = False
             output_connector = InOutConnector(self, output, is_input)
             layout.addWidget(output_connector)
