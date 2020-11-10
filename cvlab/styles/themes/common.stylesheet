@@ -66,6 +66,7 @@ QLabel#OutputPreview
     font-size: 10px;
     padding-top: 6px;
     padding-bottom: 4px;
+    font-family: Courier New; /* monospace font is required for string formatting to work in preview */
 }
 
 QWidget#OutputsPreview
