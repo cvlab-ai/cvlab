@@ -59,10 +59,16 @@ class GuiPathParameter(GuiBaseParameter):
 
     @pyqtSlot()
     def choose_path(self):
+        _filter = self.parameter.extension_filter
+        caption = _filter + " " if _filter is not None else ""
+
         if self.parameter.save_mode:
-            path, _ = QFileDialog.getSaveFileName(self.browse, "Save file...", self.parameter.get())
+            caption = "Save " + caption + "file..."
+            path, _ = QFileDialog.getSaveFileName(self.browse, caption,self.parameter.get(), _filter)
         else:
-            path, _ = QFileDialog.getOpenFileName(self.browse, "Open file...", self.parameter.get())
+            caption = "Open " + caption + "file..."
+            path, _ = QFileDialog.getOpenFileName(self.browse, caption, self.parameter.get(), _filter)
+
         self.set_path_(str(path))
 
 

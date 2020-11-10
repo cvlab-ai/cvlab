@@ -60,9 +60,10 @@ class Parameter(QObject):
 class PathParameter(Parameter):
     base_path = None
 
-    def __init__(self, id, name=None, value="", save_mode=False, *args, **kwargs):
+    def __init__(self, id, name=None, value="", save_mode=False, extension_filter=None, *args, **kwargs):
         super(PathParameter, self).__init__(id, name, value, *args, **kwargs)
         self.save_mode = save_mode
+        self.extension_filter = extension_filter  # filter in form "FORMAT (*.ext1 *.ext2 ...)", eg. "IMG (*.jpg *.png)"
 
     def to_json(self):
         return self.to_json_relative(self.value)
