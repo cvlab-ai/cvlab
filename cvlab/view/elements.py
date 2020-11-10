@@ -89,15 +89,17 @@ Drag & drop - move element around"""
         self.params = container
         layout = container.layout()
         params = list(self.parameters.items())
+        # if you add custom Parameter that inherits from a base class (eg. DirectoryParameter) check all the subclasses
+        # first, and base class at the end (isinstance returns True when object is a subclass of a given class)
         for name, param in params:
             if isinstance(param, ButtonParameter):
                 layout.addLayout(GuiButtonParameter(param))
-            elif isinstance(param, PathParameter):
-                layout.addLayout(GuiPathParameter(param))
             elif isinstance(param, MultiPathParameter):
                 layout.addLayout(GuiMultiPathParameter(param))
             elif isinstance(param, DirectoryParameter):
                 layout.addLayout(GuiDirectoryParameter(param))
+            elif isinstance(param, PathParameter):
+                layout.addLayout(GuiPathParameter(param))
             elif isinstance(param, IntParameter):
                 layout.addLayout(GuiIntParameter(param, self))
             elif isinstance(param, FloatParameter):
