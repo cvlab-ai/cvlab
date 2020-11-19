@@ -214,57 +214,6 @@ Double click - open the preview in separate window"""
             preview.update(True)
 
 
-class OutputPreview(QHBoxLayout):
-    default_image = None
-
-    def __init__(self, output, previews_container):
-        super(OutputPreview, self).__init__()
-        if not self.default_image:
-            self.default_image = QPixmap(CVLAB_DIR + "/images/default.png")
-        self.output = output
-        self.previews_container = previews_container
-        self.setAlignment(QtCore.Qt.AlignCenter)
-        self.setContentsMargins(0,0,0,0)
-        self.base_spacing = 4
-        self.previews = []
-        self.previews.append(ActionImage(self))
-        self.img = self.default_image
-        self.previews[0].setPixmap(self.img)
-        self.addWidget(self.previews[0])
-
-    def update(self, forced=False):
-        images = self.get_preview_images()
-        if not images:
-            images = [None]
-        self.adjust_number_of_previews(images)
-        for i, arr in enumerate(images):
-            if forced or self.previews_container.isVisible() or self.previews[i].image_dialog is not None:
-                if isinstance(arr, np.ndarray):
-                    self.previews[i].set_image(arr)
-                elif isinstance(arr, str):
-                    self.previews[i].set_text(arr)
-                elif isinstance(arr, bool):
-                    self.previews[i].set_bool(arr)
-
-    def get_preview_images(self):
-        return self.output.get().desequence_all()
-
-    def adjust_number_of_previews(self, preview_images):
-        while len(preview_images) > len(self.previews):
-            new_label = ActionImage(self)
-            self.addWidget(new_label)
-            self.previews.append(new_label)
-        while len(preview_images) < len(self.previews):
-            label_out = self.previews[-1]
-            self.previews.pop(-1)
-            # todo: again - a memory leak?
-            label_out.deleteLater()
-
-    def set_outdated(self):
-        # todo: implement this
-        pass
-
-
 class ActionImage(QLabel):
 
     DATA_TYPE_IMAGE = 0
@@ -350,17 +299,16 @@ class ActionImage(QLabel):
         return result
 
     def mouseDoubleClickEvent(self, mouse_event):
-        self.open_image_dialog()
+        if self.data_type == ActionImage.DATA_TYPE_IMAGE:
+            self.open_image_dialog()
 
     @pyqtSlot()
     def open_image_dialog(self):
-        if self.data_type != ActionImage.DATA_TYPE_IMAGE:
-            return
         if not self.__connected and self.element.diagram is not None:
             self.element.diagram.element_deleted.connect(self.on_element_destroy)
             self.__connected = True
         if self.image_dialog is None:
-            image = self.image_preview.get_preview_images()[self.id]
+            image = self.image_preview.get_preview_objects()[self.id]
             self.image_dialog = image_preview.manager.manager.window(self.name, image=image, position='cursor')
             self.image_dialog.setImage(image)
             settings = config.ConfigWrapper.get_settings()
@@ -405,6 +353,59 @@ class ActionImage(QLabel):
         QObject.deleteLater(self)
         if self.image_dialog is not None:
             self.close_image_dialog()
+
+
+class OutputPreview(QHBoxLayout):
+    default_image = None
+    preview_callbacks = [
+        (np.ndarray, ActionImage.set_image),
+        (str, ActionImage.set_text),
+        (bool, ActionImage.set_bool)
+    ]
+
+    def __init__(self, output, previews_container):
+        super(OutputPreview, self).__init__()
+        if not self.default_image:
+            self.default_image = QPixmap(CVLAB_DIR + "/images/default.png")
+        self.output = output
+        self.previews_container = previews_container
+        self.setAlignment(QtCore.Qt.AlignCenter)
+        self.setContentsMargins(0, 0, 0, 0)
+        self.base_spacing = 4
+        self.previews = []
+        self.previews.append(ActionImage(self))
+        self.img = self.default_image
+        self.previews[0].setPixmap(self.img)
+        self.addWidget(self.previews[0])
+
+    def update(self, forced=False):
+        objects = self.get_preview_objects()
+        if not objects:
+            objects = [None]
+        self.adjust_number_of_previews(objects)
+        for i, obj in enumerate(objects):
+            if forced or self.previews_container.isVisible() or self.previews[i].image_dialog is not None:
+                for _type, callback in self.preview_callbacks:
+                    if isinstance(obj, _type):
+                        callback(self.previews[i], obj)
+
+    def get_preview_objects(self):
+        return self.output.get().desequence_all()
+
+    def adjust_number_of_previews(self, preview_images):
+        while len(preview_images) > len(self.previews):
+            new_label = ActionImage(self)
+            self.addWidget(new_label)
+            self.previews.append(new_label)
+        while len(preview_images) < len(self.previews):
+            label_out = self.previews[-1]
+            self.previews.pop(-1)
+            # todo: again - a memory leak?
+            label_out.deleteLater()
+
+    def set_outdated(self):
+        # todo: implement this
+        pass
 
 
 class NumberOutputHelper:
