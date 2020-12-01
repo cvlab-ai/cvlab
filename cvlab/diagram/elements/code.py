@@ -65,8 +65,6 @@ def {name}(inputs, outputs, parameters):
         return name, source, []
 
 
-
-
 class CodeElementEx(CodeElement):
     name = "Code element (extended version)"
 
@@ -179,6 +177,69 @@ class CodeElementSequence(CodeElementEx, SequenceToSequenceElement):
         self.compiled_code = loc["fun"]
 
 
+class InputCodeElement(NormalElement):
+    name = "Input code element"
+    comment = "Runs user-given Python code to provide input"
+    example_code = \
+        "# Your input generating code here, example:\n" + \
+        "import cv2 as cv\n\n" + \
+        "image = cv.imread('./images/lena.jpg')\n\n" + \
+        "return image"
+
+    def __init__(self):
+        super(InputCodeElement, self).__init__()
+        self.compiled_code_str = ""
+        self.compiled_code = None
+        self.memory = {}
+
+    def get_attributes(self):
+        return [], \
+               [Output("output")], \
+               [TextParameter("code", value=self.example_code,
+                              window_content="def fun(parameters={}, intpoint=func, memory={}):",
+                              window_title="Code editor")
+                ]
+
+    def compile(self, code):
+        code = str(code)
+        self.compiled_code_str = code
+        self.compiled_code = None
+        code = code.replace("\r\n", "\n")
+        code = u"def fun(parameters, intpoint, memory):\n\t" + code.replace("\n", "\n\t") + u"\n\treturn None"
+        c = compile(code, "<string>", 'exec')
+        loc = {}
+        exec(c, loc)
+        self.compiled_code = loc["fun"]
+
+    def process_inputs(self, inputs, outputs, parameters):
+        if self.compiled_code_str != parameters["code"]:
+            self.compile(parameters["code"])
+        if self.compiled_code:
+            outputs["output"] = Data(self.compiled_code(parameters, self.may_interrupt, self.memory))
+
+    def get_source(self):
+        name = self.__class__.__name__.lower() + str(abs(hash(self)))[-8:]
+        fun_code = self.parameters["code"].get()\
+            .replace("intpoint()", "")\
+            .replace("\r\n", "\n")\
+            .replace("\n", "\n\t")\
+            .replace("\t", "    ")
+        source = """
+# inner code for {name}
+def {name}_fun(parameters, memory):
+    {fun_code}
+
+# memory for {name}
+{name}_memory = {{}}
+
+# general code for {name}
+def {name}(outputs, parameters):
+    parameters = {{}}
+    global {name}_memory
+    result = {name}_fun(parameters, {name}_memory)
+    outputs["output"] = Data(result)
+""".format(**locals())
+        return name, source, []
+
 
 register_elements_auto(__name__, locals(), "Code", 10)
-
