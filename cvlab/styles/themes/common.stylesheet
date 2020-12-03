@@ -63,7 +63,7 @@ QLabel#ElementStatusLabel
 
 QLabel#OutputPreview
 {
-    font-size: 10px;
+    font-size: 11px;
     padding-top: 6px;
     padding-bottom: 4px;
     font-family: Courier New; /* monospace font is required for string formatting to work in preview */
@@ -81,8 +81,6 @@ QPushButton {
     padding: 2px;
     padding-left: 3px;
     padding-right: 3px;
-    font-size: 12px;
-    height: 15px;
     width: 12px;
     margin-top: 1px;  /* to align with combobox */
 }
