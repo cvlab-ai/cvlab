@@ -81,7 +81,7 @@ QPushButton {
     padding: 2px;
     padding-left: 3px;
     padding-right: 3px;
-    width: 12px;
+    font-size: 12px;
     margin-top: 1px;  /* to align with combobox */
 }
 
