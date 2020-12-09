@@ -164,7 +164,7 @@ Drag & drop - move element around"""
         self.addAction(action)
 
     def create_del_action(self):
-        del_action = QAction('&Delete', self)
+        del_action = QAction('&Delete\t[Del]', self)
         StyleManager.icons.set_icon(del_action,"multiply")
         del_action.triggered.connect(self.selfdestroy)
         self.standard_actions.append(del_action)
@@ -200,7 +200,7 @@ Drag & drop - move element around"""
 
     def recreate_group_actions(self):
         self.group_actions[:] = []
-        action = QAction('&Delete selected', self)
+        action = QAction('&Delete selected\t[Del]', self)
         StyleManager.icons.set_icon(action,"multiply")
         action.triggered.connect(self.workarea.selection_manager.delete_selected)
         self.group_actions.append(action)

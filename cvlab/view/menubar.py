@@ -26,6 +26,7 @@ class MenuBar(QMenuBar):
         edit_menu = self.addMenu("&Edit")
         edit_menu.addAction(CenterElementsAction(edit_menu, main_window))
         edit_menu.addAction(SelectAllAction(edit_menu, main_window))
+        edit_menu.addAction(DeleteSelectedAction(edit_menu, main_window))
 
         view_menu = self.addMenu('&View')
         view_menu.addMenu(ColorThemeMenu(view_menu, main_window))
@@ -228,6 +229,14 @@ class SelectAllAction(WorkareaAction):
 
     def select_all(self, workarea):
         workarea.workarea.selection_manager.select_all_elements()
+
+
+class DeleteSelectedAction(WorkareaAction):
+    def __init__(self, parent, main_window):
+        super().__init__('Delete selected', parent, main_window, self.delete_selected, Qt.Key_Delete, "delete")
+
+    def delete_selected(self, workarea):
+        workarea.workarea.selection_manager.delete_selected()
 
 
 class ResetViewAction(WorkareaAction):
