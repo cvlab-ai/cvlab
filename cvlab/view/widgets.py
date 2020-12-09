@@ -130,7 +130,7 @@ class PreviewsContainer(StyledWidget):
     help = """\
 Element outputs preview
 Mouse wheel - resize the previews
-Double click - open the preview in separate window"""
+Double click - open image preview in separate window or expand/collapse text preview"""
 
     def __init__(self, element, outputs):
         super(PreviewsContainer, self).__init__()
@@ -235,6 +235,7 @@ class ActionImage(QLabel):
         self.setMargin(0)
         self.prepare_actions()
         self.setObjectName("OutputPreview")
+        self.text_preview_expanded = False
 
     def set_image(self, arr):
         # remember not to modify arr !!!
@@ -299,8 +300,11 @@ class ActionImage(QLabel):
         return result
 
     def mouseDoubleClickEvent(self, mouse_event):
-        if self.data_type == ActionImage.DATA_TYPE_IMAGE:
+        if self.data_type == self.DATA_TYPE_IMAGE:
             self.open_image_dialog()
+        if self.data_type == self.DATA_TYPE_TEXT:
+            self.text_preview_expanded = not self.text_preview_expanded
+            self.image_preview.update()
 
     @pyqtSlot()
     def open_image_dialog(self):
