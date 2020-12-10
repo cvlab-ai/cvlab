@@ -728,7 +728,7 @@ class PreviewWindow(QFrame):
             rotation = (self.rotation + 270) % 360
             self.setRotation(rotation)
         elif action == save:
-            filename, filter = QFileDialog.getSaveFileNameAndFilter(self, "Save image...", filter="*.png;;*.jpg;;*.bmp;;*.tiff;;*.gif", directory=self.last_save_dir)
+            filename, filter = QFileDialog.getSaveFileName(self, "Save image...", filter="*.png;;*.jpg;;*.bmp;;*.tiff;;*.gif", directory=self.last_save_dir)
             if filename:
                 try:
                     if not str(filename).endswith(filter[1:]):
