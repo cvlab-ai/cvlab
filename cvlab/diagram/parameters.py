@@ -4,6 +4,7 @@ from collections import OrderedDict
 
 import numpy as np
 from PyQt5.QtCore import pyqtSignal, QObject
+from cvlab import CVLAB_DIR
 
 from . import id_manager
 
@@ -110,6 +111,11 @@ class PathParameter(Parameter):
 
     @classmethod
     def from_json_relative(cls, path):
+        if path.startswith("CVLAB_DIR"):
+            # start path in example diagrams files with "CVLAB_DIR" to access relative directories and files
+            # example - to access lena.jpg change in .cvlab file path value to "CVLAB_DIR/images/lena.jpg"
+            path = CVLAB_DIR + path[9:]  # replace "CVLAB_DIR" with actual path
+
         path = path.replace("\\","/")
         if os.path.isabs(path):  # absolute path
             return path
