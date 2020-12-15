@@ -29,6 +29,7 @@ requirements = [
     "matplotlib",
     "tinycss2",
     "sip",
+    "pyqt5"
 ]
 
 try:
