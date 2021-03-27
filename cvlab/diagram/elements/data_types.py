@@ -11,14 +11,16 @@ class ColorConverter(NormalElement):
                [Output("output")], \
                [ComboboxParameter("code", [
                    ('No change', None),
-                   ('BGR -> Gray', cv.COLOR_BGR2GRAY),
-                   ('RGB -> Gray', cv.COLOR_RGB2GRAY),
-                   ('Gray -> BGR', cv.COLOR_GRAY2BGR),
-                   ('Gray -> RGB', cv.COLOR_GRAY2RGB),
-                   ('BGR - > HSV', cv.COLOR_BGR2HSV),
-                   ('RGB - > HSV', cv.COLOR_RGB2HSV),
-                   ('HSV - > BGR', cv.COLOR_HSV2BGR),
-                   ('HSV - > RGB', cv.COLOR_HSV2RGB)
+                   ('BGR  ->  RGB', cv.COLOR_BGR2RGB),
+                   ('RGB  ->  BGR', cv.COLOR_RGB2BGR),
+                   ('BGR  ->  Gray', cv.COLOR_BGR2GRAY),
+                   ('RGB  ->  Gray', cv.COLOR_RGB2GRAY),
+                   ('Gray ->  BGR', cv.COLOR_GRAY2BGR),
+                   ('Gray ->  RGB', cv.COLOR_GRAY2RGB),
+                   ('BGR  ->  HSV', cv.COLOR_BGR2HSV),
+                   ('RGB  ->  HSV', cv.COLOR_RGB2HSV),
+                   ('HSV  ->  BGR', cv.COLOR_HSV2BGR),
+                   ('HSV  ->  RGB', cv.COLOR_HSV2RGB)
                ])]
 
     def process_inputs(self, inputs, outputs, parameters):

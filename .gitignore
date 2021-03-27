@@ -116,3 +116,7 @@ tmp/
 ;/diagram/elements/custom/*
 !diagram/elements/custom/__init__.py
 !diagram/elements/custom/sample.py
+
+#### CV Lab keras specific
+
+cvlab_keras

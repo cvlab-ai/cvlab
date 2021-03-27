@@ -2,19 +2,23 @@ import os
 
 from .version import __version__
 
-CVLAB_DIR = os.path.abspath(__file__ + "/..").replace("\\","/")
+CVLAB_DIR = os.path.abspath(__file__ + "/..").replace("\\", "/")
 
 
 def main(*args, **kwargs):
-    import os
     import sys
-    import sip
     import numpy as np
+    try:
+        import sip
+    except ImportError:
+        from PyQt5 import sip
 
     sys._excepthook = sys.excepthook
+
     def exception_hook(exctype, value, traceback):
         sys._excepthook(exctype, value, traceback)
         sys.exit(-1)
+
     sys.excepthook = exception_hook
 
     np.seterr(all='raise')

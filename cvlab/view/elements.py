@@ -89,15 +89,17 @@ Drag & drop - move element around"""
         self.params = container
         layout = container.layout()
         params = list(self.parameters.items())
+        # if you add custom Parameter that inherits from a base class (eg. DirectoryParameter) check all the subclasses
+        # first, and base class at the end (isinstance returns True when object is a subclass of a given class)
         for name, param in params:
             if isinstance(param, ButtonParameter):
                 layout.addLayout(GuiButtonParameter(param))
-            elif isinstance(param, PathParameter):
-                layout.addLayout(GuiPathParameter(param))
             elif isinstance(param, MultiPathParameter):
                 layout.addLayout(GuiMultiPathParameter(param))
             elif isinstance(param, DirectoryParameter):
                 layout.addLayout(GuiDirectoryParameter(param))
+            elif isinstance(param, PathParameter):
+                layout.addLayout(GuiPathParameter(param))
             elif isinstance(param, IntParameter):
                 layout.addLayout(GuiIntParameter(param, self))
             elif isinstance(param, FloatParameter):
@@ -112,6 +114,8 @@ Drag & drop - move element around"""
                 layout.addLayout(GuiMultiNumberParameter(param, self, 2, float))
             elif isinstance(param, TextParameter):
                 layout.addLayout(GuiTextParameter(param, self))
+            elif isinstance(param, CommentParameter):
+                layout.addLayout(GuiCommentParameter(param, self))
 
     def create_inputs(self, layout):
         layout.base_contents_margins = [0,3,0,3]
@@ -126,6 +130,8 @@ Drag & drop - move element around"""
         layout.base_contents_margins = [0,3,0,3]
         layout.base_spacing = 7
         for output in self.outputs.values():
+            if output.preview_only:
+                continue
             is_input = False
             output_connector = InOutConnector(self, output, is_input)
             layout.addWidget(output_connector)
@@ -160,7 +166,7 @@ Drag & drop - move element around"""
         self.addAction(action)
 
     def create_del_action(self):
-        del_action = QAction('&Delete', self)
+        del_action = QAction('&Delete\t[Del]', self)
         StyleManager.icons.set_icon(del_action,"multiply")
         del_action.triggered.connect(self.selfdestroy)
         self.standard_actions.append(del_action)
@@ -196,7 +202,7 @@ Drag & drop - move element around"""
 
     def recreate_group_actions(self):
         self.group_actions[:] = []
-        action = QAction('&Delete selected', self)
+        action = QAction('&Delete selected\t[Del]', self)
         StyleManager.icons.set_icon(action,"multiply")
         action.triggered.connect(self.workarea.selection_manager.delete_selected)
         self.group_actions.append(action)
