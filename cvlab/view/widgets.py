@@ -391,7 +391,10 @@ class OutputPreview(QHBoxLayout):
             if forced or self.previews_container.isVisible() or self.previews[i].image_dialog is not None:
                 for _type, callback in self.preview_callbacks:
                     if isinstance(obj, _type):
-                        callback(self.previews[i], obj)
+                        try:
+                            callback(self.previews[i], obj)
+                        except Exception as e:
+                            print("Cannot update preview: {}".format(e))
 
     def get_preview_objects(self):
         return self.output.get().desequence_all()
