@@ -1,4 +1,5 @@
 import os
+import re
 from glob import glob
 
 from PyQt5.QtWidgets import QAction, QMenu
@@ -11,9 +12,11 @@ def get_menu(main_window, title):
 
     menu = main_window.menuBar()
 
+    simple = lambda text: re.sub(r"[^0-9a-zA-Z]+", "", text)
+
     for title in titles:
         for child in menu.findChildren(QMenu):
-            if child.title() == title:
+            if simple(child.title()) == simple(title):
                 menu = child
                 break
         else:
@@ -35,7 +38,7 @@ class OpenExampleAction(QAction):
 
 
 def add_samples_submenu_callback(main_window, submenu_name, samples_directory):
-    menu_title = 'Examples/'+submenu_name
+    menu_title = 'E&xamples/'+submenu_name
     samples = glob(samples_directory + "/*.cvlab")
     samples.sort()
 
