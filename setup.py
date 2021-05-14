@@ -28,8 +28,6 @@ requirements = [
     "pygments>=2",
     "matplotlib",
     "tinycss2",
-    "sip",
-    "pyqt5"
 ]
 
 try:
@@ -39,13 +37,17 @@ try:
         print("Please visit: https://opencv.org/releases.html")
 except ImportError:
     print("ERROR! OpenCV is required. Trying to use opencv-python package...")
-    print("If it doesn't work, please visit: https://opencv.org/releases.html")
+    print("If it doesn't work, please visit and install OpenCV manually: https://opencv.org/releases.html")
     requirements.append("opencv-python")
 
 
 try:
     import PyQt5
 except ImportError:
+    print("ERROR! PyQt5 is required. Trying to use PyPi package...")
+    print("If it doesn't work, please install PyQt5 manually, e.g.:")
+    print("    $ pip install --user pyqt5")
+    print(" or $ sudo apt install python3-pyqt5")
     requirements.append("pyqt5")
 
 
