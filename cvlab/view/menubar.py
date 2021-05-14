@@ -5,6 +5,7 @@ from PyQt5.QtGui import *
 from PyQt5.QtWidgets import *
 
 from . import config
+from .styles import StyleManager
 
 
 class MenuBar(QMenuBar):
@@ -22,12 +23,17 @@ class MenuBar(QMenuBar):
         file_menu.addSeparator()
         file_menu.addAction(CloseAppAction(file_menu, main_window))
 
+        edit_menu = self.addMenu("&Edit")
+        edit_menu.addAction(CenterElementsAction(edit_menu, main_window))
+        edit_menu.addAction(SelectAllAction(edit_menu, main_window))
+        edit_menu.addAction(DeleteSelectedAction(edit_menu, main_window))
+
         view_menu = self.addMenu('&View')
         view_menu.addMenu(ColorThemeMenu(view_menu, main_window))
         view_menu.addAction(HighQualityAction(view_menu, main_window))
         view_menu.addAction(LivePreviewsAction(view_menu, main_window))
         view_menu.addAction(PreviewOnTopAction(view_menu, main_window))
-        view_menu.addAction(ResetZoomAction(view_menu, main_window))
+        view_menu.addAction(ResetViewAction(view_menu, main_window))
         view_menu.addAction(ExperimentalElementsAction(view_menu, main_window))
 
         help_menu = self.addMenu("&Help")
@@ -41,69 +47,87 @@ class Action(QAction):
         self.settings = config.ConfigWrapper.get_settings()
 
 
-class NewAction(Action):
-    def __init__(self, parent, main_window):
-        super(NewAction, self).__init__('&New', parent, main_window)
-        self.setShortcut(QKeySequence(Qt.CTRL + Qt.Key_N))
-        self.triggered.connect(self.open_new)
+class SimpleAction(Action):
+    def __init__(self, name, parent, main_window, action=None, shortcut=None, icon=None):
+        super().__init__(name, parent, main_window)
+
+        if shortcut:
+            if not isinstance(shortcut, QKeySequence):
+                shortcut = QKeySequence(shortcut)
+            self.setShortcut(shortcut)
+
+        if icon:
+            StyleManager.icons.set_icon(self, icon)
+
+        self.action = action
+        self.triggered.connect(self.do_action)
 
     @pyqtSlot()
-    def open_new(self):
+    def do_action(self):
+        self.action(self.main_window)
+
+
+class WorkareaAction(SimpleAction):
+    def __init__(self, name, parent, main_window, action, shortcut=None, icon=None):
+        super().__init__(name, parent, main_window, action, shortcut=shortcut, icon=icon)
+
+    @pyqtSlot()
+    def do_action(self):
+        workarea = self.main_window.diagram_manager.current_workarea()
+        if workarea: self.action(workarea)
+
+
+class NewAction(SimpleAction):
+    def __init__(self, parent, main_window):
+        super().__init__('&New', parent, main_window, shortcut=Qt.CTRL + Qt.Key_N, icon="doc 6")
+
+    @pyqtSlot()
+    def do_action(self):
         self.main_window.diagram_manager.open_diagram()
 
 
-class OpenAction(Action):
+class OpenAction(SimpleAction):
     def __init__(self, parent, main_window):
-        super(OpenAction, self).__init__('&Open...', parent, main_window)
-        self.setShortcut(QKeySequence(Qt.CTRL + Qt.Key_O))
-        self.triggered.connect(self.open)
+        super(OpenAction, self).__init__('&Open...', parent, main_window, shortcut=Qt.CTRL + Qt.Key_O, icon="folder")
 
     @pyqtSlot()
-    def open(self):
+    def do_action(self):
         self.main_window.diagram_manager.open_diagram_browse()
 
 
-class SaveAsAction(Action):
+class SaveAsAction(SimpleAction):
     def __init__(self, parent, main_window):
-        super(SaveAsAction, self).__init__('&Save as...', parent, main_window)
-        self.setShortcut(QKeySequence(Qt.CTRL + Qt.SHIFT + Qt.Key_S))
-        self.triggered.connect(self.save_as)
+        super().__init__('&Save as...', parent, main_window, None, Qt.CTRL + Qt.SHIFT + Qt.Key_S, "floppy disk")
 
     @pyqtSlot()
-    def save_as(self):
+    def do_action(self):
         self.main_window.diagram_manager.save_diagram_as()
 
 
-class SaveAction(Action):
+class SaveAction(SimpleAction):
     def __init__(self, parent, main_window):
-        super(SaveAction, self).__init__('Save', parent, main_window)
-        self.setShortcut(QKeySequence(Qt.CTRL + Qt.Key_S))
-        self.triggered.connect(self.save)
+        super(SaveAction, self).__init__('Save', parent, main_window, None, Qt.CTRL + Qt.Key_S, "floppy disk")
 
     @pyqtSlot()
-    def save(self):
+    def do_action(self):
         self.main_window.diagram_manager.save_diagram()
 
 
-class CloseDiagramAction(Action):
+class CloseDiagramAction(SimpleAction):
     def __init__(self, parent, main_window):
-        super(CloseDiagramAction, self).__init__('Close diagram', parent, main_window)
-        self.setShortcut(QKeySequence(Qt.CTRL + Qt.Key_W))
-        self.triggered.connect(self.close)
+        super(CloseDiagramAction, self).__init__('Close diagram', parent, main_window, None, Qt.CTRL + Qt.Key_W, "doc 8")
 
     @pyqtSlot()
-    def close(self):
+    def do_action(self):
         self.main_window.diagram_manager.close_diagram()
 
 
-class CloseAppAction(Action):
+class CloseAppAction(SimpleAction):
     def __init__(self, parent, main_window):
-        super(CloseAppAction, self).__init__('E&xit', parent, main_window)
-        self.setShortcut(QKeySequence(Qt.ALT + Qt.Key_F4))
-        self.triggered.connect(self.exit)
+        super(CloseAppAction, self).__init__('E&xit', parent, main_window, None, Qt.ALT + Qt.Key_F4, "power button")
 
     @pyqtSlot()
-    def exit(self):
+    def do_action(self):
         self.main_window.diagram_manager.close_all_diagrams()
         self.main_window.application.quit()
 
@@ -113,6 +137,7 @@ class ColorThemeMenu(QMenu):
         super(ColorThemeMenu, self).__init__("&Set color theme", parent)
         self.main_window = main_window
         self.fill_styles()
+        StyleManager.icons.set_icon(self, "settings 8")
 
     def fill_styles(self):
         styles = self.main_window.style_manager.get_available_stylesheets()
@@ -146,6 +171,7 @@ class HighQualityAction(Action):
         self.setCheckable(True)
         self.value = bool(strtobool(self.settings.get_with_default(config.VIEW_SECTION, config.VIEW_HQ_OPTION)))
         self.setChecked(self.value)
+        StyleManager.icons.set_icon(self, "pic")
         self.triggered.connect(self.toggle_quality)
 
     @pyqtSlot()
@@ -162,6 +188,7 @@ class LivePreviewsAction(Action):
         self.value = bool(strtobool(self.settings.get_with_default(config.VIEW_SECTION,
                                                                    config.LIVE_IMAGE_PREVIEW_OPTION)))
         self.setChecked(self.value)
+        StyleManager.icons.set_icon(self, "play")
         self.triggered.connect(self.switch)
 
     @pyqtSlot()
@@ -177,6 +204,7 @@ class PreviewOnTopAction(Action):
         self.setCheckable(True)
         self.value = bool(strtobool(self.settings.get_with_default(config.VIEW_SECTION, config.PREVIEW_ON_TOP_OPTION)))
         self.setChecked(self.value)
+        StyleManager.icons.set_icon(self, "pin")
         self.triggered.connect(self.switch)
 
     @pyqtSlot()
@@ -186,17 +214,38 @@ class PreviewOnTopAction(Action):
         self.settings.set(config.VIEW_SECTION, config.PREVIEW_ON_TOP_OPTION, self.value)
 
 
-class ResetZoomAction(Action):
+class CenterElementsAction(WorkareaAction):
     def __init__(self, parent, main_window):
-        super(ResetZoomAction, self).__init__('Reset zoom', parent, main_window)
-        self.setShortcut(QKeySequence(Qt.CTRL + Qt.Key_0))
-        self.triggered.connect(self.reset_zoom)
+        super().__init__('Center elements', parent, main_window, self.center_elements, icon="arrow 13")
 
-    @pyqtSlot()
-    def reset_zoom(self):
-        workarea = self.main_window.diagram_manager.current_workarea()
-        if workarea:
-            workarea.workarea.zoom(1.0)
+    def center_elements(self, workarea):
+        workarea.workarea.center_elements()
+        workarea.scroll_to_upperleft()
+
+
+class SelectAllAction(WorkareaAction):
+    def __init__(self, parent, main_window):
+        super().__init__('Select all', parent, main_window, self.select_all, Qt.CTRL + Qt.Key_A, "select")
+
+    def select_all(self, workarea):
+        workarea.workarea.selection_manager.select_all_elements()
+
+
+class DeleteSelectedAction(WorkareaAction):
+    def __init__(self, parent, main_window):
+        super().__init__('Delete selected', parent, main_window, self.delete_selected, Qt.Key_Delete, "delete")
+
+    def delete_selected(self, workarea):
+        workarea.workarea.selection_manager.delete_selected()
+
+
+class ResetViewAction(WorkareaAction):
+    def __init__(self, parent, main_window):
+        super(ResetViewAction, self).__init__('Reset view', parent, main_window, self.reset_view, Qt.CTRL + Qt.Key_0, "search")
+
+    def reset_view(self, workarea):
+        workarea.workarea.zoom(1.0)
+        workarea.scroll_to_upperleft()
 
 
 class ExperimentalElementsAction(Action):
@@ -205,6 +254,7 @@ class ExperimentalElementsAction(Action):
         self.setCheckable(True)
         self.value = bool(strtobool(self.settings.get_with_default(config.ELEMENTS_SECTION, config.EXPERIMENTAL_ELEMENTS)))
         self.setChecked(self.value)
+        StyleManager.icons.set_icon(self, "veil")
         self.triggered.connect(self.toggle)
 
     @pyqtSlot()
@@ -215,9 +265,10 @@ class ExperimentalElementsAction(Action):
         QMessageBox.information(self.main_window, "Information", "You must restart CV Lab to enable/disable experimental elements.")
 
 
-class AboutAction(Action):
+class AboutAction(SimpleAction):
     message = """\
-<h1>CV Lab - Computer Vision Laboratory</h1>
+<h1>CV Lab</h1>
+<h2>Computer Vision Laboratory</h2>
 <h3>A rapid prototyping tool for computer vision algorithms</h3>
 
 <p>
@@ -232,9 +283,8 @@ PyPI package: <a href="https://pypi.python.org/pypi/cvlab">https://pypi.python.o
 </p>"""
 
     def __init__(self, parent, main_window):
-        super().__init__("About", parent, main_window)
-        self.triggered.connect(self.execute)
+        super().__init__("About", parent, main_window, icon="info")
 
     @pyqtSlot()
-    def execute(self):
+    def do_action(self):
         QMessageBox.about(self.main_window, self.main_window.windowTitle(), self.message)

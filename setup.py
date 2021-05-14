@@ -9,11 +9,10 @@ from glob import glob
 
 
 data_files = glob("cvlab/images/*.*") + \
-             glob("cvlab/styles/*/*.*") + \
-             glob("cvlab/styles/*/*/*.*")
+             glob("cvlab/styles/**/*.*", recursive=True)
 data_files = list(map(lambda x:x[6:], data_files))
 
-sample_files = glob("cvlab_samples/*.cvlab")
+sample_files = glob("cvlab_samples/*.cvlab") + glob("cvlab_samples/images/*.*")
 sample_files = list(map(lambda x:x[14:], sample_files))
 
 if sys.version_info.major <= 2:
@@ -29,7 +28,6 @@ requirements = [
     "pygments>=2",
     "matplotlib",
     "tinycss2",
-    "sip",
 ]
 
 try:
@@ -39,13 +37,17 @@ try:
         print("Please visit: https://opencv.org/releases.html")
 except ImportError:
     print("ERROR! OpenCV is required. Trying to use opencv-python package...")
-    print("If it doesn't work, please visit: https://opencv.org/releases.html")
+    print("If it doesn't work, please visit and install OpenCV manually: https://opencv.org/releases.html")
     requirements.append("opencv-python")
 
 
 try:
     import PyQt5
 except ImportError:
+    print("ERROR! PyQt5 is required. Trying to use PyPi package...")
+    print("If it doesn't work, please install PyQt5 manually, e.g.:")
+    print("    $ pip install --user pyqt5")
+    print(" or $ sudo apt install python3-pyqt5")
     requirements.append("pyqt5")
 
 
@@ -75,4 +77,18 @@ setup(
     license="AGPL-3.0+",
     python_requires='>=3.3',
     install_requires=requirements,
+    classifiers=[
+        "Development Status :: 5 - Production/Stable",
+        "Intended Audience :: Science/Research",
+        "Intended Audience :: Developers",
+        "Intended Audience :: Education",
+        "License :: OSI Approved :: GNU Affero General Public License v3 or later (AGPLv3+)",
+        "Natural Language :: English",
+        "Operating System :: OS Independent",
+        "Programming Language :: Python :: 3",
+        "Topic :: Scientific/Engineering :: Image Recognition",
+        "Topic :: Scientific/Engineering :: Visualization",
+        "Topic :: Scientific/Engineering :: Artificial Intelligence",
+        "Topic :: Software Development :: Code Generators",
+    ],
 )

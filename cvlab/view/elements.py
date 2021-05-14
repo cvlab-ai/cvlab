@@ -58,25 +58,24 @@ Drag & drop - move element around"""
         self.recreate_group_actions()
 
     def actualize_style(self):
-        layouts = [self.layout()]
-        while layouts:
-            layout = layouts.pop()
+        dpi_factor = 2 if StyleManager.is_highdpi else 1
 
-            dpi_factor = 2 if StyleManager.is_highdpi else 1
+        objects = [self]
+        while objects:
+            object = objects.pop()
 
-            base_contents_margins = getattr(layout, "base_contents_margins", None)
-            if base_contents_margins:
-                margins = (np.array(base_contents_margins) * dpi_factor * self.workarea.diagram.zoom_level).clip(1,1000).round().astype(int).tolist()
-                layout.setContentsMargins(*margins)
+            if isinstance(object, QLayout):
+                base_contents_margins = getattr(object, "base_contents_margins", None)
+                if base_contents_margins:
+                    margins = (np.array(base_contents_margins) * dpi_factor * self.workarea.diagram.zoom_level).clip(1,1000).round().astype(int).tolist()
+                    object.setContentsMargins(*margins)
 
-            base_spacing = getattr(layout, "base_spacing", None)
-            if base_spacing:
-                spacing = max(int(base_spacing * self.workarea.diagram.zoom_level * dpi_factor),1)
-                layout.setSpacing(spacing)
+                base_spacing = getattr(object, "base_spacing", None)
+                if base_spacing:
+                    spacing = max(int(base_spacing * self.workarea.diagram.zoom_level * dpi_factor),1)
+                    object.setSpacing(spacing)
 
-            for child in layout.children():
-                if isinstance(child, QLayout):
-                    layouts.append(child)
+            objects.extend(object.children())
 
     def create_label(self, layout):
         if SHOW_ELEMENT_ID:
@@ -90,15 +89,17 @@ Drag & drop - move element around"""
         self.params = container
         layout = container.layout()
         params = list(self.parameters.items())
+        # if you add custom Parameter that inherits from a base class (eg. DirectoryParameter) check all the subclasses
+        # first, and base class at the end (isinstance returns True when object is a subclass of a given class)
         for name, param in params:
             if isinstance(param, ButtonParameter):
                 layout.addLayout(GuiButtonParameter(param))
-            elif isinstance(param, PathParameter):
-                layout.addLayout(GuiPathParameter(param))
             elif isinstance(param, MultiPathParameter):
                 layout.addLayout(GuiMultiPathParameter(param))
             elif isinstance(param, DirectoryParameter):
                 layout.addLayout(GuiDirectoryParameter(param))
+            elif isinstance(param, PathParameter):
+                layout.addLayout(GuiPathParameter(param))
             elif isinstance(param, IntParameter):
                 layout.addLayout(GuiIntParameter(param, self))
             elif isinstance(param, FloatParameter):
@@ -109,8 +110,12 @@ Drag & drop - move element around"""
                 layout.addLayout(GuiMultiNumberParameter(param, self, 2, int))
             elif isinstance(param, ScalarParameter):
                 layout.addLayout(GuiMultiNumberParameter(param, self, 4, float))
+            elif isinstance(param, TwoFloatsParameter):
+                layout.addLayout(GuiMultiNumberParameter(param, self, 2, float))
             elif isinstance(param, TextParameter):
                 layout.addLayout(GuiTextParameter(param, self))
+            elif isinstance(param, CommentParameter):
+                layout.addLayout(GuiCommentParameter(param, self))
 
     def create_inputs(self, layout):
         layout.base_contents_margins = [0,3,0,3]
@@ -125,6 +130,8 @@ Drag & drop - move element around"""
         layout.base_contents_margins = [0,3,0,3]
         layout.base_spacing = 7
         for output in self.outputs.values():
+            if output.preview_only:
+                continue
             is_input = False
             output_connector = InOutConnector(self, output, is_input)
             layout.addWidget(output_connector)
@@ -136,6 +143,7 @@ Drag & drop - move element around"""
 
     def create_switch_params_action(self):
         action = QAction('Show p&arams', self)
+        StyleManager.icons.set_icon(action, "settings 3")
         action.triggered.connect(self.switch_params)
         action.setCheckable(True)
         self.standard_actions.append(action)
@@ -143,6 +151,7 @@ Drag & drop - move element around"""
 
     def create_switch_preview_action(self):
         action = QAction('Show &preview\t[Double click]', self)
+        StyleManager.icons.set_icon(action, "layout 2")
         action.triggered.connect(self.switch_preview)
         action.setCheckable(True)
         self.standard_actions.append(action)
@@ -150,13 +159,15 @@ Drag & drop - move element around"""
 
     def create_switch_sliders_action(self):
         action = QAction('Show &sliders', self)
+        StyleManager.icons.set_icon(action,"list")
         action.triggered.connect(self.switch_sliders)
         action.setCheckable(True)
         self.standard_actions.append(action)
         self.addAction(action)
 
     def create_del_action(self):
-        del_action = QAction('&Delete', self)
+        del_action = QAction('&Delete\t[Del]', self)
+        StyleManager.icons.set_icon(del_action,"multiply")
         del_action.triggered.connect(self.selfdestroy)
         self.standard_actions.append(del_action)
         self.addAction(del_action)
@@ -171,12 +182,14 @@ Drag & drop - move element around"""
     def create_duplicate_action(self):
         dup_action = QAction('D&uplicate', self)
         dup_action.setToolTip("Duplicates the element.\nAll parameter values will be SHARED with the copy!")
+        StyleManager.icons.set_icon(dup_action,"pic 3")
         dup_action.triggered.connect(self.duplicate)
         self.standard_actions.append(dup_action)
         self.addAction(dup_action)
 
     def create_break_action(self):
         action = QAction('Disable parameter sharing', self)
+        StyleManager.icons.set_icon(action,"network")
         action.triggered.connect(self.break_connections)
         self.standard_actions.append(action)
         self.addAction(action)
@@ -189,7 +202,8 @@ Drag & drop - move element around"""
 
     def recreate_group_actions(self):
         self.group_actions[:] = []
-        action = QAction('&Delete selected', self)
+        action = QAction('&Delete selected\t[Del]', self)
+        StyleManager.icons.set_icon(action,"multiply")
         action.triggered.connect(self.workarea.selection_manager.delete_selected)
         self.group_actions.append(action)
         self.addAction(action)
@@ -390,16 +404,13 @@ Drag & drop - move element around"""
         self.update_id()
         self.preview.force_update()
 
-    def zoom(self, factor, origin):
+    def zoom(self, factor):
         assert isinstance(self.preview, PreviewsContainer)
 
-        # fixme: this is not accurate (elements are zoomed by top-left position, sizes and positions are integers...)
-
         factor = float(factor)
-        origin_x, origin_y = origin
 
-        x, y = self.workarea.nearest_grid_point((self.x() - origin_x) * factor + origin_x,
-                                                (self.y() - origin_y) * factor + origin_y)
+        x, y = int(self.x() * factor), int(self.y() * factor)
+        x, y = self.workarea.nearest_grid_point(x,y)
         self.move(x, y)
 
         self.preview.resize_previews(self.preview.preview_size * factor)

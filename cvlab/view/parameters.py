@@ -1,5 +1,4 @@
 from PyQt5 import QtCore
-from PyQt5.QtCore import pyqtSlot
 from PyQt5.QtGui import *
 from PyQt5.QtWidgets import *
 
@@ -12,8 +11,81 @@ class GuiBaseParameter(QHBoxLayout):
     def __init__(self, parameter):
         super().__init__()
         self.parameter = parameter
-        self.setContentsMargins(0,0,0,0)
-        self.setSpacing(2)
+        self.setContentsMargins(0, 0, 0, 0)
+        self.base_spacing = 8
+
+
+class GuiCommentParameter(GuiBaseParameter):
+
+    class TextEdit(QTextEdit):
+
+        doubleClicked = pyqtSignal()
+
+        def mouseDoubleClickEvent(self, event):
+            self.doubleClicked.emit()
+
+    def __init__(self, parameter, element):
+        super().__init__(parameter)
+        assert isinstance(parameter, CommentParameter)
+        self.element = element
+
+        self.text = self.TextEdit()
+        self.text.setReadOnly(True)
+        self.text.doubleClicked.connect(self.edit_comment)
+        self.addWidget(self.text)
+
+        self.parameter.status_changed.connect(self.on_status_changed)
+
+        self.wnd = QDialog(self.element)
+        self.wnd_geometry = None
+        self.text_editor = QPlainTextEdit()
+        self.set_window()
+        self.actualize_html()
+
+    def set_window(self):
+        self.wnd.setModal(False)
+        self.wnd.setLayout(QVBoxLayout())
+        self.wnd.setObjectName("HtmlDialog")
+        self.wnd.setWindowTitle("Comment writer")
+        desktop = QApplication.instance().desktop()
+        self.wnd.resize(desktop.screenGeometry(desktop.screenNumber(self.element)).width() // 2,
+                        desktop.screenGeometry(desktop.screenNumber(self.element)).height() // 2)
+        self.text_editor.setLineWrapMode(self.text_editor.NoWrap)
+        self.text_editor.setWordWrapMode(QTextOption.NoWrap)
+        self.wnd.layout().addWidget(self.text_editor)
+
+        ok_button = QPushButton()
+        ok_button.setText("Save")
+        ok_button.clicked.connect(self.close_but_press)
+        self.wnd.layout().addWidget(ok_button)
+
+    @pyqtSlot()
+    def edit_comment(self):
+        self.text_editor.setPlainText(self.parameter.get())
+        tab_width = QFontMetrics(self.text_editor.font()).width("    ")
+        self.text_editor.setTabStopWidth(tab_width)
+
+        if self.wnd_geometry:
+            self.wnd.setGeometry(self.wnd_geometry)
+
+        self.wnd.show()
+
+    @pyqtSlot()
+    def on_status_changed(self):
+        self.actualize_html()
+
+    @pyqtSlot()
+    def close_but_press(self):
+        self.actualize()
+        self.actualize_html()
+        self.wnd_geometry = self.wnd.geometry()
+        self.wnd.accept()
+
+    def actualize(self):
+        self.parameter.set(str(self.text_editor.toPlainText()))
+
+    def actualize_html(self):
+        self.text.setHtml(str(self.parameter.get()))
 
 
 class GuiButtonParameter(GuiBaseParameter):
@@ -21,7 +93,6 @@ class GuiButtonParameter(GuiBaseParameter):
         super().__init__(parameter)
         self.button = QPushButton(self.parameter.name)
         self.button.setObjectName("ButtonParameterButton")
-        self.button.setSizePolicy(QSizePolicy.Ignored, QSizePolicy.Ignored)
         self.button.clicked.connect(self.clicked)
         self.addWidget(self.button)
 
@@ -60,10 +131,16 @@ class GuiPathParameter(GuiBaseParameter):
 
     @pyqtSlot()
     def choose_path(self):
+        _filter = self.parameter.extension_filter
+        caption = _filter + " " if _filter is not None else ""
+
         if self.parameter.save_mode:
-            path, _ = QFileDialog.getSaveFileName(self.browse, "Save file...", self.parameter.get())
+            caption = "Save " + caption + "file..."
+            path, _ = QFileDialog.getSaveFileName(self.browse, caption,self.parameter.get(), _filter)
         else:
-            path, _ = QFileDialog.getOpenFileName(self.browse, "Open file...", self.parameter.get())
+            caption = "Open " + caption + "file..."
+            path, _ = QFileDialog.getOpenFileName(self.browse, caption, self.parameter.get(), _filter)
+
         self.set_path_(str(path))
 
 
@@ -287,7 +364,10 @@ class GuiMultiNumberParameter(GuiBaseParameter):
 
         self.spins = []
         for i in range(count):
-            spin = SpinBoxEx()
+            if self.type == float:
+                spin = DoubleSpinBoxEx()
+            else:
+                spin = SpinBoxEx()
             spin.setRange(min_, max_)
             self.addWidget(spin)
             self.spins.append(spin)

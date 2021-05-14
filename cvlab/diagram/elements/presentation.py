@@ -1,6 +1,6 @@
 from matplotlib.figure import Figure
 from mpl_toolkits.mplot3d import Axes3D
-from matplotlib.backends.backend_qt4agg import FigureCanvasQTAgg
+from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg
 
 from .base import *
 

@@ -57,12 +57,33 @@ class Parameter(QObject):
         self.set(data)
 
 
+class CommentParameter(Parameter):
+
+    status_changed = pyqtSignal()
+
+    def __init__(self, id, name=None, value=""):
+        super(CommentParameter, self).__init__(id, name, value)
+        self.status_changed.emit()
+
+    def set(self, value):
+        Parameter.set(self, str(value))
+        self.status_changed.emit()
+
+    def to_json(self):
+        return self.value
+
+    def from_json(self, data):
+        self.set(data)
+        self.status_changed.emit()
+
+
 class PathParameter(Parameter):
     base_path = None
 
-    def __init__(self, id, name=None, value="", save_mode=False, *args, **kwargs):
+    def __init__(self, id, name=None, value="", save_mode=False, extension_filter=None, *args, **kwargs):
         super(PathParameter, self).__init__(id, name, value, *args, **kwargs)
         self.save_mode = save_mode
+        self.extension_filter = extension_filter  # filter in form "FORMAT (*.ext1 *.ext2 ...)", eg. "IMG (*.jpg *.png)"
 
     def to_json(self):
         return self.to_json_relative(self.value)
@@ -163,6 +184,16 @@ class PointParameter(Parameter):
         super(PointParameter, self).__init__(id, name, value)
         self.min = -1
         self.max = 10**9
+
+    def set(self, value):
+        Parameter.set(self, tuple(value))
+
+
+class TwoFloatsParameter(Parameter):
+    def __init__(self, id, name=None, value=(0., 0.), min_=-1000, max_=1000):
+        super().__init__(id, name, value)
+        self.min = min_
+        self.max = max_
 
     def set(self, value):
         Parameter.set(self, tuple(value))

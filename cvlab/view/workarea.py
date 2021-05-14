@@ -2,17 +2,15 @@ import os
 import re
 from datetime import datetime, timedelta
 
-import numpy as np
 from PyQt5 import QtCore
-from PyQt5.QtCore import pyqtSignal, pyqtSlot, QObject, Qt, QTimer
+from PyQt5.QtCore import pyqtSignal, pyqtSlot, QObject, Qt, QTimer, QPoint
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
 
-from .widgets import StyledWidget
 from ..diagram.element import Element
 from .elements import GuiElement
 from .mimedata import Mime
-from .styles import StyleManager, refresh_style_recursive
+from .styles import refresh_style_recursive
 from .wires import WiresForeground, NO_FOREGROUND_WIRES, WiresBackground, WireTools
 
 
@@ -50,13 +48,24 @@ class ScrolledWorkArea(QScrollArea):
         assert isinstance(event, QWheelEvent)
         if event.modifiers() in (Qt.ControlModifier, Qt.MetaModifier):
 
+            zoom_before = self.diagram.zoom_level
             origin = (event.x() + self.horizontalScrollBar().value(),
                       event.y() + self.verticalScrollBar().value())
 
             if event.angleDelta().y() < 0:
-                self.workarea.zoom(index=-1, origin=origin)
+                self.workarea.zoom(index=-1)
             else:
-                self.workarea.zoom(index=1, origin=origin)
+                self.workarea.zoom(index=1)
+
+            zoom_after = self.diagram.zoom_level
+            zoom_factor = zoom_after/zoom_before
+
+            scroll_x = origin[0] * zoom_factor - event.x()
+            scroll_y = origin[1] * zoom_factor - event.y()
+
+            self.horizontalScrollBar().setValue(int(scroll_x))
+            self.verticalScrollBar().setValue(int(scroll_y))
+
             event.accept()
         else:
             super(ScrolledWorkArea, self).wheelEvent(event)
@@ -69,7 +78,7 @@ class ScrolledWorkArea(QScrollArea):
         for e in self.diagram.elements:
             n += 1
             pos += e.pos() + QtCore.QPoint(e.width()//2, e.height()//2)
-        pos //= n
+        pos /= n
         pos -= QtCore.QPoint(self.width()//2, self.height()//2)
         self.horizontalScrollBar().setValue(pos.x())
         self.verticalScrollBar().setValue(pos.y())
@@ -100,6 +109,7 @@ class UserActions(QObject):
 class WorkArea(QWidget):
     zoom_levels = [0.25, 0.5, 0.75, 1.0]
     DEFAULT_POSITION_GRID = 20
+    DEFAULT_SIZE = 100000
 
     help = """\
 Diagram work area
@@ -112,6 +122,7 @@ Ctrl + mouse wheel - zoom in/out"""
         super(WorkArea, self).__init__()
         self.setObjectName("WorkArea")
         self.setAcceptDrops(True)
+        self.setFixedSize(self.DEFAULT_SIZE, self.DEFAULT_SIZE)
         self.diagram = diagram
         self.user_actions = UserActions()
         self.style_manager = style_manager
@@ -134,6 +145,7 @@ Ctrl + mouse wheel - zoom in/out"""
     def mousePressEvent(self, e):
         if e.button() == Qt.LeftButton:
             self.selection_manager.on_workarea_mouse_left_pressed(e)
+        if e.button() in (Qt.LeftButton, Qt.RightButton):
             self.wires_in_background.mousePressEvent(e)
         e.ignore()
 
@@ -195,9 +207,13 @@ Ctrl + mouse wheel - zoom in/out"""
 
     @pyqtSlot(Element)
     def on_element_deleted(self, element):
-        for connector in list(element.outputs.values()) + list(element.inputs.values()):
+        # Todo: potential memory leak - see: http://stackoverflow.com/questions/5899826/pyqt-how-to-remove-a-widget
+        for connector in list(element.outputs.values()):
+            if connector.preview_only:  # preview only - no InOutConnecotr is created - nothing to delete
+                continue
             del self.connectors_map[connector]
-            # Todo: potential memory leak - see: http://stackoverflow.com/questions/5899826/pyqt-how-to-remove-a-widget
+        for connector in list(element.inputs.values()):
+            del self.connectors_map[connector]
         element.setParent(None)
         element.deleteLater()
 
@@ -232,28 +248,11 @@ Ctrl + mouse wheel - zoom in/out"""
             points = (e.pos(), e.source())
             self.user_actions.cursor_line_moved.emit(points)
 
-    def sizeHint(self):
-        default_size = 100000
-        return QtCore.QSize(default_size,default_size)
-        # layout = self.parent().parent()
-        # united = QtCore.QRect(QtCore.QPoint(0, 0), layout.maximumViewportSize())
-        # for e in self.children():
-        #     if isinstance(e, Element):
-        #         rect = e.geometry()
-        #         rect.setWidth(rect.width() + 50)
-        #         rect.setHeight(rect.height() + 50)
-        #         united = united.united(rect)
-        # return QtCore.QSize(max(default_size, united.right()), max(default_size, united.bottom()))
-
-    # def paintEvent(self, e):
-    #     # todo: it's very inefficient (paint event occurs very often)
-    #     self.adjustSize()
-
     def resizeEvent(self, e):
         self.wires_in_foreground.setGeometry(self.rect())
         self.wires_in_background.setGeometry(self.rect())
 
-    def zoom(self, level=None, index=None, origin=None):
+    def zoom(self, level=None, index=None):
 
         assert (level is None and index is not None) or (level is not None and index is None)
 
@@ -277,14 +276,14 @@ Ctrl + mouse wheel - zoom in/out"""
         factor = level / self.diagram.zoom_level
         self.diagram.zoom_level = level
 
-        origin = origin or (min(e.pos().x() for e in self.diagram.elements),
-                            min(e.pos().y() for e in self.diagram.elements))
+        self.setFixedSize(int(self.DEFAULT_SIZE * level), (self.DEFAULT_SIZE * level))
 
         for e in self.diagram.elements:
             assert isinstance(e, GuiElement)
-            e.zoom(factor, origin)
+            e.zoom(factor)
 
         self.actualize_style()
+        return factor
 
     def actualize_style(self):
         def sub(match):
@@ -310,6 +309,16 @@ Ctrl + mouse wheel - zoom in/out"""
 
     def nearest_grid_point(self, x, y):
         return int(round(float(x)/self.position_grid) * self.position_grid), int(round(float(y)/self.position_grid) * self.position_grid)
+
+    def center_elements(self):
+        pos = QPoint(0, 0)
+        for e in self.diagram.elements:
+            pos += e.pos() + QPoint(e.width()//2, e.height()//2)
+        pos /= len(self.diagram.elements)
+        pos = QPoint(self.width()//2, self.height()//2) - pos
+        for e in self.diagram.elements:
+            e.move(e.pos() + pos)
+            e.element_relocated.emit(e)
 
 
 class SelectionManager:
@@ -388,6 +397,11 @@ class SelectionManager:
         if not element.selected:
             self.selected_elements.append(element)
             element.set_selected(True)
+
+    def select_all_elements(self):
+        self.clear_selection()
+        for e in self.workarea.diagram.elements:
+            self.select_element(e)
 
     def unselect_element(self, element):
         if element.selected:

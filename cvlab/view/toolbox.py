@@ -132,7 +132,6 @@ class FilterProxy(QtCore.QSortFilterProxyModel):
                         return True
                 key = self.sourceModel().data(source_index, self.filterRole())
                 if hasattr(key, "toString"): key = str(key.toString())
-                print(self.filterRegExp(), key)
                 return self.filterRegExp().indexIn(key) >= 0
         return super(FilterProxy, self).filterAcceptsRow(source_row, source_parent)
 

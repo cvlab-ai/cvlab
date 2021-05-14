@@ -11,8 +11,6 @@ from .workarea import ScrolledWorkArea
 SETTINGS_LAST_OPEN_SECTION = 'diagram'
 SETTINGS_LAST_OPEN_OPTION = 'last_open'
 
-last_file_name = ""
-
 
 class DiagramManager:
 
@@ -21,24 +19,23 @@ class DiagramManager:
     def __init__(self, tabs_container, style_manager):
         self.tabs_container = tabs_container
         self.style_manager = style_manager
+        self.last_file_name = ""
 
     def count(self):
         return self.tabs_container.count()
 
     def get_open_file_name(self):
-        global last_file_name
         main_window = self.tabs_container.parent()
-        path, _ = QFileDialog.getOpenFileName(main_window, "Open diagram file", last_file_name, self.FILE_TYPES)
+        path, _ = QFileDialog.getOpenFileName(main_window, "Open diagram file", self.last_file_name, self.FILE_TYPES)
         if path:
-            last_file_name = path
+            self.last_file_name = path
         return path
 
     def get_save_file_name(self):
-        global last_file_name
         main_window = self.tabs_container.parent()
-        path, _ = QFileDialog.getSaveFileName(main_window, "Save diagram as", last_file_name, self.FILE_TYPES)
+        path, _ = QFileDialog.getSaveFileName(main_window, "Save diagram as", self.last_file_name, self.FILE_TYPES)
         if path:
-            last_file_name = path
+            self.last_file_name = path
         return path
 
     def open_diagram_browse(self):
@@ -57,6 +54,7 @@ class DiagramManager:
                 base_path = os.path.abspath(path + "/../").replace("\\","/")
                 scrolled_wa.load_diagram_from_json(encoded, base_path)
                 full_path = os.path.abspath(str(path))
+                if not self.last_file_name: self.last_file_name = full_path
                 self.open_diagram(scrolled_wa, full_path)
                 scrolled_wa.workarea.actualize_style()
             except Exception as e:

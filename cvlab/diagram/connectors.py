@@ -38,7 +38,7 @@ class Input:
 
 
 class Output:
-    def __init__(self, id, name=None, desequencing=False):
+    def __init__(self, id, name=None, desequencing=False, preview_only=False, preview_enabled=True):
         super(Output, self).__init__()
         self.id = id
         self.parent = None
@@ -49,6 +49,8 @@ class Output:
         self.hook = None
         from .diagram import Diagram
         self.diagram_write_lock = Diagram.diagram_lock.writer
+        self.preview_only = preview_only  # if True then this output will have no InOutConnector - only preview displays
+        self.preview_enabled = preview_enabled  # if False no preview will be displayed for this output
 
     def connect(self, input_):
         with self.diagram_write_lock:

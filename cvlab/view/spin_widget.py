@@ -65,7 +65,7 @@ class SpinBoxEx(QSpinBox):
 
     @pyqtSlot(float, float)
     def change_value(self, add, mul):
-        value = self.float_value
+        value = self.float_value or 0.0
         if value < 0: mul = 1/mul
         value = value * mul + add * (self.maximum()-self.minimum())
         self.setValue(int(round(value)))
