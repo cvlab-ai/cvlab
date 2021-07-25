@@ -23,7 +23,7 @@ Double click - toggle previews
 Drag & drop - move element around"""
 
     def __init__(self):
-        super(GuiElement, self).__init__()
+        super().__init__()
         self.setObjectName("Element")
         self.setContextMenuPolicy(QtCore.Qt.ActionsContextMenu)
         self.status_bar = ElementStatusBar(self)

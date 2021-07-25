@@ -222,7 +222,6 @@ def ImageData(value=None):
     return Data(value, Data.IMAGE)
 
 
-
 class DataSet:
     def __init__(self, inputs=None, parameters=None, outputs=None):
         self.inputs = inputs if inputs is not None else {}

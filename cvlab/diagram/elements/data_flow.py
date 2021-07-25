@@ -30,7 +30,6 @@ def {name}(inputs, outputs, parameters):
         return name, src, []
 
 
-
 class Sequencer(NormalElement):
     name = "Sequencer"
     comment = "Makes a single sequenced data from its inputs"
