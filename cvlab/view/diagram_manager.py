@@ -3,6 +3,8 @@ import os
 import json
 from os.path import isfile
 
+from PyQt5.QtCore import QRect
+from PyQt5.QtGui import QPixmap
 from PyQt5.QtWidgets import *
 
 from ..diagram.diagram import Diagram
@@ -116,6 +118,25 @@ class DiagramManager:
         diagram = self.tabs_container.widget(tab_idx).diagram
         if diagram:
             save_diagram_to_file(diagram, path)
+
+    def save_screenshot(self, tab_idx=None):
+        path, _ = QFileDialog.getSaveFileName(self.tabs_container, "Save screenshot as", self.last_file_name, "*.png", "*.png")
+        if path:
+            tab_idx = tab_idx if tab_idx is not None else self.tabs_container.currentIndex()
+            scrolled_workarea = self.tabs_container.widget(tab_idx)
+            workarea = scrolled_workarea.workarea
+            diagram = workarea.diagram
+            assert isinstance(workarea, QWidget)
+
+            left = min(e.x() for e in diagram.elements) - 20
+            top = min(e.y() for e in diagram.elements) - 20
+            right = max(e.x()+e.width() for e in diagram.elements) + 20
+            bottom = max(e.y()+e.height() for e in diagram.elements) + 20
+            rect = QRect(left, top, right-left, bottom-top)
+
+            print(f"Saving screenshot {rect} to {path}")
+            image = workarea.grab(rect)
+            image.save(path, format="png")
 
     def close_diagram(self, tab_idx=None):
         # TODO: block UI?

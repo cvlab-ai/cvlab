@@ -236,6 +236,31 @@ class GuiTextParameter(GuiBaseParameter):
         self.wnd.accept()
 
 
+class GuiTextFieldParameter(GuiBaseParameter):
+    def __init__(self, parameter, element):
+        super().__init__(parameter)
+        assert isinstance(parameter, TextFieldParameter)
+        self.element = element
+        self.highlighter = None
+
+        self.label = QLabel(self.parameter.name)
+        self.label.setObjectName("TextFieldParameterName")
+
+        self.textedit = QPlainTextEdit()
+        self.textedit.setLineWrapMode(self.textedit.NoWrap)
+        self.textedit.setWordWrapMode(QTextOption.NoWrap)
+        self.textedit.setPlainText(self.parameter.get())
+        tab_width = QFontMetrics(self.textedit.font()).width("    ")
+        self.textedit.setTabStopWidth(tab_width)
+        self.highlighter = Highlighter(self.textedit.document())
+        self.textedit.textChanged.connect(self.actualize)
+        self.layout().addWidget(self.textedit)
+
+    @pyqtSlot()
+    def actualize(self):
+        self.parameter.set(str(self.textedit.toPlainText()))
+
+
 class GuiIntParameter(GuiBaseParameter):
     def __init__(self, parameter, element):
         super().__init__(parameter)

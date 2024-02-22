@@ -20,7 +20,7 @@ cvtypes = {
     "int8": cv.CV_8S,
     "int16": cv.CV_16S,
     "float32": cv.CV_32F,
-    "float64": cv.CV_64F
+    "float64": cv.CV_64F,
 }
 
 

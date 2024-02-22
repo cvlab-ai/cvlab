@@ -28,6 +28,8 @@ class TabManager:
         menu.addSeparator()
         menu.addAction(get_action(self.tab_bar, TabAction.SAVE, idx))
         menu.addAction(get_action(self.tab_bar, TabAction.SAVE_AS, idx))
+        menu.addSeparator()
+        menu.addAction(get_action(self.tab_bar, TabAction.SCREENSHOT, idx))
         menu.exec_(self.tab_bar.mapToGlobal(point))
 
 
@@ -44,6 +46,10 @@ def get_action(parent, action_type, idx):
             action = TabAction("Save as...", parent, idx)
             action.triggered.connect(action.save_diagram_as)
             return action
+        elif action_type == TabAction.SCREENSHOT:
+            action = TabAction("Save screenshot...", parent, idx)
+            action.triggered.connect(action.save_screenshot)
+            return action
 
 
 class TabAction(QAction):
@@ -51,6 +57,7 @@ class TabAction(QAction):
     CLOSE = 0
     SAVE = 1
     SAVE_AS = 2
+    SCREENSHOT = 3
 
     def __init__(self, text, parent, tab_idx):
         super(TabAction, self).__init__(text, parent)
@@ -67,3 +74,6 @@ class TabAction(QAction):
 
     def save_diagram_as(self):
         self.get_diagram_manager().save_diagram_as(self.tab_idx)
+
+    def save_screenshot(self):
+        self.get_diagram_manager().save_screenshot(self.tab_idx)

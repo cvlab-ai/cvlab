@@ -218,7 +218,7 @@ class ActionImage(QLabel):
 
     DATA_TYPE_IMAGE = 0
     DATA_TYPE_TEXT = 1
-    DATA_TYPE_VALUE = 3
+    DATA_TYPE_VALUE = 2
 
     def __init__(self, image_preview):
         super(ActionImage, self).__init__()

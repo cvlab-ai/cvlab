@@ -143,6 +143,10 @@ class TextParameter(Parameter):
         self.live = live
 
 
+class TextFieldParameter(TextParameter):
+    pass
+
+
 class NumberParameter(Parameter):
     def __init__(self, id, name=None, value=None, min_=-100000, max_=100000, step=1):
         if value is None:

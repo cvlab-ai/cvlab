@@ -107,8 +107,8 @@ class UserActions(QObject):
 
 
 class WorkArea(QWidget):
-    zoom_levels = [0.25, 0.5, 0.75, 1.0]
-    DEFAULT_POSITION_GRID = 20
+    zoom_levels = [0.1, 0.15, 0.2, 0.25, 0.35, 0.5, 0.75, 1.0]
+    DEFAULT_POSITION_GRID = 10
     DEFAULT_SIZE = 100000
 
     help = """\

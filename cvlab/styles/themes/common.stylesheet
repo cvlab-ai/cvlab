@@ -1,6 +1,6 @@
 QWidget
 {
-    font-family: calibri, carlito;
+    font-family: segoe ui, calibri, carlito;
     font-size: 14px;
 }
 

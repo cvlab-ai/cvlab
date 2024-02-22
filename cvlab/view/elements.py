@@ -112,6 +112,8 @@ Drag & drop - move element around"""
                 layout.addLayout(GuiMultiNumberParameter(param, self, 4, float))
             elif isinstance(param, TwoFloatsParameter):
                 layout.addLayout(GuiMultiNumberParameter(param, self, 2, float))
+            elif isinstance(param, TextFieldParameter):
+                layout.addLayout(GuiTextFieldParameter(param, self))
             elif isinstance(param, TextParameter):
                 layout.addLayout(GuiTextParameter(param, self))
             elif isinstance(param, CommentParameter):
@@ -194,6 +196,12 @@ Drag & drop - move element around"""
         self.standard_actions.append(action)
         self.addAction(action)
 
+    def create_rename_action(self):
+        action = QAction('Rename element', self)
+        action.triggered.connect(self.rename)
+        self.standard_actions.append(action)
+        self.addAction(action)
+
     def create_menu_separator(self):
         separator = QAction(self)
         separator.setSeparator(True)
@@ -260,6 +268,13 @@ Drag & drop - move element around"""
         if not self.parameters: return
         for par in list(self.parameters.values()):
             par.disconnect_all_children()
+
+    @pyqtSlot()
+    def rename(self):
+        assert isinstance(self.label, QLabel)
+        text, ok = QInputDialog.getText(self, "Rename the element", "New name:", QLineEdit.Normal, self.label.text())
+        if ok and text:
+            self.label.setText(text)
 
     @pyqtSlot()
     def selfdestroy(self):
@@ -382,6 +397,7 @@ Drag & drop - move element around"""
             "show_preview": (self.preview.isVisible() if self.preview else None),
             "position": (self.pos().x()//dpi_factor, self.pos().y()//dpi_factor),
             "preview_size": self.preview.preview_size//dpi_factor,
+            "name": self.label.text(),
         }
         parent_d["gui_options"] = d
         return parent_d
@@ -400,6 +416,9 @@ Drag & drop - move element around"""
 
         self.move(options["position"][0]*dpi_factor,options["position"][1]*dpi_factor)
 
+        if "name" in options:
+            self.label.setText(options['name'])
+
         Element.from_json(self, data)
         self.update_id()
         self.preview.force_update()
@@ -410,7 +429,7 @@ Drag & drop - move element around"""
         factor = float(factor)
 
         x, y = int(self.x() * factor), int(self.y() * factor)
-        x, y = self.workarea.nearest_grid_point(x,y)
+        # x, y = self.workarea.nearest_grid_point(x,y)
         self.move(x, y)
 
         self.preview.resize_previews(self.preview.preview_size * factor)
@@ -473,6 +492,7 @@ class FunctionGuiElement(GuiElement):
         self.create_menu_separator()
         self.create_duplicate_action()
         self.create_break_action()
+        self.create_rename_action()
         self.create_del_action()
         self.create_code_action()
         #self.setFocusPolicy(QtCore.Qt.ClickFocus + QtCore.Qt.TabFocus)
@@ -508,6 +528,7 @@ class OperatorGuiElement(GuiElement):
         self.create_del_action()
         self.create_code_action()
         self.create_duplicate_action()
+        self.create_rename_action()
 
 
 class InputGuiElement(GuiElement):
@@ -542,4 +563,5 @@ class InputGuiElement(GuiElement):
         self.create_duplicate_action()
         self.create_break_action()
         self.create_del_action()
+        self.create_rename_action()
 

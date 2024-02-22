@@ -250,19 +250,22 @@ class Diagram(QObject):
 
         sorted_orders = sorted(map(int, data["wires"]))     # sorting is important for preserving connections order
         for c_order in sorted_orders:
-            connection = data["wires"][str(c_order)]
-            from_e_id = connection["from_element"]
-            from_o_id = connection["from_output"]
-            to_e_id = connection["to_element"]
-            to_i_id = connection["to_input"]
+            try:
+                connection = data["wires"][str(c_order)]
+                from_e_id = connection["from_element"]
+                from_o_id = connection["from_output"]
+                to_e_id = connection["to_element"]
+                to_i_id = connection["to_input"]
 
-            # todo: remove it. It's only a workaround for old Forwarder element
-            if elements[from_e_id].name == "Forwarder": from_o_id = "output"
-            if elements[to_e_id].name == "Forwarder": to_i_id = "input"
+                # todo: remove it. It's only a workaround for old Forwarder element
+                if elements[from_e_id].name == "Forwarder": from_o_id = "output"
+                if elements[to_e_id].name == "Forwarder": to_i_id = "input"
 
-            a = elements[from_e_id].outputs[from_o_id]
-            b = elements[to_e_id].inputs[to_i_id]
-            self.connect_io(a, b)
+                a = elements[from_e_id].outputs[from_o_id]
+                b = elements[to_e_id].inputs[to_i_id]
+                self.connect_io(a, b)
+            except Exception as e:
+                print(f"ERROR: Cannot restore connection from {from_e_id} to {to_e_id}")
 
         if 'params' in data:
             param_ids = {}

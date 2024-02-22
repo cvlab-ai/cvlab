@@ -39,8 +39,8 @@ class TypeConverter(NormalElement):
         return [Input("input")], \
                [Output("output")], \
                [ComboboxParameter("type", {
-                   '8-bit unsigned': np.uint8,
-                   '32-bit float': np.float32
+                   '8-bit unsigned': "uint8",
+                   '32-bit float': "float32",
                })]
 
     def process_inputs(self, inputs, outputs, parameters):
@@ -48,9 +48,9 @@ class TypeConverter(NormalElement):
         input_ = inputs["input"].value
         if type == input_.dtype:
             output = input_
-        elif input_.dtype == np.uint8 and type == np.float32:
+        elif input_.dtype == np.uint8 and type == "float32":
             output = np.float32(input_) * 1./255
-        elif input_.dtype == np.float32 and type == np.uint8:
+        elif input_.dtype == np.float32 and type == "uint8":
             output = np.uint8(input_ * 255.)
         else:
             raise ProcessingError("Wrong convertion type")

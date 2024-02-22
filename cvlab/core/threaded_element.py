@@ -45,11 +45,11 @@ class ThreadedElement(CoreElement):
             if self._do_abort: break
             try:
                 self.set_state(self.STATE_BUSY)
-                start = time.clock()
+                start = time.perf_counter()
                 self._do_break = False
                 self.process()
                 self.may_interrupt()
-                end = time.clock()
+                end = time.perf_counter()
                 previous_time_infos = self.get_previous_time_infos()
                 self.processing_time_info = ProcessingTimeInfo(start, end, len(self.units), previous_time_infos)
                 self.set_state(self.STATE_READY)

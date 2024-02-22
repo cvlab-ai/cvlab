@@ -17,7 +17,7 @@ class CodeElement(NormalElement):
                [TextParameter("code", value=u"import cv2 as cv\nimport numpy as np\n#your code here\nreturn None",
                               window_content="def fun(image=numpy.array, parameters={}, intpoint=func, memory={}):",
                               window_title="Code editor"),
-                ComboboxParameter("split_channels", OrderedDict([("Channels", True),("Image", False)]), "What to process", 1)]
+                ComboboxParameter("split_channels", OrderedDict([("Channels", True),("Image", False)]), "Data level", 1)]
 
     def compile(self, code):
         code = str(code)
@@ -65,6 +65,15 @@ def {name}(inputs, outputs, parameters):
         return name, source, []
 
 
+class CodeElementInline(CodeElement):
+    name = "Code element (inline)"
+    def get_attributes(self):
+        return [Input("input")], \
+               [Output("output")], \
+               [TextFieldParameter("code", value=u"import cv2 as cv\nimport numpy as np\n#your code here\nreturn None"),
+                ComboboxParameter("split_channels", OrderedDict([("Channels", True),("Image", False)]), "Data level", 1)]
+
+
 class CodeElementEx(CodeElement):
     name = "Code element (extended version)"
 
@@ -77,7 +86,7 @@ class CodeElementEx(CodeElement):
                                     u"None",
                               window_content="def fun(in1, in2, in3, in4, parameters={}, intpoint=func, memory={}):",
                               window_title="Code editor"),
-                ComboboxParameter("split_channels", OrderedDict([("Channels", True),("Image", False)]), "What to process", 1)]
+                ComboboxParameter("split_channels", OrderedDict([("Channels", True),("Image", False)]), "Data level", 1)]
 
     def compile(self, code):
         code = str(code)
