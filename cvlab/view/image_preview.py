@@ -444,7 +444,7 @@ KEY_MOUSE = Keys.MOUSE
 def array_to_pixmap(arr):
     arr = np.array(arr)
 
-    if arr.dtype in (np.float, np.float16, np.float32, np.float64):
+    if arr.dtype in (np.float_, np.float16, np.float32, np.float64):
         arr = arr * 255
     elif arr.dtype in (np.int16, np.uint16):
         arr = arr // 256

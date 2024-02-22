@@ -273,7 +273,7 @@ class ActionImage(QLabel):
         if arr.dtype == np.uint16:
             arr = cv.convertScaleAbs(arr, alpha=255.0/65535.0)
         elif arr.dtype != np.uint8:
-            if arr.dtype in [np.float, np.float32, np.float64]:
+            if arr.dtype in [np.float_, np.float32, np.float64]:
                 arr = arr * 255.
             if arr.min() < 0:
                 arr = arr // 2 + 127
